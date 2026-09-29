@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>404 — pilotarbuza</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;900&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/style.css">
+  <style>
+    .nf {
+      position: relative; min-height: 100svh; display: grid; place-items: center;
+      padding: 40px var(--gutter); overflow: hidden; text-align: center;
+    }
+    .nf__num {
+      position: absolute; inset: 0; display: flex; justify-content: space-between; align-items: center;
+      padding: 0 2vw; pointer-events: none; font-family: var(--font-display); font-weight: 900;
+      font-size: clamp(160px, 42vw, 620px); line-height: 1; color: transparent;
+      -webkit-text-stroke: 2px rgba(31, 51, 40, 0.14);
+      user-select: none;
+    }
+    .nf__num span:nth-child(2) { color: rgba(31, 51, 40, 0.06); -webkit-text-stroke: 0; }
+    .nf__inner { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 18px; }
+    .nf .melon { width: min(260px, 60vw); }
+    .nf h1 { font-size: clamp(22px, 3vw, 34px); font-weight: 500; line-height: 1.25; }
+    .nf p { color: var(--ink-soft); }
+    .nf__brand { position: absolute; top: 18px; left: var(--gutter); z-index: 3; }
+    /* глазки арбузу */
+    .eye { position: absolute; width: 7%; height: 9%; background: #1f1a1a; border-radius: 50%; top: 58%; }
+    .eye::after { content: ""; position: absolute; width: 40%; height: 40%; background: #fff; border-radius: 50%; left: 20%; top: 15%; }
+    .eye.l { left: 36%; } .eye.r { left: 57%; }
+    .mouth { position: absolute; left: 46%; top: 72%; width: 8%; height: 5%; border-bottom: 3px solid #1f1a1a; border-radius: 0 0 50% 50%; }
+  </style>
+</head>
+<body>
+  <svg class="grain" aria-hidden="true">
+    <filter id="grain-f"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
+    <rect width="100%" height="100%" filter="url(#grain-f)"/>
+  </svg>
+  <div class="blob blob--a" aria-hidden="true"></div>
+  <div class="blob blob--b" aria-hidden="true"></div>
+
+  <main class="nf">
+    <a class="brand nf__brand" href="/" aria-label="pilotarbuza — на главную">
+      <span class="brand__mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      <span class="brand__name">pilotarbuza</span>
+    </a>
+    <div class="nf__num" aria-hidden="true"><span>4</span><span>0</span><span>4</span></div>
+    <div class="nf__inner">
+      <div class="melon" aria-hidden="true">
+        <div class="melon__rind"></div>
+        <div class="melon__flesh"></div>
+        <span class="eye l"></span><span class="eye r"></span>
+        <span class="mouth"></span>
+        <span class="seed s4"></span><span class="seed s5"></span>
+        <div class="melon__shine"></div>
+      </div>
+      <h1>Ой, арбуз улетел не туда.<br>Такой страницы нет.</h1>
+      <p>Проверьте адрес или вернитесь на главную.</p>
+      <a class="btn btn--solid btn--lg" href="/">← На главную</a>
+    </div>
+  </main>
+</body>
+</html>

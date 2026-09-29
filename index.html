@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>pilotarbuza — визитка</title>
+  <meta name="description" content="Цифровая визитка pilotarbuza: портфолио, облако и контакты в одном месте.">
+  <meta name="theme-color" content="#f4f0e4">
+  <meta property="og:title" content="pilotarbuza">
+  <meta property="og:description" content="Портфолио, облако и контакты в одном месте.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://pilotarbuza.com/">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <!-- зерно поверх всей страницы -->
+  <svg class="grain" aria-hidden="true">
+    <filter id="grain-f">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+    <rect width="100%" height="100%" filter="url(#grain-f)"/>
+  </svg>
+
+  <div class="blob blob--a" aria-hidden="true"></div>
+  <div class="blob blob--b" aria-hidden="true"></div>
+
+  <header class="top">
+    <a class="brand" href="/" aria-label="pilotarbuza — на главную">
+      <span class="brand__mark" aria-hidden="true">
+        <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+      </span>
+      <span class="brand__name">pilotarbuza</span>
+    </a>
+    <nav class="pills" aria-label="Разделы">
+      <a href="#links">Ссылки</a>
+      <a href="#about">О себе</a>
+      <a href="#contacts">Контакты</a>
+    </nav>
+    <a class="btn btn--solid top__cta" href="https://pilotarbuza.ru" target="_blank" rel="noopener">
+      Портфолио <span class="btn__arrow" aria-hidden="true">↗</span>
+    </a>
+  </header>
+
+  <main>
+    <section class="hero" id="top">
+      <div class="hero__meta mono">
+        <span>01 — визитка</span>
+        <span class="hero__coords">55.75° N · 37.61° E</span>
+        <span id="clock">--:--</span>
+      </div>
+
+      <div class="hero__canvas-wrap">
+        <canvas id="dots" aria-hidden="true"></canvas>
+        <h1 class="sr-only">Пилот арбуза</h1>
+      </div>
+
+      <div class="hero__bottom">
+        <p class="hero__lead">
+          Всё моё — в одном месте.<br>
+          Работы, файлы и способы связаться.
+        </p>
+        <div class="hero__actions">
+          <a class="btn btn--solid" href="https://pilotarbuza.ru" target="_blank" rel="noopener">
+            Смотреть работы <span class="btn__arrow" aria-hidden="true">↗</span>
+          </a>
+          <a class="btn btn--ghost" href="https://m.pilotarbuza.com" target="_blank" rel="noopener">
+            Открыть облако <span class="btn__arrow" aria-hidden="true">↗</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="hero__crosshair" aria-hidden="true"></div>
+      <span class="spark spark--1" aria-hidden="true"></span>
+      <span class="spark spark--2" aria-hidden="true"></span>
+    </section>
+
+    <section class="section" id="links">
+      <div class="section__head">
+        <span class="mono">02 — ссылки</span>
+        <h2>Куда дальше</h2>
+      </div>
+
+      <div class="bento">
+        <a class="card card--big card--portfolio" href="https://pilotarbuza.ru" target="_blank" rel="noopener">
+          <div class="card__top">
+            <span class="tag">pilotarbuza.ru</span>
+            <span class="card__arrow" aria-hidden="true">↗</span>
+          </div>
+          <div class="card__art card__art--pixels" aria-hidden="true"></div>
+          <div class="card__body">
+            <h3>Портфолио</h3>
+            <p>Проекты, кейсы и эксперименты. Основное, ради чего сюда стоит заходить.</p>
+          </div>
+        </a>
+
+        <a class="card card--cloud" href="https://m.pilotarbuza.com" target="_blank" rel="noopener">
+          <div class="card__top">
+            <span class="tag">m.pilotarbuza.com</span>
+            <span class="card__arrow" aria-hidden="true">↗</span>
+          </div>
+          <div class="card__art card__art--cloud" aria-hidden="true">
+            <span class="cloud-ring"></span>
+            <span class="cloud-core"></span>
+          </div>
+          <div class="card__body">
+            <h3>Облако</h3>
+            <p>Личный Nextcloud: файлы, заметки, календарь. Вход по приглашению.</p>
+          </div>
+        </a>
+
+        <div class="card card--stack">
+          <div class="card__top">
+            <span class="tag">стек</span>
+          </div>
+          <ul class="stack">
+            <li>Дизайн интерфейсов</li>
+            <li>Фронтенд</li>
+            <li>Self-hosted</li>
+            <li>Автоматизация</li>
+          </ul>
+        </div>
+
+        <a class="card card--mail" href="mailto:hello@pilotarbuza.com">
+          <div class="card__top">
+            <span class="tag">почта</span>
+            <span class="card__arrow" aria-hidden="true">↗</span>
+          </div>
+          <div class="card__body">
+            <h3 class="card__mono">hello@<br>pilotarbuza.com</h3>
+          </div>
+        </a>
+
+        <a class="card card--tg" href="https://t.me/pilotarbuza" target="_blank" rel="noopener">
+          <div class="card__top">
+            <span class="tag">telegram</span>
+            <span class="card__arrow" aria-hidden="true">↗</span>
+          </div>
+          <div class="card__body">
+            <h3 class="card__mono">@pilotarbuza</h3>
+            <p>Самый быстрый способ написать.</p>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <section class="section about" id="about">
+      <div class="section__head">
+        <span class="mono">03 — о себе</span>
+        <h2>Пилот арбуза</h2>
+      </div>
+      <div class="about__grid">
+        <div class="about__melon" aria-hidden="true">
+          <div class="melon">
+            <div class="melon__rind"></div>
+            <div class="melon__flesh"></div>
+            <span class="seed s1"></span>
+            <span class="seed s2"></span>
+            <span class="seed s3"></span>
+            <span class="seed s4"></span>
+            <span class="seed s5"></span>
+            <div class="melon__shine"></div>
+          </div>
+        </div>
+        <div class="about__text">
+          <p class="about__big">
+            Делаю понятные интерфейсы, поднимаю свои сервисы и люблю, когда вещи выглядят живыми — с текстурой, теплом и характером.
+          </p>
+          <p>
+            Этот сайт — точка входа. Всё большое лежит в портфолио, всё рабочее — в облаке.
+            Если что-то не открывается, скорее всего я это чиню прямо сейчас.
+          </p>
+          <dl class="facts">
+            <div><dt>Локация</dt><dd>Москва / онлайн</dd></div>
+            <div><dt>Формат</dt><dd>Проекты и консультации</dd></div>
+            <div><dt>Статус</dt><dd><span class="dot-live"></span> Открыт к предложениям</dd></div>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <section class="section contacts" id="contacts">
+      <div class="contacts__inner">
+        <span class="mono">04 — контакты</span>
+        <h2 class="contacts__title">Напишите —<br>отвечу быстро.</h2>
+        <div class="contacts__row">
+          <a class="btn btn--solid btn--lg" href="mailto:hello@pilotarbuza.com">hello@pilotarbuza.com</a>
+          <a class="btn btn--ghost btn--lg" href="https://t.me/pilotarbuza" target="_blank" rel="noopener">Telegram</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span class="mono">© <span id="year">2026</span> pilotarbuza</span>
+    <span class="mono foot__mid">сделано руками, с зерном и точками</span>
+    <a class="mono" href="#top">наверх ↑</a>
+  </footer>
+
+  <script src="assets/main.js" defer></script>
+</body>
+</html>
