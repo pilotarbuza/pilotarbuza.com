@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="meta.title">pilotarbuza — Maksim Akhmadulin</title>
+  <meta name="description" data-i18n-content="meta.desc" content="Maksim Akhmadulin: mechanical engineer in progress, pilot by plan. Studying in Türkiye, an aviation documentation bot, the pilot_arbuza brand.">
+  <meta name="theme-color" content="#0E1A2B">
+  <meta property="og:title" content="pilotarbuza — Maksim Akhmadulin">
+  <meta property="og:description" content="Mechanical engineer in progress, pilot by plan.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://pilotarbuza.com/">
+  <meta property="og:image" content="https://pilotarbuza.com/assets/img/portrait.jpg">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Doto:wght@500;700;900&family=Geologica:wght@300;400;500;600;700&family=Gloria+Hallelujah&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="cursor" id="cursor" aria-hidden="true">
+    <svg viewBox="0 0 48 48"><path d="M45 24c0-1.6-1.4-2.6-3.2-2.6H30L20 5h-4.2l5.2 16.4H10.4L6.6 15H3l2.4 9L3 33h3.6l3.8-6.4h10.6L15.8 43H20l10-16.4h11.8c1.8 0 3.2-1 3.2-2.6z"/></svg>
+  </div>
+  <div class="alt" aria-hidden="true"><span>ALT</span><b id="alt-val">FL000</b></div>
+
+  <header class="top" id="top">
+    <a class="brand" href="#hero" data-i18n-aria="nav.home" aria-label="pilot_arbuza, home">
+      <svg width="36" height="36" viewBox="0 0 40 40" aria-hidden="true"><path d="M37 20 L11 7 Q3 20 11 33 Z" fill="#FF5C73"/><path d="M11 7 Q3 20 11 33" fill="none" stroke="#6FD08C" stroke-width="4" stroke-linecap="round"/><path class="brand__wing" d="M23 19 L17 3 L20.5 3 L29 19 Z"/><path class="brand__wing" d="M23 21 L17 37 L20.5 37 L29 21 Z"/><ellipse cx="15" cy="15" rx="1.3" ry="2" fill="#0E1A2B"/><ellipse cx="15" cy="25" rx="1.3" ry="2" fill="#0E1A2B"/><ellipse cx="31" cy="20" rx="1.3" ry="1.8" fill="#0E1A2B"/></svg>
+      <span class="hand">pilot_arbuza</span>
+    </a>
+    <nav class="pills" data-i18n-aria="nav.sections" aria-label="Site sections">
+      <a href="#about" data-i18n="nav.about">About</a>
+      <a href="#route" data-i18n="nav.route">Route</a>
+      <a href="#projects" data-i18n="nav.projects">Projects</a>
+      <a href="#skills" data-i18n="nav.skills">Skills</a>
+      <a href="#peaks" data-i18n="nav.peaks">Peaks</a>
+      <a href="#shop" data-i18n="nav.shop">Shop</a>
+    </nav>
+    <div class="top__right">
+      <div class="lsw" role="group" aria-label="Language"><button type="button" data-lang="en" aria-pressed="true">EN</button><button type="button" data-lang="ru" aria-pressed="false">RU</button><button type="button" data-lang="tr" aria-pressed="false">TR</button></div>
+      <a href="#contact" class="btn btn--primary btn--sm" data-i18n="nav.write">Get in touch</a>
+      <button class="burger" id="burger" type="button" data-i18n-aria="nav.menu" aria-label="Menu" aria-expanded="false" aria-controls="menu"><i></i><i></i></button>
+    </div>
+  </header>
+
+  <nav class="menu" id="menu" data-i18n-aria="nav.menu" aria-label="Menu">
+    <a href="#about" style="--i:0" data-i18n="nav.about">About</a>
+    <a href="#route" style="--i:1" data-i18n="nav.route">Route</a>
+    <a href="#projects" style="--i:2" data-i18n="nav.projects">Projects</a>
+    <a href="#skills" style="--i:3" data-i18n="nav.skills">Skills</a>
+    <a href="#peaks" style="--i:4" data-i18n="nav.peaks">Peaks</a>
+    <a href="#shop" style="--i:5" data-i18n="nav.shop">Shop</a>
+    <a href="#contact" style="--i:6" data-i18n="nav.contacts">Contacts</a>
+    <div class="lsw lsw--menu" role="group" aria-label="Language"><button type="button" data-lang="en" aria-pressed="true">EN</button><button type="button" data-lang="ru" aria-pressed="false">RU</button><button type="button" data-lang="tr" aria-pressed="false">TR</button></div>
+  </nav>
+
+  <main>
+    <!-- 01 · HERO: точечное табло -->
+    <section class="hero dark dots" id="hero">
+      <div class="hero__meta doto">
+        <span class="live"><i class="pulse"></i><span data-i18n="hero.live">Now in Konya, Türkiye</span></span>
+        <span class="hero__plan">FLIGHT PLAN PILOT_ARBUZA</span>
+        <span>KONYA <time id="clock">--:--</time></span>
+      </div>
+      <div class="hero__canvas">
+        <canvas id="dots" aria-hidden="true"></canvas>
+        <h1 class="sr-only">pilotarbuza — Maksim Akhmadulin</h1>
+      </div>
+      <div class="hero__bottom">
+        <p class="hero__lead" data-i18n="hero.lead">Mechanical engineer in progress,<br>pilot by plan.</p>
+        <div class="hero__actions">
+          <a class="btn btn--light" href="#route" data-i18n="hero.route">See the route</a>
+          <a class="btn btn--ghost-light" href="#contact" data-i18n="nav.write">Get in touch</a>
+        </div>
+      </div>
+      <a class="hero__scroll doto" href="#intro" data-i18n-aria="hero.scroll" aria-label="Scroll down"><span>SCROLL</span><i></i></a>
+    </section>
+
+    <!-- 02 · Имя, фото, табло вылетов -->
+    <section class="intro" id="intro">
+      <div class="intro__grid">
+        <div class="intro__name" data-reveal>
+          <h2 class="intro__h" data-i18n="intro.name">Maksim<br>Akhmadulin</h2>
+          <p class="intro__text" data-i18n="intro.text">Studying in Türkiye, building the pilot_arbuza brand and a bot with aviation documentation.</p>
+          <div class="intro__actions">
+            <a class="btn btn--primary" href="#route" data-i18n="hero.route">See the route</a>
+            <a class="btn btn--ghost" href="#contact" data-i18n="nav.write">Get in touch</a>
+          </div>
+        </div>
+        <div class="intro__photo intro__photo--round" data-reveal>
+          <span class="hand intro__note">future captain (probably)</span>
+          <svg class="intro__arrow" width="60" height="46" viewBox="0 0 60 46" aria-hidden="true"><path class="draw-once" d="M6 6 C 30 6, 44 18, 46 38" fill="none" stroke="#7A1830" stroke-width="2.5" stroke-linecap="round"/><path class="draw-once" d="M38 30 L46 40 L53 29" fill="none" stroke="#7A1830" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <img src="assets/img/portrait.jpg" data-i18n-alt="intro.alt" alt="Maksim Akhmadulin" width="600" height="600">
+          <span class="doto intro__crew">CREW 01</span>
+        </div>
+      </div>
+
+      <div class="board dots led" data-reveal>
+        <div class="board__head">
+          <span class="board__title doto"><svg width="30" height="30" viewBox="0 0 48 48" aria-hidden="true"><path d="M45 24c0-1.6-1.4-2.6-3.2-2.6H30L20 5h-4.2l5.2 16.4H10.4L6.6 15H3l2.4 9L3 33h3.6l3.8-6.4h10.6L15.8 43H20l10-16.4h11.8c1.8 0 3.2-1 3.2-2.6z" fill="#FF5C73"/></svg><span data-flip>DEPARTURES</span></span>
+          <span class="board__sub doto">FLIGHT PLAN PILOT_ARBUZA</span>
+          <span class="board__clock doto">KONYA <time class="clock">--:--</time></span>
+        </div>
+        <div class="board__cols doto"><span>TIME</span><span>FLIGHT</span><span>DESTINATION</span><span>CITY</span><span>STATUS</span></div>
+        <div class="board__row doto" style="--i:0"><span data-flip>2024</span><span data-flip>PA 024</span><span data-flip>TURKISH PREP TOMER</span><span data-flip>TR</span><span class="st st--done" data-flip>LANDED</span></div>
+        <div class="board__row board__row--now doto" style="--i:1"><span data-flip>2025</span><span data-flip>PA 025</span><span data-flip>SELCUK UNIV. MECH ENG</span><span data-flip>KYA</span><span class="st st--go" data-flip>IN FLIGHT</span></div>
+        <div class="board__row doto" style="--i:2"><span data-flip>2029</span><span data-flip>PA 029</span><span data-flip>ENGINEER IN GERMANY</span><span data-flip>DE</span><span class="st" data-flip>SCHEDULED</span></div>
+        <div class="board__row doto" style="--i:3"><span data-flip>SOON</span><span data-flip>PA 777</span><span data-flip>EASA FATPL</span><span data-flip>EU</span><span class="st st--hot blink" data-flip>BOARDING</span></div>
+        <div class="board__foot doto"><span>REMARK: 1500 FLIGHT HOURS / 0 SLEEP — IN PROGRESS</span><span>PAX 1 CREW 1</span></div>
+      </div>
+    </section>
+
+    <!-- 03 · Контакты -->
+    <section class="contact dark dots" id="contact">
+      <div class="contact__grid">
+        <div class="contact__main">
+          <div class="sec-head sec-head--dark" data-reveal>
+            <h2 class="h2" data-i18n="contact.h">Contacts</h2>
+            <p data-i18n="contact.p">Write me about studies, aviation, the brand, or just because. Replying from Konya, UTC+3.</p>
+          </div>
+          <ul class="contacts" data-reveal>
+            <li style="--i:0"><a class="cbtn" href="https://t.me/" target="_blank" rel="noopener"><span class="ico"><svg viewBox="0 0 24 24"><path d="M21 4 L3 11 L10 13.5 L12.5 21 Z M10 13.5 L21 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg></span><span><b>Telegram</b><small data-i18n="contact.nick">@[handle]</small></span></a></li>
+            <li style="--i:1"><a class="cbtn" href="https://wa.me/905366091202" target="_blank" rel="noopener"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4.5 19.5 L5.8 15.6 A8 8 0 1 1 8.6 18.3 Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9.5 9.5c.3 2 2 3.8 4.2 4.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span><span><b>WhatsApp</b><small>+90 536 609 12 02</small></span></a></li>
+            <li style="--i:2"><a class="cbtn" href="https://instagram.com/" target="_blank" rel="noopener"><span class="ico"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3.6" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="16.8" cy="7.2" r="1.1" fill="currentColor"/></svg></span><span><b>Instagram</b><small data-i18n="contact.nick">@[handle]</small></span></a></li>
+            <li style="--i:3"><a class="cbtn" href="mailto:akhmadulinmaksim@gmail.com" data-copy="akhmadulinmaksim@gmail.com"><span class="ico"><svg viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4.5 7 L12 12.5 L19.5 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span><b data-i18n="contact.mail">Email</b><small>akhmadulinmaksim@gmail.com</small></span></a></li>
+            <li style="--i:4"><a class="cbtn" href="tel:+905366091202"><span class="ico"><svg viewBox="0 0 24 24"><path d="M7 3.5h3l1.5 4.2-2 1.3a10.5 10.5 0 005.5 5.5l1.3-2 4.2 1.5v3a2 2 0 01-2 2A15.5 15.5 0 015 5.5a2 2 0 012-2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span><b data-i18n="contact.phoneTr">Phone, Türkiye</b><small>+90 536 609 12 02</small></span></a></li>
+            <li style="--i:5"><a class="cbtn" href="tel:+79939116301"><span class="ico"><svg viewBox="0 0 24 24"><path d="M7 3.5h3l1.5 4.2-2 1.3a10.5 10.5 0 005.5 5.5l1.3-2 4.2 1.5v3a2 2 0 01-2 2A15.5 15.5 0 015 5.5a2 2 0 012-2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span><b data-i18n="contact.phoneRu">Phone, Russia</b><small>+7 993 911-63-01</small></span></a></li>
+          </ul>
+          <div class="contact__more" data-reveal>
+            <span data-i18n="contact.more">More:</span>
+            <a class="pill-dark" href="https://t.me/pilotann_bot" target="_blank" rel="noopener" data-i18n="contact.bot">Ann bot</a>
+            <a class="pill-dark" href="https://pilotarbuza.ru" target="_blank" rel="noopener" data-i18n="contact.photos">Photos</a>
+            <a class="pill-dark" href="https://m.pilotarbuza.com" target="_blank" rel="noopener" data-i18n="contact.cloud">Cloud</a>
+            <a class="pill-dark" href="https://github.com/pilotarbuza" target="_blank" rel="noopener">GitHub</a>
+          </div>
+        </div>
+        <div class="radar" data-reveal>
+          <svg viewBox="0 0 360 360" aria-hidden="true">
+            <circle cx="180" cy="180" r="170" fill="none" stroke="rgba(243,238,230,.2)" stroke-width="1.5"/>
+            <circle cx="180" cy="180" r="118" fill="none" stroke="rgba(243,238,230,.14)"/>
+            <circle cx="180" cy="180" r="64" fill="none" stroke="rgba(243,238,230,.14)"/>
+            <line x1="180" y1="10" x2="180" y2="350" stroke="rgba(243,238,230,.1)"/>
+            <line x1="10" y1="180" x2="350" y2="180" stroke="rgba(243,238,230,.1)"/>
+            <g class="sweep"><path d="M180 180 L180 10 A170 170 0 0 0 60 60 Z" fill="#FF5C73" opacity=".16"/><line x1="180" y1="180" x2="180" y2="10" stroke="#FF5C73" stroke-width="2"/></g>
+            <circle class="ping" cx="250" cy="110" r="5" fill="#FF5C73" style="animation-delay:.5s"/><text x="262" y="106">TG</text>
+            <circle class="ping" cx="290" cy="230" r="5" fill="#FF5C73" style="animation-delay:1.27s"/><text x="262" y="254">WA</text>
+            <circle class="ping" cx="130" cy="270" r="5" fill="#FF5C73" style="animation-delay:2.3s"/><text x="142" y="288">IG</text>
+            <circle class="ping" cx="100" cy="120" r="5" fill="#FF5C73" style="animation-delay:3.4s"/><text x="66" y="108">MAIL</text>
+            <circle cx="180" cy="180" r="4" fill="#F3EEE6"/><text x="174" y="28" fill="#F3EEE6">N</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 · Обо мне -->
+    <section class="about" id="about">
+      <div class="about__text" data-reveal>
+        <h2 class="h2" data-i18n="about.h">About me</h2>
+        <p class="about__big" data-i18n="about.big">Born in Saint Petersburg, grew up in Ukhta and Shchyolkovo. Into aviation since school: themed camps at Orlyonok and Artek, research projects on aerodynamics and composites.</p>
+        <details class="acc acc--text" data-open-desktop>
+          <summary><span data-i18n="about.more">More</span><i class="chev"></i></summary>
+          <div class="acc__body">
+            <p data-i18n="about.detail">Since 2025 I have been studying Mechanical Engineering at Selçuk University on a Türkiye Bursları scholarship, after a year of learning Turkish. Aircraft maintenance and repair interest me most. The plan: graduate in 2029, work as an engineer in Germany, and fund modular EASA fATPL training from the salary.</p>
+          </div>
+        </details>
+        <dl class="facts">
+          <div><dt data-i18n="about.f1">Studies</dt><dd data-i18n="about.f1v">Selçuk University, Mechanical Engineering, top 20% of the cohort</dd></div>
+          <div><dt data-i18n="about.f2">Scholarship</dt><dd>Türkiye Bursları</dd></div>
+          <div><dt data-i18n="about.f3">Focus</dt><dd data-i18n="about.f3v">Aircraft maintenance and repair</dd></div>
+          <div><dt data-i18n="about.f4">Graduation</dt><dd>2029</dd></div>
+        </dl>
+      </div>
+      <div class="langs card" data-reveal>
+        <h3 data-i18n="lang.h">Frequencies I'm on</h3>
+        <div class="lang" style="--lvl:1">
+          <div class="lang__head"><b data-i18n="lang.ru">Russian</b><span data-i18n="lang.ruv">native</span></div>
+          <div class="gauge"><i class="ticks"></i><b class="needle"></b></div>
+          <div class="scale doto"><span>A1</span><span>A2</span><span>B1</span><span>B2</span><span>C1</span><span>C2</span></div>
+        </div>
+        <div class="lang" style="--lvl:.75">
+          <div class="lang__head"><b data-i18n="lang.tr">Turkish</b><span data-i18n="lang.trv">C1, TÖMER certificate</span></div>
+          <div class="gauge"><i class="ticks"></i><b class="needle"></b></div>
+          <div class="scale doto"><span>A1</span><span>A2</span><span>B1</span><span>B2</span><span>C1</span><span>C2</span></div>
+        </div>
+        <div class="lang" style="--lvl:.5833">
+          <div class="lang__head"><b data-i18n="lang.en">English</b><span>B2, EF SET</span></div>
+          <div class="gauge"><i class="ticks"></i><b class="needle"></b></div>
+          <div class="scale doto"><span>A1</span><span>A2</span><span>B1</span><span>B2</span><span>C1</span><span>C2</span></div>
+        </div>
+        <div class="lang lang--goal">
+          <div class="lang__head"><b data-i18n="lang.de">German</b><span class="wine" data-i18n="lang.dev">goal — B1–B2 before the move</span></div>
+          <div class="gauge"><i class="ticks"></i><b class="goal"></b></div>
+          <div class="scale doto"><span>A1</span><span>A2</span><span>B1</span><span>B2</span><span>C1</span><span>C2</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 · Маршрут (скролл управляет самолётом) -->
+    <section class="route graticule" id="route">
+      <div class="route__sticky">
+        <div class="sec-head" data-reveal>
+          <h2 class="h2" data-i18n="route.h">Route</h2>
+          <p data-i18n="route.p">How I got here and where I'm heading next.</p>
+        </div>
+        <div class="map-wrap" id="map-wrap">
+          <div class="map" id="map">
+            <svg width="1344" height="410" viewBox="0 0 1344 410" aria-hidden="true">
+              <path id="route-path" d="M60 180 C 150 180, 230 300, 310 300 S 470 150, 560 150 S 720 300, 810 300 S 970 170, 1060 170 S 1220 105, 1290 105" fill="none" stroke="#13223A" stroke-width="2.5" stroke-dasharray="2 10" stroke-linecap="round" opacity=".55"/>
+              <path id="route-draw" d="M60 180 C 150 180, 230 300, 310 300 S 470 150, 560 150 S 720 300, 810 300 S 970 170, 1060 170 S 1220 105, 1290 105" fill="none" stroke="#FF5C73" stroke-width="3.5" stroke-linecap="round"/>
+            </svg>
+            <div class="plane" id="plane"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M45 24c0-1.6-1.4-2.6-3.2-2.6H30L20 5h-4.2l5.2 16.4H10.4L6.6 15H3l2.4 9L3 33h3.6l3.8-6.4h10.6L15.8 43H20l10-16.4h11.8c1.8 0 3.2-1 3.2-2.6z" fill="#13223A"/></svg></div>
+
+            <div class="wp" data-at="0" style="left:60px;top:180px"><i class="tri"></i><div class="wp__label wp__label--up"><b data-i18n="wp.spb">Saint Petersburg</b><span data-i18n="wp.spbv">departure point</span></div></div>
+            <div class="wp" data-at=".2" style="left:310px;top:300px"><i class="tri"></i><div class="wp__label wp__label--down"><b data-i18n="wp.ukhta">Ukhta</b><span data-i18n="wp.ukhtav">childhood</span></div></div>
+            <div class="wp" data-at=".4" style="left:560px;top:150px"><i class="tri"></i><div class="wp__label wp__label--up"><b data-i18n="wp.shch">Shchyolkovo</b><span data-i18n="wp.shchv">school, 2013–2024</span></div></div>
+            <div class="wp wp--here" data-at=".6" style="left:810px;top:300px"><i class="ring"></i><i class="tri tri--accent"></i><div class="wp__label wp__label--down"><b data-i18n="wp.konya">Konya</b><span data-i18n="wp.konyav">Selçuk University, since 2025</span></div><span class="hand wp__here" data-i18n="wp.here">I’m here</span></div>
+            <div class="wp wp--future" data-at=".8" style="left:1060px;top:170px"><i class="tri"></i><div class="wp__label wp__label--down"><b data-i18n="wp.de">Germany</b><span data-i18n="wp.dev">engineer on an EU Blue Card, 2029</span></div></div>
+            <div class="wp wp--future wp--end" data-at="1" style="left:1290px;top:105px"><i class="target"></i><div class="wp__label wp__label--up wp__label--right"><b>EASA fATPL</b><span data-i18n="wp.atplv">modular training in Europe</span></div></div>
+          </div>
+        </div>
+        <p class="route__hint doto">SCROLL TO FLY</p>
+      </div>
+    </section>
+
+    <!-- 05b · Где я был: статистика и глобус -->
+    <section class="travel" id="travel">
+      <div class="sec-head" data-reveal>
+        <h2 class="h2" data-i18n="travel.h">Where I’ve been</h2>
+        <p data-i18n="travel.p">Every pin is a city I’ve set foot in. Drag the globe — it spins on every axis.</p>
+      </div>
+      <div class="travel__grid">
+        <div class="travel__side" data-reveal>
+          <div class="stat"><span class="doto stat__num" id="stat-countries">0</span><span data-i18n="travel.countries">countries</span></div>
+          <div class="stat"><span class="doto stat__num" id="stat-cities">0</span><span data-i18n="travel.cities">cities</span></div>
+          <div class="stat stat--wish"><span class="doto stat__num" id="stat-wish">0</span><span data-i18n="travel.wishn">on the wishlist</span></div>
+          <div class="legend"><span><i class="pin pin--v"></i><span data-i18n="travel.visited">visited</span></span><span><i class="pin pin--w"></i><span data-i18n="travel.wish">wishlist</span></span></div>
+          <a class="btn btn--ghost" href="https://pintraveler.net/map?user=A1e3iFNwtKaad9wb76cbAteSraG3" target="_blank" rel="noopener" data-i18n="travel.link">Full map on Pin Traveler</a>
+        </div>
+        <div class="globe-wrap" data-reveal>
+          <canvas id="globe" data-i18n-aria="travel.globe" aria-label="Globe with visited cities"></canvas>
+          <div class="globe__tip doto" id="globe-tip" hidden></div>
+          <span class="globe__hint doto" data-i18n="travel.drag">DRAG TO ROTATE</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06 · Проекты -->
+    <section class="projects" id="projects">
+      <div class="sec-head" data-reveal>
+        <h2 class="h2" data-i18n="proj.h">Projects</h2>
+        <p><span data-i18n="proj.p">What I do with my hands and head while not flying.</span><span class="only-m" data-i18n="ui.swipe"> Swipe sideways.</span></p>
+      </div>
+      <div class="rail" data-rail>
+        <div class="rail__track projects__grid">
+          <article class="pcard pcard--ann dark" data-reveal>
+            <div class="pcard__side">
+              <div>
+                <span class="doto accent">@pilotann_bot</span>
+                <h3 class="pcard__big" data-i18n="ann.h">Ann</h3>
+                <p data-i18n="ann.p">The world's largest bot with up-to-date aviation documentation, open to everyone. Plus books, lectures and advice on getting into flight schools and academies.</p>
+              </div>
+              <a href="https://t.me/pilotann_bot" class="btn btn--light" target="_blank" rel="noopener" data-i18n="ann.open">Open the bot</a>
+            </div>
+            <div class="chat" id="chat">
+              <div class="chat__head"><i data-i18n="ann.i">A</i><div><b data-i18n="ann.h">Ann</b><small data-i18n="ann.bot">bot</small></div></div>
+              <div class="chat__body">
+                <div class="msg msg--me" data-i18n="ann.me">I need the current edition of FAP-128</div>
+                <div class="msg msg--typing" data-i18n-aria="ann.typing" aria-label="Ann is typing"><span></span><span></span><span></span></div>
+                <div class="msg msg--bot" data-i18n="ann.reply">Here's the latest edition. There are also lectures and a couple of books on this — want to see?</div>
+                <div class="chat__chips"><button type="button" class="chip" data-i18n="ann.c1">Documents</button><button type="button" class="chip" data-i18n="ann.c2">Books &amp; lectures</button><button type="button" class="chip" data-i18n="ann.c3">Admissions</button></div>
+              </div>
+              <form class="chat__input" onsubmit="return false"><label for="bot-msg" class="sr-only" data-i18n="ann.label">Message to the bot</label><input id="bot-msg" type="text" data-i18n-ph="ann.ph" placeholder="Message"><button type="button" data-i18n-aria="ann.send" aria-label="Send"><svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="#13223A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></form>
+            </div>
+          </article>
+
+          <article class="pcard pcard--kart graticule-fine" data-reveal>
+            <div class="pcard__top"><h3 data-i18n="kart.h">City go-kart</h3><span class="stamp" data-i18n="kart.stamp">R&amp;D</span></div>
+            <p data-i18n="kart.p">Own frame, strength calculations and working drawings for the lathe, mill and welding. Budget — up to 50,000 ₽.</p>
+            <svg class="blueprint" viewBox="0 0 420 250" aria-hidden="true">
+              <g class="bp-lines" stroke="#13223A" fill="none">
+                <line x1="355" y1="22" x2="355" y2="228" stroke-width="3"/><line x1="62" y1="30" x2="62" y2="220" stroke-width="3"/>
+                <rect x="80" y="92" width="258" height="66" rx="10" stroke-width="2"/>
+                <line x1="300" y1="42" x2="300" y2="208" stroke-width="1.5" stroke-dasharray="6 4"/><line x1="110" y1="48" x2="110" y2="202" stroke-width="2"/>
+                <rect x="150" y="104" width="68" height="42" rx="8" stroke-width="1.5"/><circle cx="250" cy="125" r="13" stroke-width="1.5"/>
+              </g>
+              <g fill="#13223A" class="bp-fill"><rect x="276" y="30" width="48" height="24" rx="4"/><rect x="276" y="196" width="48" height="24" rx="4"/><rect x="84" y="34" width="54" height="28" rx="4"/><rect x="84" y="188" width="54" height="28" rx="4"/></g>
+              <g class="bp-dim" stroke="#7A1830" fill="none" stroke-width="1.2">
+                <rect x="92" y="108" width="40" height="34"/>
+                <line x1="395" y1="42" x2="395" y2="208"/><path d="M391 50 L395 42 L399 50 M391 200 L395 208 L399 200"/>
+                <line x1="24" y1="48" x2="24" y2="202"/><path d="M20 56 L24 48 L28 56 M20 194 L24 202 L28 194"/>
+              </g>
+              <g fill="#7A1830" font-size="12" text-anchor="middle" font-family="Geologica, sans-serif"><text transform="rotate(90 404 130)" x="404" y="130" data-i18n="kart.t1">track 1000</text><text transform="rotate(-90 14 125)" x="14" y="125" data-i18n="kart.t2">track 900</text><text x="112" y="130" font-size="10" data-i18n="kart.ice">ICE</text></g>
+            </svg>
+            <div class="titleblock"><span data-i18n="kart.b1">Top view</span><span data-i18n="kart.b2">Frame, bumpers</span><span data-i18n="kart.b3">Sheet 1</span></div>
+          </article>
+
+          <article class="pcard pcard--research card" data-reveal>
+            <h3 data-i18n="res.h">Research projects</h3>
+            <ol class="rows">
+              <li style="--i:0"><span class="doto">2021</span><span data-i18n="res.1">Aerodynamic winglets and fuel efficiency</span></li>
+              <li style="--i:1"><span class="doto">2022</span><span data-i18n="res.2">Supersonic UAV M118</span></li>
+              <li style="--i:2"><span class="doto">2023</span><span data-i18n="res.3">An all-composite aircraft: is it feasible</span></li>
+              <li style="--i:3"><span class="doto">2023</span><span data-i18n="res.4">How lift really arises and where textbooks go wrong</span></li>
+            </ol>
+          </article>
+
+          <article class="pcard pcard--brand" data-reveal data-tilt-stickers>
+            <div><h3 class="hand">pilot_arbuza</h3><p data-i18n="brand.p">Clothing with aviation memes. Prints in English.</p></div>
+            <div class="stickers">
+              <span class="stk" style="--r:-6deg;--x:0;--y:6px">JUST press BUTTONS</span>
+              <span class="stk" style="--r:5deg;--x:96px;--y:52px">CERTIFIED FLAP OPERATOR</span>
+              <span class="stk stk--ink" style="--r:-2deg;--x:0;--y:102px">I'M NOT LOST, I'M HOLDING</span>
+              <span class="stk stk--accent" style="--r:5deg;--x:60px;--y:150px">1500 FLIGHT HOURS / 0 SLEEP</span>
+            </div>
+            <a href="#shop" class="btn btn--light" data-i18n="brand.btn">To the shop</a>
+          </article>
+
+          <article class="pcard pcard--channel" data-reveal>
+            <h3 data-i18n="ch.h">Telegram channel</h3>
+            <a class="pcard__link" href="https://t.me/" target="_blank" rel="noopener" data-i18n="ch.name">“captain jack sparrow”</a>
+            <div class="chart">
+              <span class="bars"><i style="--h:60%"></i><i style="--h:90%" class="bars--cream"></i><i style="--h:45%"></i><i style="--h:75%" class="bars--cream"></i></span>
+              <span data-i18n="ch.p">Every year — admission scores for universities and civil aviation flight schools, with infographics from 2026.</span>
+            </div>
+          </article>
+        </div>
+        <div class="rail__ui only-m"><span class="rail__count doto">01 / 05</span><span class="rail__dots"></span></div>
+      </div>
+    </section>
+
+    <!-- 07 · Что умею -->
+    <section class="skills" id="skills">
+      <div class="sec-head" data-reveal>
+        <h2 class="h2" data-i18n="sk.h">What I can do</h2>
+        <p><span data-i18n="sk.p">Software from CAD to CAM, the workshop, and what I earned diplomas for.</span><span class="only-m" data-i18n="sk.tap"> Tap a category to expand.</span></p>
+      </div>
+      <div class="skills__grid">
+        <details class="acc skill span8" data-open-desktop data-open-mobile data-reveal><summary><span class="doto" data-flip>CAD</span><i class="chev"></i></summary><div class="acc__body tags"><span class="tag">SolidWorks</span><span class="tag">KOMPAS-3D</span><span class="tag">Autodesk Inventor</span><span class="tag">Fusion 360</span><span class="tag">Onshape</span><span class="tag">PTC Creo</span><span class="tag">CATIA</span><span class="tag">NX</span><span class="tag">FreeCAD</span><span class="tag">AutoCAD</span></div></details>
+        <details class="acc skill span4" data-open-desktop data-reveal><summary><span class="doto" data-flip>AI &amp; CAD</span><i class="chev"></i></summary><div class="acc__body tags"><span class="tag">MecAgent</span></div></details>
+        <details class="acc skill span4" data-open-desktop data-reveal><summary><span class="doto" data-flip>PLM</span><i class="chev"></i></summary><div class="acc__body tags"><span class="tag">Windchill</span><span class="tag">3DEXPERIENCE</span><span class="tag">Vault</span></div></details>
+        <details class="acc skill span4" data-open-desktop data-reveal><summary><span class="doto" data-flip>FEA &amp; SIMULATION</span><i class="chev"></i></summary><div class="acc__body tags"><span class="tag">Ansys</span><span class="tag">Abaqus</span><span class="tag">Altair</span></div></details>
+        <details class="acc skill span4" data-open-desktop data-reveal><summary><span class="doto" data-flip>SURFACE MODELING</span><i class="chev"></i></summary><div class="acc__body tags"><span class="tag">Rhino 3D</span></div></details>
+        <details class="acc skill span4" data-open-desktop data-reveal><summary><span class="doto" data-flip>CAM</span><i class="chev"></i></summary><div class="acc__body tags"><span class="tag">SolidCAM</span><span class="tag">Mastercam</span></div></details>
+        <details class="acc skill span4" data-open-desktop data-reveal><summary><span class="doto" data-flip>SCIENTIFIC COMPUTING</span><i class="chev"></i></summary><div class="acc__body tags"><span class="tag">MATLAB</span><span class="tag">Python</span></div></details>
+        <details class="acc skill span4" data-open-desktop data-reveal><summary><span class="doto" data-flip>GRAPHICS &amp; VIDEO</span><i class="chev"></i></summary><div class="acc__body tags"><span class="tag">Photoshop</span><span class="tag">Lightroom</span><span class="tag">Premiere Pro</span><span class="tag">Blender</span></div></details>
+        <details class="acc skill span4" data-open-desktop data-reveal><summary><span class="doto" data-flip>OFFICE &amp; SYSTEMS</span><i class="chev"></i></summary><div class="acc__body tags"><span class="tag">MS Office</span><span class="tag">Kali Linux</span></div></details>
+        <details class="acc skill span8" data-open-desktop data-reveal><summary><span class="doto" data-flip>WORKSHOP</span><i class="chev"></i></summary><div class="acc__body tags"><span class="tag tag--out" data-i18n="ws.1">Lathe</span><span class="tag tag--out" data-i18n="ws.2">Milling machine</span><span class="tag tag--out" data-i18n="ws.3">Drill press</span><span class="tag tag--out" data-i18n="ws.4">3D printing</span><span class="tag tag--out" data-i18n="ws.5">Soldering</span><span class="tag tag--out" data-i18n="ws.6">Measuring tools</span><span class="tag tag--out" data-i18n="ws.7">Microcontrollers</span></div></details>
+      </div>
+      <div class="skills__bottom">
+        <details class="acc ach" data-open-desktop data-reveal>
+          <summary><h3 data-i18n="ach.h">Achievements and certificates</h3><i class="chev"></i></summary>
+          <ol class="rows acc__body">
+            <li style="--i:0"><span class="doto">2025</span><span data-i18n="ach.1">Turkish language certificate C1, TÖMER</span></li>
+            <li style="--i:1"><span class="doto">2023</span><span data-i18n="ach.2">Themed session at Artek</span></li>
+            <li style="--i:2"><span class="doto">2022</span><span data-i18n="ach.2">Themed session at Artek</span></li>
+            <li style="--i:3"><span class="doto">2021</span><span data-i18n="ach.4">SkillWorks “Additive Manufacturing” diploma, Orlyonok</span></li>
+          </ol>
+        </details>
+        <div class="card volunteer" data-reveal>
+          <div class="volunteer__top"><span class="doto volunteer__num"><span data-count="450">0</span>+</span><svg class="cross" width="56" height="56" viewBox="0 0 72 72" aria-hidden="true"><path d="M26 6 H46 V26 H66 V46 H46 V66 H26 V46 H6 V26 H26 Z" fill="none" stroke="#7A1830" stroke-width="3.5" stroke-linejoin="round"/></svg></div>
+          <h3 data-i18n="vol.h">hours with Volunteer Medics</h3>
+          <p data-i18n="vol.p">First-aid instructor, qualified as a rescuer in 2026. Medical support at mass events, work in the emergency unit of Veresaev City Hospital, organising nationwide forums.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 08 · Вершины -->
+    <section class="peaks dark dots" id="peaks">
+      <div class="sec-head sec-head--dark" data-reveal>
+        <h2 class="h2"><span data-i18n="pk.h">Peaks</span> <span class="hand solo">solo!</span></h2>
+        <p><span data-i18n="pk.p">Three solo ascents. Heights converted to flight levels along the way — occupational habit.</span><span class="only-m" data-i18n="ui.swipe"> Swipe sideways.</span></p>
+      </div>
+      <div class="rail" data-rail>
+        <div class="rail__track peaks__grid">
+          <article class="peak" data-reveal>
+            <div class="peak__photo" data-parallax>
+              <svg viewBox="0 0 432 260" preserveAspectRatio="none" aria-hidden="true"><path d="M0 260 L0 190 L70 150 L130 170 L190 70 L225 95 L260 60 L330 150 L432 120 L432 260 Z" fill="#2A4468"/><path d="M172 100 L190 70 L225 95 L260 60 L292 104 L262 92 L242 108 L212 96 Z" fill="#E6EBEE" opacity=".85"/></svg>
+              <span class="ph" data-i18n="pk.ph1">[summit photo, Elbrus]</span>
+              <div class="thumbs" data-gallery="elbrus">
+                <button type="button" class="thumb" data-i="0" data-i18n-aria="pk.open" aria-label="Open photo"><img src="assets/img/peaks/elbrus-1.svg" alt="Elbrus 1" loading="lazy"></button>
+                <button type="button" class="thumb" data-i="1" data-i18n-aria="pk.open" aria-label="Open photo"><img src="assets/img/peaks/elbrus-2.svg" alt="Elbrus 2" loading="lazy"></button>
+                <button type="button" class="thumb" data-i="2" data-i18n-aria="pk.open" aria-label="Open photo"><img src="assets/img/peaks/elbrus-3.svg" alt="Elbrus 3" loading="lazy"></button>
+              </div>
+            </div>
+            <div class="peak__row"><div><h3 data-i18n="pk.1">Elbrus</h3><span data-i18n="pk.1c">Russia</span></div><span class="fl doto">FL185</span></div>
+            <div class="peak__alt led"><span class="doto odo" data-odometer="5642">0000</span><span data-i18n="pk.m">m</span></div>
+          </article>
+          <article class="peak" data-reveal>
+            <div class="peak__photo" data-parallax>
+              <svg viewBox="0 0 432 260" preserveAspectRatio="none" aria-hidden="true"><path d="M0 260 L0 210 L120 120 L216 40 L300 110 L340 100 L432 180 L432 260 Z" fill="#2A4468"/><path d="M180 70 L216 40 L252 70 L232 76 L216 64 L200 78 Z" fill="#E6EBEE" opacity=".85"/></svg>
+              <span class="ph" data-i18n="pk.ph2">[summit photo, Ararat]</span>
+              <div class="thumbs" data-gallery="ararat">
+                <button type="button" class="thumb" data-i="0" data-i18n-aria="pk.open" aria-label="Open photo"><img src="assets/img/peaks/ararat-1.svg" alt="Ararat 1" loading="lazy"></button>
+                <button type="button" class="thumb" data-i="1" data-i18n-aria="pk.open" aria-label="Open photo"><img src="assets/img/peaks/ararat-2.svg" alt="Ararat 2" loading="lazy"></button>
+                <button type="button" class="thumb" data-i="2" data-i18n-aria="pk.open" aria-label="Open photo"><img src="assets/img/peaks/ararat-3.svg" alt="Ararat 3" loading="lazy"></button>
+              </div>
+            </div>
+            <div class="peak__row"><div><h3 data-i18n="pk.2">Ararat</h3><span data-i18n="pk.2c">Türkiye</span></div><span class="fl doto">FL169</span></div>
+            <div class="peak__alt led"><span class="doto odo" data-odometer="5137">0000</span><span data-i18n="pk.m">m</span></div>
+          </article>
+          <article class="peak" data-reveal>
+            <div class="peak__photo" data-parallax>
+              <svg viewBox="0 0 432 260" preserveAspectRatio="none" aria-hidden="true"><path d="M0 260 L0 200 L90 170 L170 110 L230 50 L290 120 L360 140 L432 110 L432 260 Z" fill="#2A4468"/><path d="M205 80 L230 50 L262 88 L242 84 L228 96 Z" fill="#E6EBEE" opacity=".85"/></svg>
+              <span class="ph" data-i18n="pk.ph3">[summit photo, Kazbek]</span>
+              <div class="thumbs" data-gallery="kazbek">
+                <button type="button" class="thumb" data-i="0" data-i18n-aria="pk.open" aria-label="Open photo"><img src="assets/img/peaks/kazbek-1.svg" alt="Kazbek 1" loading="lazy"></button>
+                <button type="button" class="thumb" data-i="1" data-i18n-aria="pk.open" aria-label="Open photo"><img src="assets/img/peaks/kazbek-2.svg" alt="Kazbek 2" loading="lazy"></button>
+                <button type="button" class="thumb" data-i="2" data-i18n-aria="pk.open" aria-label="Open photo"><img src="assets/img/peaks/kazbek-3.svg" alt="Kazbek 3" loading="lazy"></button>
+              </div>
+            </div>
+            <div class="peak__row"><div><h3 data-i18n="pk.3">Kazbek</h3><span data-i18n="pk.3c">Georgia</span></div><span class="fl doto">FL166</span></div>
+            <div class="peak__alt led"><span class="doto odo" data-odometer="5054">0000</span><span data-i18n="pk.m">m</span></div>
+          </article>
+        </div>
+        <div class="rail__ui only-m"><span class="rail__count doto">01 / 03</span><span class="rail__dots"></span></div>
+      </div>
+      <a class="peaks__more" href="https://pilotarbuza.ru" target="_blank" rel="noopener" data-i18n="pk.more">More photos — on pilotarbuza.ru</a>
+    </section>
+
+    <!-- 09 · Магазин -->
+    <section class="shop" id="shop">
+      <div class="marquee-wrap" data-i18n-aria="shop.prints" aria-label="pilot_arbuza prints">
+        <div class="marquee doto led" id="marquee">
+          <span>JUST PRESS BUTTONS ● I'M NOT LOST, I'M HOLDING ● CERTIFIED FLAP OPERATOR ● CERTIFIED AUTOPILOT SUPERVISOR ● 1500 FLIGHT HOURS / 0 SLEEP ●&nbsp;</span>
+          <span aria-hidden="true">JUST PRESS BUTTONS ● I'M NOT LOST, I'M HOLDING ● CERTIFIED FLAP OPERATOR ● CERTIFIED AUTOPILOT SUPERVISOR ● 1500 FLIGHT HOURS / 0 SLEEP ●&nbsp;</span>
+        </div>
+      </div>
+      <div class="shop__inner">
+        <div class="sec-head sec-head--btn" data-reveal>
+          <div><h2 class="h2" data-i18n="shop.h">Shop</h2><p><span data-i18n="shop.p">The first line of T-shirts is getting ready to launch.</span><span class="only-m" data-i18n="ui.swipe"> Swipe sideways.</span></p></div>
+          <button type="button" class="btn btn--primary notify" id="notify"><span class="notify__a" data-i18n="shop.notify">Notify me at launch</span><span class="notify__b doto">YOU ARE ON THE LIST</span></button>
+        </div>
+        <div class="rail" data-rail>
+          <div class="rail__track shop__grid">
+            <article class="tee card" data-reveal data-tilt>
+              <div class="tee__stage"><svg viewBox="0 0 200 220" aria-hidden="true"><path d="M62 12 L84 4 C90 16 110 16 116 4 L138 12 L190 42 L170 82 L148 70 L148 212 L52 212 L52 70 L30 82 L10 42 Z" fill="#FFFFFF" stroke="#13223A" stroke-width="2" stroke-linejoin="round"/></svg><div class="tee__print">JUST<br><em>press</em><br>BUTTONS</div></div>
+              <div class="tee__row"><h3>JUST press BUTTONS</h3><span data-i18n="shop.price">[PRICE]</span></div>
+            </article>
+            <article class="tee card" data-reveal data-tilt>
+              <div class="tee__stage"><svg viewBox="0 0 200 220" aria-hidden="true"><path d="M62 12 L84 4 C90 16 110 16 116 4 L138 12 L190 42 L170 82 L148 70 L148 212 L52 212 L52 70 L30 82 L10 42 Z" fill="#7A1830" stroke="#13223A" stroke-width="2" stroke-linejoin="round"/></svg><div class="tee__print tee__print--doto">I'M NOT LOST,<br>I'M HOLDING</div></div>
+              <div class="tee__row"><h3>I'M NOT LOST, I'M HOLDING</h3><span data-i18n="shop.price">[PRICE]</span></div>
+            </article>
+            <article class="tee card" data-reveal data-tilt>
+              <div class="tee__stage"><svg viewBox="0 0 200 220" aria-hidden="true"><path d="M62 12 L84 4 C90 16 110 16 116 4 L138 12 L190 42 L170 82 L148 70 L148 212 L52 212 L52 70 L30 82 L10 42 Z" fill="#1A1F27" stroke="#13223A" stroke-width="2" stroke-linejoin="round"/></svg><div class="tee__print tee__print--light">1500 FLIGHT HOURS<br><span class="accent">0 SLEEP</span></div></div>
+              <div class="tee__row"><h3>1500 FLIGHT HOURS / 0 SLEEP</h3><span data-i18n="shop.price">[PRICE]</span></div>
+            </article>
+          </div>
+          <div class="rail__ui only-m"><span class="rail__count doto">01 / 03</span><span class="rail__dots"></span></div>
+        </div>
+        <p class="shop__note" data-reveal data-i18n="shop.note">Next — a second line with prints about aviation professions: PUT YOUR OWN MASK ON FIRST, LET'S SPOOL UP TOGETHER, IT'S NOT BROKEN, IT'S DEFERRED, FOLLOW ME and DELAYED.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot dark dots">
+    <span>© <span id="year">2026</span> pilot_arbuza</span>
+    <span class="doto foot__mid">KONYA <time class="clock">--:--</time> STANDBY</span>
+    <a href="#hero" data-i18n="foot.top">Back to top</a>
+  </footer>
+
+  <div class="toast doto" id="toast" role="status" aria-live="polite"></div>
+  <div class="lb" id="lb" hidden role="dialog" aria-modal="true">
+    <button type="button" class="lb__close" id="lb-close" data-i18n-aria="lb.close" aria-label="Close">×</button>
+    <button type="button" class="lb__nav lb__prev" id="lb-prev" data-i18n-aria="lb.prev" aria-label="Previous">‹</button>
+    <figure class="lb__fig"><img id="lb-img" src="" alt=""><figcaption class="doto" id="lb-cap"></figcaption></figure>
+    <button type="button" class="lb__nav lb__next" id="lb-next" data-i18n-aria="lb.next" aria-label="Next">›</button>
+  </div>
+  <script src="assets/i18n.js"></script>
+  <script src="assets/land.js" defer></script>
+  <script src="assets/places.js"></script>
+  <script src="assets/main.js" defer></script>
+</body>
+</html>

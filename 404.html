@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>404 — pilotarbuza</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Doto:wght@700;900&family=Geologica:wght@400;500;600&family=Gloria+Hallelujah&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/style.css">
+  <style>
+    .nf { position: relative; min-height: 100svh; overflow: hidden; display: grid; grid-template-rows: auto 1fr auto; padding: 0 var(--gutter); }
+    .nf__top { display: flex; justify-content: space-between; align-items: center; height: 96px; }
+    .nf__body { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 16px; }
+    .nf__track { position: absolute; left: 50%; top: 50%; width: min(760px, 120vw); height: auto; transform: translate(-50%, -58%); pointer-events: none; }
+    .nf__404 { font-size: clamp(120px, 24vw, 230px); line-height: 1; color: var(--accent); text-shadow: 0 0 28px rgba(255,92,115,.35); position: relative; z-index: 1; }
+    .nf__hand { font-size: clamp(24px, 4vw, 38px); line-height: 1.2; position: relative; z-index: 1; }
+    .nf__p { max-width: 520px; font-size: 18px; line-height: 1.55; color: var(--muted-d2); position: relative; z-index: 1; }
+    .nf__btns { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 12px; position: relative; z-index: 1; }
+    .nf__foot { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 16px 0 30px; border-top: 1px solid var(--line-d); font-size: 15px; color: var(--muted-d); letter-spacing: .12em; }
+    .hold { position: absolute; left: 0; top: 0; width: 44px; height: 44px; margin: -22px 0 0 -22px; offset-path: path("M180 60 L580 60 A100 100 0 0 1 580 260 L180 260 A100 100 0 0 1 180 60 Z"); offset-rotate: auto; animation: fly 8s linear infinite; }
+    .hold.exit { offset-path: path("M580 60 L1400 60"); animation: fly 1.3s ease-in forwards; }
+    .hold svg { width: 100%; height: 100%; }
+    @keyframes fly { from { offset-distance: 0% } to { offset-distance: 100% } }
+    .nf__svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+    @media (max-width: 600px) { .nf__foot span:nth-child(3) { display: none; } .nf__top .doto { font-size: 16px; } }
+  </style>
+</head>
+<body class="dark dots">
+  <div class="grain" aria-hidden="true"></div>
+  <main class="nf">
+    <div class="nf__top">
+      <a class="brand" href="/" data-i18n-aria="nav.home" aria-label="pilot_arbuza, home" style="color:var(--cream)">
+        <svg width="36" height="36" viewBox="0 0 40 40" aria-hidden="true"><path d="M37 20 L11 7 Q3 20 11 33 Z" fill="#FF5C73"/><path d="M11 7 Q3 20 11 33" fill="none" stroke="#6FD08C" stroke-width="4" stroke-linecap="round"/><path d="M23 19 L17 3 L20.5 3 L29 19 Z" fill="#F3EEE6"/><path d="M23 21 L17 37 L20.5 37 L29 21 Z" fill="#F3EEE6"/><ellipse cx="15" cy="15" rx="1.3" ry="2" fill="#0E1A2B"/><ellipse cx="15" cy="25" rx="1.3" ry="2" fill="#0E1A2B"/><ellipse cx="31" cy="20" rx="1.3" ry="1.8" fill="#0E1A2B"/></svg>
+        <span class="hand">pilot_arbuza</span>
+      </a>
+      <span class="doto" style="font-size:22px">KONYA <time id="clock">--:--</time></span>
+    </div>
+    <div class="nf__body">
+      <div class="nf__track" aria-hidden="true">
+        <svg viewBox="0 0 760 320" style="width:100%;height:auto;overflow:visible">
+          <path d="M180 60 L580 60 A100 100 0 0 1 580 260 L180 260 A100 100 0 0 1 180 60 Z" fill="none" stroke="rgba(243,238,230,.28)" stroke-width="2" stroke-dasharray="3 11" stroke-linecap="round"/>
+          <path d="M580 60 L760 60" fill="none" stroke="rgba(243,238,230,.18)" stroke-width="1.5" stroke-dasharray="3 11"/>
+          <path d="M572 51 L588 60 L572 69 Z" fill="rgba(243,238,230,.5)"/>
+          <text x="600" y="48" font-family="Doto, monospace" font-size="14" font-weight="700" fill="#9AAABD" letter-spacing="2">HOLD FIX</text>
+        </svg>
+        <div class="hold" id="hold"><svg viewBox="0 0 48 48"><path d="M45 24c0-1.6-1.4-2.6-3.2-2.6H30L20 5h-4.2l5.2 16.4H10.4L6.6 15H3l2.4 9L3 33h3.6l3.8-6.4h10.6L15.8 43H20l10-16.4h11.8c1.8 0 3.2-1 3.2-2.6z" fill="#FF5C73"/></svg></div>
+      </div>
+      <h1 class="doto nf__404" id="n404">404</h1>
+      <p class="hand nf__hand" data-i18n="nf.hand">I’M NOT LOST, I’M HOLDING.</p>
+      <p class="nf__p" data-i18n="nf.p">No such page. Circling in the holding pattern while you pick a new course.</p>
+      <div class="nf__btns">
+        <a class="btn btn--light" href="/" id="home" data-i18n="nf.home">Home</a>
+        <a class="btn btn--ghost-light" href="/#contact" data-i18n="nf.write">Write me</a>
+      </div>
+    </div>
+    <div class="nf__foot doto">
+      <span>FLIGHT PA 404</span>
+      <span>STATUS <span class="blink accent">HOLDING</span></span>
+      <span>EXPECT FURTHER CLEARANCE</span>
+    </div>
+  </main>
+  <script src="/assets/i18n.js"></script>
+  <script>
+    (() => {
+      const tick = () => { let t = '--:--'; try { t = new Date().toLocaleTimeString('ru-RU', { timeZone: 'Europe/Istanbul', hour: '2-digit', minute: '2-digit' }); } catch (e) {} document.getElementById('clock').textContent = t; };
+      tick(); setInterval(tick, 15000);
+      const n = document.getElementById('n404'), G = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
+      const scramble = () => { let k = 0; const id = setInterval(() => { k++; n.textContent = k < 9 ? Array.from({ length: 3 }, () => G[Math.random() * G.length | 0]).join('') : '404'; if (k >= 9) clearInterval(id); }, 45); };
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) setInterval(scramble, 5000);
+      const hold = document.getElementById('hold'), home = document.getElementById('home');
+      home.addEventListener('pointerenter', () => hold.classList.add('exit'));
+      home.addEventListener('pointerleave', () => hold.classList.remove('exit'));
+    })();
+  </script>
+</body>
+</html>
