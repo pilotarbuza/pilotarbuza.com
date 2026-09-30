@@ -280,7 +280,7 @@
   if (notify) notify.addEventListener('click', () => { notify.classList.add('done'); notify.disabled = true; });
   $$('[data-copy]').forEach(a => a.addEventListener('click', e => {
     if (!navigator.clipboard) return; e.preventDefault();
-    navigator.clipboard.writeText(a.dataset.copy).then(() => say('АДРЕС СКОПИРОВАН')).catch(() => { location.href = a.href; });
+    navigator.clipboard.writeText(a.dataset.copy).then(() => say(window.t ? window.t('toast.copied') : 'ADDRESS COPIED')).catch(() => { location.href = a.href; });
   }));
 
   /* ---------- рельсы: счётчик и точки ---------- */
