@@ -1,6 +1,8 @@
 /* pilotarbuza.com — словари RU / EN / TR. Ключи совпадают с data-i18n в разметке. */
 window.I18N = {
   en: {
+    'travel.h': 'Where I’ve been', 'travel.p': 'Every pin is a city I’ve set foot in. Drag the globe — it spins on every axis.', 'travel.countries': 'countries', 'travel.cities': 'cities', 'travel.wishn': 'on the wishlist', 'travel.visited': 'visited', 'travel.wish': 'wishlist', 'travel.link': 'Full map on Pin Traveler', 'travel.globe': 'Globe with visited cities', 'travel.drag': 'DRAG TO ROTATE',
+    'pk.open': 'Open photo', 'lb.close': 'Close', 'lb.prev': 'Previous', 'lb.next': 'Next',
     'meta.title': 'pilotarbuza — Maksim Akhmadulin',
     'meta.desc': 'Maksim Akhmadulin: mechanical engineer in progress, pilot by plan. Studying in Türkiye, an aviation documentation bot, the pilot_arbuza brand.',
     'nav.home': 'pilot_arbuza, home', 'nav.sections': 'Site sections', 'nav.menu': 'Menu',
@@ -13,12 +15,11 @@ window.I18N = {
     'about.h': 'About me',
     'about.big': 'Born in Saint Petersburg, grew up in Ukhta and Shchyolkovo. Into aviation since school: themed camps at Orlyonok and Artek, research projects on aerodynamics and composites.',
     'about.more': 'More',
-    'about.detail': 'Since 2025 I have been studying Mechanical Engineering at Selçuk University on a Türkiye Bursları scholarship, after a year of learning Turkish. Aircraft maintenance and repair interest me most. The plan: graduate in 2029, work as an engineer in Germany, and fund modular EASA fATPL training from the salary.',
+    'about.detail': 'Since 2025 I have been studying Mechanical Engineering at Selçuk University on a Türkiye Bursları scholarship, after a year of learning Turkish. Aircraft maintenance and repair interest me most. The plan: graduate in 2029, work as an engineer in Germany, and then EASA fATPL training.',
     'about.f1': 'Studies', 'about.f1v': 'Selçuk University, Mechanical Engineering, top 20% of the cohort', 'about.f2': 'Scholarship', 'about.f3': 'Focus', 'about.f3v': 'Aircraft maintenance and repair', 'about.f4': 'Graduation',
     'lang.h': 'Frequencies I’m on', 'lang.ru': 'Russian', 'lang.ruv': 'native', 'lang.tr': 'Turkish', 'lang.trv': 'C1, TÖMER certificate', 'lang.en': 'English', 'lang.de': 'German', 'lang.dev': 'goal — B1–B2 before the move',
     'route.h': 'Route', 'route.p': 'How I got here and where I’m heading next.',
     'wp.spb': 'Saint Petersburg', 'wp.spbv': 'departure point', 'wp.ukhta': 'Ukhta', 'wp.ukhtav': 'childhood', 'wp.shch': 'Shchyolkovo', 'wp.shchv': 'school, 2013–2024',
-    'wp.orl': 'Orlyonok', 'wp.orlv': '2021, SkillWorks “Additive Manufacturing”', 'wp.artek': 'Artek', 'wp.artekv': 'themed sessions, 2022 and 2023',
     'wp.konya': 'Konya', 'wp.konyav': 'Selçuk University, since 2025', 'wp.here': 'I’m here', 'wp.de': 'Germany', 'wp.dev': 'engineer on an EU Blue Card, 2029', 'wp.atplv': 'modular training in Europe',
     'proj.h': 'Projects', 'proj.p': 'What I do with my hands and head while not flying.', 'ui.swipe': ' Swipe sideways.',
     'ann.h': 'Ann', 'ann.i': 'A', 'ann.bot': 'bot',
@@ -44,6 +45,8 @@ window.I18N = {
     'nf.hand': 'I’M NOT LOST, I’M HOLDING.', 'nf.p': 'No such page. Circling in the holding pattern while you pick a new course.', 'nf.home': 'Home', 'nf.write': 'Write me'
   },
   ru: {
+    'travel.h': 'Где я был', 'travel.p': 'Каждый пин — город, где я стоял ногами. Покрутите глобус: он вращается по всем осям.', 'travel.countries': 'стран', 'travel.cities': 'городов', 'travel.wishn': 'в списке желаний', 'travel.visited': 'был', 'travel.wish': 'хочу', 'travel.link': 'Полная карта на Pin Traveler', 'travel.globe': 'Глобус с посещёнными городами', 'travel.drag': 'ТЯНИТЕ, ЧТОБЫ КРУТИТЬ',
+    'pk.open': 'Открыть фото', 'lb.close': 'Закрыть', 'lb.prev': 'Назад', 'lb.next': 'Вперёд',
     'meta.title': 'pilotarbuza — Максим Ахмадулин',
     'meta.desc': 'Максим Ахмадулин: инженер-механик в процессе, пилот по плану. Учёба в Турции, бот с авиационной документацией, бренд pilot_arbuza.',
     'nav.home': 'pilot_arbuza, на главную', 'nav.sections': 'Разделы сайта', 'nav.menu': 'Меню',
@@ -56,12 +59,11 @@ window.I18N = {
     'about.h': 'Обо мне',
     'about.big': 'Родился в Петербурге, вырос в Ухте и Щёлково. Авиацией занимаюсь со школы: ездил на тематические смены в «Орлёнок» и «Артек», писал исследовательские проекты про аэродинамику и композиты.',
     'about.more': 'Подробнее',
-    'about.detail': 'С 2025 года учусь на Makine Mühendisliği в Selçuk Üniversitesi по гранту Türkiye Bursları, до этого год учил турецкий. Больше всего интересуют техобслуживание и ремонт воздушных судов. План: диплом в 2029 году, работа инженером в Германии, а из зарплаты — модульное обучение на EASA fATPL.',
+    'about.detail': 'С 2025 года учусь на Makine Mühendisliği в Selçuk Üniversitesi по гранту Türkiye Bursları, до этого год учил турецкий. Больше всего интересуют техобслуживание и ремонт воздушных судов. План: диплом в 2029 году, работа инженером в Германии, а после — обучение на EASA fATPL.',
     'about.f1': 'Учёба', 'about.f1v': 'Selçuk Üniversitesi, Makine Mühendisliği, в топ-20% потока', 'about.f2': 'Грант', 'about.f3': 'Интерес', 'about.f3v': 'ТОиР воздушных судов', 'about.f4': 'Выпуск',
     'lang.h': 'На каких частотах я на связи', 'lang.ru': 'Русский', 'lang.ruv': 'родной', 'lang.tr': 'Türkçe', 'lang.trv': 'C1, сертификат TÖMER', 'lang.en': 'English', 'lang.de': 'Deutsch', 'lang.dev': 'цель — B1–B2 к переезду',
     'route.h': 'Маршрут', 'route.p': 'Как я сюда долетел и куда держу курс дальше.',
     'wp.spb': 'Санкт-Петербург', 'wp.spbv': 'точка вылета', 'wp.ukhta': 'Ухта', 'wp.ukhtav': 'детство', 'wp.shch': 'Щёлково', 'wp.shchv': 'школа, 2013–2024',
-    'wp.orl': 'Орлёнок', 'wp.orlv': '2021, SkillWorks «Аддитивное производство»', 'wp.artek': 'Артек', 'wp.artekv': 'тематические смены, 2022 и 2023',
     'wp.konya': 'Конья', 'wp.konyav': 'Selçuk Üniversitesi, с 2025', 'wp.here': 'I’m here', 'wp.de': 'Германия', 'wp.dev': 'инженер по EU Blue Card, 2029', 'wp.atplv': 'модульное обучение в Европе',
     'proj.h': 'Проекты', 'proj.p': 'Что делаю руками и головой, пока не летаю.', 'ui.swipe': ' Листайте вбок.',
     'ann.h': 'Энн', 'ann.i': 'Э', 'ann.bot': 'бот',
@@ -87,6 +89,8 @@ window.I18N = {
     'nf.hand': 'I’M NOT LOST, I’M HOLDING.', 'nf.p': 'Такой страницы нет. Кружим в зоне ожидания, пока вы выбираете новый курс.', 'nf.home': 'На главную', 'nf.write': 'Написать мне'
   },
   tr: {
+    'travel.h': 'Nerelerdeydim', 'travel.p': 'Her pin, ayak bastığım bir şehir. Küreyi sürükleyin — her eksende döner.', 'travel.countries': 'ülke', 'travel.cities': 'şehir', 'travel.wishn': 'istek listesinde', 'travel.visited': 'gittim', 'travel.wish': 'istek', 'travel.link': 'Tam harita Pin Traveler’da', 'travel.globe': 'Gidilen şehirlerle küre', 'travel.drag': 'DÖNDÜRMEK İÇİN SÜRÜKLEYİN',
+    'pk.open': 'Fotoğrafı aç', 'lb.close': 'Kapat', 'lb.prev': 'Önceki', 'lb.next': 'Sonraki',
     'meta.title': 'pilotarbuza — Maksim Ahmadulin',
     'meta.desc': 'Maksim Ahmadulin: yolda olan bir makine mühendisi, plandaki pilot. Türkiye’de öğrenci, havacılık dokümantasyon botu ve pilot_arbuza markası.',
     'nav.home': 'pilot_arbuza, ana sayfa', 'nav.sections': 'Site bölümleri', 'nav.menu': 'Menü',
@@ -99,12 +103,11 @@ window.I18N = {
     'about.h': 'Hakkımda',
     'about.big': 'Petersburg’da doğdum, Uhta ve Şçolkovo’da büyüdüm. Havacılıkla okuldan beri ilgileniyorum: Orlyonok ve Artek’te tematik kamplara katıldım, aerodinamik ve kompozitler üzerine araştırma projeleri yazdım.',
     'about.more': 'Devamı',
-    'about.detail': '2025’ten beri Selçuk Üniversitesi Makine Mühendisliği’nde Türkiye Bursları ile okuyorum; öncesinde bir yıl Türkçe öğrendim. En çok uçak bakım ve onarımı ilgimi çekiyor. Plan: 2029’da diploma, Almanya’da mühendislik, maaştan da modüler EASA fATPL eğitimi.',
+    'about.detail': '2025’ten beri Selçuk Üniversitesi Makine Mühendisliği’nde Türkiye Bursları ile okuyorum; öncesinde bir yıl Türkçe öğrendim. En çok uçak bakım ve onarımı ilgimi çekiyor. Plan: 2029’da diploma, Almanya’da mühendislik, sonrasında EASA fATPL eğitimi.',
     'about.f1': 'Eğitim', 'about.f1v': 'Selçuk Üniversitesi, Makine Mühendisliği, sınıfın ilk %20’si', 'about.f2': 'Burs', 'about.f3': 'İlgi alanı', 'about.f3v': 'Uçak bakım ve onarımı', 'about.f4': 'Mezuniyet',
     'lang.h': 'Hangi frekanslardayım', 'lang.ru': 'Rusça', 'lang.ruv': 'ana dil', 'lang.tr': 'Türkçe', 'lang.trv': 'C1, TÖMER sertifikası', 'lang.en': 'İngilizce', 'lang.de': 'Almanca', 'lang.dev': 'hedef — taşınmadan önce B1–B2',
     'route.h': 'Rota', 'route.p': 'Buraya nasıl uçtum ve rotam nereye.',
     'wp.spb': 'Sankt-Peterburg', 'wp.spbv': 'kalkış noktası', 'wp.ukhta': 'Uhta', 'wp.ukhtav': 'çocukluk', 'wp.shch': 'Şçolkovo', 'wp.shchv': 'okul, 2013–2024',
-    'wp.orl': 'Orlyonok', 'wp.orlv': '2021, SkillWorks “Eklemeli İmalat”', 'wp.artek': 'Artek', 'wp.artekv': 'tematik kamplar, 2022 ve 2023',
     'wp.konya': 'Konya', 'wp.konyav': 'Selçuk Üniversitesi, 2025’ten beri', 'wp.here': 'I’m here', 'wp.de': 'Almanya', 'wp.dev': 'AB Mavi Kart ile mühendis, 2029', 'wp.atplv': 'Avrupa’da modüler eğitim',
     'proj.h': 'Projeler', 'proj.p': 'Uçmadığım zamanlarda elimle ve kafamla yaptıklarım.', 'ui.swipe': ' Yana kaydırın.',
     'ann.h': 'Ann', 'ann.i': 'A', 'ann.bot': 'bot',
