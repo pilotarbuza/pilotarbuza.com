@@ -3,204 +3,426 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>pilotarbuza — визитка</title>
-  <meta name="description" content="Цифровая визитка pilotarbuza: портфолио, облако и контакты в одном месте.">
-  <meta name="theme-color" content="#f4f0e4">
-  <meta property="og:title" content="pilotarbuza">
-  <meta property="og:description" content="Портфолио, облако и контакты в одном месте.">
+  <title>pilotarbuza — Максим Ахмадулин</title>
+  <meta name="description" content="Максим Ахмадулин: инженер-механик в процессе, пилот по плану. Учёба в Турции, бот с авиационной документацией, бренд pilot_arbuza.">
+  <meta name="theme-color" content="#0E1A2B">
+  <meta property="og:title" content="pilotarbuza — Максим Ахмадулин">
+  <meta property="og:description" content="Инженер-механик в процессе, пилот по плану.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://pilotarbuza.com/">
+  <meta property="og:image" content="https://pilotarbuza.com/assets/img/portrait.jpg">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Doto:wght@500;700;900&family=Geologica:wght@300;400;500;600;700&family=Gloria+Hallelujah&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
-  <!-- зерно поверх всей страницы -->
-  <svg class="grain" aria-hidden="true">
-    <filter id="grain-f">
-      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/>
-      <feColorMatrix type="saturate" values="0"/>
-    </filter>
-    <rect width="100%" height="100%" filter="url(#grain-f)"/>
-  </svg>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="cursor" id="cursor" aria-hidden="true">
+    <svg viewBox="0 0 48 48"><path d="M45 24c0-1.6-1.4-2.6-3.2-2.6H30L20 5h-4.2l5.2 16.4H10.4L6.6 15H3l2.4 9L3 33h3.6l3.8-6.4h10.6L15.8 43H20l10-16.4h11.8c1.8 0 3.2-1 3.2-2.6z"/></svg>
+  </div>
+  <div class="alt" aria-hidden="true"><span>ALT</span><b id="alt-val">FL000</b></div>
 
-  <div class="blob blob--a" aria-hidden="true"></div>
-  <div class="blob blob--b" aria-hidden="true"></div>
-
-  <header class="top">
-    <a class="brand" href="/" aria-label="pilotarbuza — на главную">
-      <span class="brand__mark" aria-hidden="true">
-        <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-      </span>
-      <span class="brand__name">pilotarbuza</span>
+  <header class="top" id="top">
+    <a class="brand" href="#hero" aria-label="pilot_arbuza, на главную">
+      <svg width="36" height="36" viewBox="0 0 40 40" aria-hidden="true"><path d="M37 20 L11 7 Q3 20 11 33 Z" fill="#FF5C73"/><path d="M11 7 Q3 20 11 33" fill="none" stroke="#6FD08C" stroke-width="4" stroke-linecap="round"/><path class="brand__wing" d="M23 19 L17 3 L20.5 3 L29 19 Z"/><path class="brand__wing" d="M23 21 L17 37 L20.5 37 L29 21 Z"/><ellipse cx="15" cy="15" rx="1.3" ry="2" fill="#0E1A2B"/><ellipse cx="15" cy="25" rx="1.3" ry="2" fill="#0E1A2B"/><ellipse cx="31" cy="20" rx="1.3" ry="1.8" fill="#0E1A2B"/></svg>
+      <span class="hand">pilot_arbuza</span>
     </a>
-    <nav class="pills" aria-label="Разделы">
-      <a href="#links">Ссылки</a>
-      <a href="#about">О себе</a>
-      <a href="#contacts">Контакты</a>
+    <nav class="pills" aria-label="Разделы сайта">
+      <a href="#about">Обо мне</a>
+      <a href="#route">Маршрут</a>
+      <a href="#projects">Проекты</a>
+      <a href="#skills">Навыки</a>
+      <a href="#peaks">Вершины</a>
+      <a href="#shop">Магазин</a>
     </nav>
-    <a class="btn btn--solid top__cta" href="https://pilotarbuza.ru" target="_blank" rel="noopener">
-      Портфолио <span class="btn__arrow" aria-hidden="true">↗</span>
-    </a>
+    <div class="top__right">
+      <a href="#contact" class="btn btn--primary btn--sm">Написать</a>
+      <button class="burger" id="burger" type="button" aria-label="Меню" aria-expanded="false" aria-controls="menu"><i></i><i></i></button>
+    </div>
   </header>
 
+  <nav class="menu" id="menu" aria-label="Меню">
+    <a href="#about" style="--i:0">Обо мне</a>
+    <a href="#route" style="--i:1">Маршрут</a>
+    <a href="#projects" style="--i:2">Проекты</a>
+    <a href="#skills" style="--i:3">Навыки</a>
+    <a href="#peaks" style="--i:4">Вершины</a>
+    <a href="#shop" style="--i:5">Магазин</a>
+    <a href="#contact" style="--i:6">Контакты</a>
+  </nav>
+
   <main>
-    <section class="hero" id="top">
-      <div class="hero__meta mono">
-        <span>01 — визитка</span>
-        <span class="hero__coords">55.75° N · 37.61° E</span>
-        <span id="clock">--:--</span>
+    <!-- 01 · HERO: точечное табло -->
+    <section class="hero dark dots" id="hero">
+      <div class="hero__meta doto">
+        <span class="live"><i class="pulse"></i>Сейчас в Конье, Турция</span>
+        <span class="hero__plan">FLIGHT PLAN PILOT_ARBUZA</span>
+        <span>KONYA <time id="clock">--:--</time></span>
       </div>
-
-      <div class="hero__canvas-wrap">
+      <div class="hero__canvas">
         <canvas id="dots" aria-hidden="true"></canvas>
-        <h1 class="sr-only">Пилот арбуза</h1>
+        <h1 class="sr-only">pilotarbuza — Максим Ахмадулин</h1>
       </div>
-
       <div class="hero__bottom">
-        <p class="hero__lead">
-          Всё моё — в одном месте.<br>
-          Работы, файлы и способы связаться.
-        </p>
+        <p class="hero__lead">Инженер-механик в процессе,<br>пилот по плану.</p>
         <div class="hero__actions">
-          <a class="btn btn--solid" href="https://pilotarbuza.ru" target="_blank" rel="noopener">
-            Смотреть работы <span class="btn__arrow" aria-hidden="true">↗</span>
-          </a>
-          <a class="btn btn--ghost" href="https://m.pilotarbuza.com" target="_blank" rel="noopener">
-            Открыть облако <span class="btn__arrow" aria-hidden="true">↗</span>
-          </a>
+          <a class="btn btn--light" href="#route">Смотреть маршрут</a>
+          <a class="btn btn--ghost-light" href="#contact">Написать</a>
+        </div>
+      </div>
+      <a class="hero__scroll doto" href="#intro" aria-label="Листать вниз"><span>SCROLL</span><i></i></a>
+    </section>
+
+    <!-- 02 · Имя, фото, табло вылетов -->
+    <section class="intro" id="intro">
+      <div class="intro__grid">
+        <div class="intro__name" data-reveal>
+          <h2 class="intro__h">Максим<br>Ахмадулин</h2>
+          <p class="intro__text">Учусь в Турции, делаю бренд pilot_arbuza и бота с авиационной документацией.</p>
+          <div class="intro__actions">
+            <a class="btn btn--primary" href="#route">Смотреть маршрут</a>
+            <a class="btn btn--ghost" href="#contact">Написать</a>
+          </div>
+        </div>
+        <div class="intro__photo" data-reveal>
+          <span class="hand intro__note">future captain (probably)</span>
+          <svg class="intro__arrow" width="60" height="46" viewBox="0 0 60 46" aria-hidden="true"><path class="draw-once" d="M6 6 C 30 6, 44 18, 46 38" fill="none" stroke="#7A1830" stroke-width="2.5" stroke-linecap="round"/><path class="draw-once" d="M38 30 L46 40 L53 29" fill="none" stroke="#7A1830" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <img src="assets/img/portrait.jpg" alt="Максим Ахмадулин" width="600" height="600">
+          <span class="doto intro__crew">CREW 01</span>
         </div>
       </div>
 
-      <div class="hero__crosshair" aria-hidden="true"></div>
-      <span class="spark spark--1" aria-hidden="true"></span>
-      <span class="spark spark--2" aria-hidden="true"></span>
+      <div class="board dots led" data-reveal>
+        <div class="board__head">
+          <span class="board__title doto"><svg width="30" height="30" viewBox="0 0 48 48" aria-hidden="true"><path d="M45 24c0-1.6-1.4-2.6-3.2-2.6H30L20 5h-4.2l5.2 16.4H10.4L6.6 15H3l2.4 9L3 33h3.6l3.8-6.4h10.6L15.8 43H20l10-16.4h11.8c1.8 0 3.2-1 3.2-2.6z" fill="#FF5C73"/></svg><span data-flip>DEPARTURES</span></span>
+          <span class="board__sub doto">FLIGHT PLAN PILOT_ARBUZA</span>
+          <span class="board__clock doto">KONYA <time class="clock">--:--</time></span>
+        </div>
+        <div class="board__cols doto"><span>TIME</span><span>FLIGHT</span><span>DESTINATION</span><span>CITY</span><span>STATUS</span></div>
+        <div class="board__row doto" style="--i:0"><span data-flip>2024</span><span data-flip>PA 024</span><span data-flip>TURKISH PREP TOMER</span><span data-flip>TR</span><span class="st st--done" data-flip>LANDED</span></div>
+        <div class="board__row board__row--now doto" style="--i:1"><span data-flip>2025</span><span data-flip>PA 025</span><span data-flip>SELCUK UNIV. MECH ENG</span><span data-flip>KYA</span><span class="st st--go" data-flip>IN FLIGHT</span></div>
+        <div class="board__row doto" style="--i:2"><span data-flip>2029</span><span data-flip>PA 029</span><span data-flip>ENGINEER IN GERMANY</span><span data-flip>DE</span><span class="st" data-flip>SCHEDULED</span></div>
+        <div class="board__row doto" style="--i:3"><span data-flip>SOON</span><span data-flip>PA 777</span><span data-flip>EASA FATPL</span><span data-flip>EU</span><span class="st st--hot blink" data-flip>BOARDING</span></div>
+        <div class="board__foot doto"><span>REMARK: 1500 FLIGHT HOURS / 0 SLEEP — IN PROGRESS</span><span>PAX 1 CREW 1</span></div>
+      </div>
     </section>
 
-    <section class="section" id="links">
-      <div class="section__head">
-        <span class="mono">02 — ссылки</span>
-        <h2>Куда дальше</h2>
-      </div>
-
-      <div class="bento">
-        <a class="card card--big card--portfolio" href="https://pilotarbuza.ru" target="_blank" rel="noopener">
-          <div class="card__top">
-            <span class="tag">pilotarbuza.ru</span>
-            <span class="card__arrow" aria-hidden="true">↗</span>
+    <!-- 03 · Контакты -->
+    <section class="contact dark dots" id="contact">
+      <div class="contact__grid">
+        <div class="contact__main">
+          <div class="sec-head sec-head--dark" data-reveal>
+            <h2 class="h2">Контакты</h2>
+            <p>Пишите про учёбу, авиацию, бренд или просто так. Отвечаю из Коньи, UTC+3.</p>
           </div>
-          <div class="card__art card__art--pixels" aria-hidden="true"></div>
-          <div class="card__body">
-            <h3>Портфолио</h3>
-            <p>Проекты, кейсы и эксперименты. Основное, ради чего сюда стоит заходить.</p>
-          </div>
-        </a>
-
-        <a class="card card--cloud" href="https://m.pilotarbuza.com" target="_blank" rel="noopener">
-          <div class="card__top">
-            <span class="tag">m.pilotarbuza.com</span>
-            <span class="card__arrow" aria-hidden="true">↗</span>
-          </div>
-          <div class="card__art card__art--cloud" aria-hidden="true">
-            <span class="cloud-ring"></span>
-            <span class="cloud-core"></span>
-          </div>
-          <div class="card__body">
-            <h3>Облако</h3>
-            <p>Личный Nextcloud: файлы, заметки, календарь. Вход по приглашению.</p>
-          </div>
-        </a>
-
-        <div class="card card--stack">
-          <div class="card__top">
-            <span class="tag">стек</span>
-          </div>
-          <ul class="stack">
-            <li>Дизайн интерфейсов</li>
-            <li>Фронтенд</li>
-            <li>Self-hosted</li>
-            <li>Автоматизация</li>
+          <ul class="contacts" data-reveal>
+            <li style="--i:0"><a class="cbtn" href="https://t.me/" target="_blank" rel="noopener"><span class="ico"><svg viewBox="0 0 24 24"><path d="M21 4 L3 11 L10 13.5 L12.5 21 Z M10 13.5 L21 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg></span><span><b>Telegram</b><small>@[ник]</small></span></a></li>
+            <li style="--i:1"><a class="cbtn" href="https://wa.me/905366091202" target="_blank" rel="noopener"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4.5 19.5 L5.8 15.6 A8 8 0 1 1 8.6 18.3 Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9.5 9.5c.3 2 2 3.8 4.2 4.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span><span><b>WhatsApp</b><small>+90 536 609 12 02</small></span></a></li>
+            <li style="--i:2"><a class="cbtn" href="https://instagram.com/" target="_blank" rel="noopener"><span class="ico"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3.6" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="16.8" cy="7.2" r="1.1" fill="currentColor"/></svg></span><span><b>Instagram</b><small>@[ник]</small></span></a></li>
+            <li style="--i:3"><a class="cbtn" href="mailto:akhmadulinmaksim@gmail.com" data-copy="akhmadulinmaksim@gmail.com"><span class="ico"><svg viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4.5 7 L12 12.5 L19.5 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span><b>Почта</b><small>akhmadulinmaksim@gmail.com</small></span></a></li>
+            <li style="--i:4"><a class="cbtn" href="tel:+905366091202"><span class="ico"><svg viewBox="0 0 24 24"><path d="M7 3.5h3l1.5 4.2-2 1.3a10.5 10.5 0 005.5 5.5l1.3-2 4.2 1.5v3a2 2 0 01-2 2A15.5 15.5 0 015 5.5a2 2 0 012-2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span><b>Телефон, Турция</b><small>+90 536 609 12 02</small></span></a></li>
+            <li style="--i:5"><a class="cbtn" href="tel:+79939116301"><span class="ico"><svg viewBox="0 0 24 24"><path d="M7 3.5h3l1.5 4.2-2 1.3a10.5 10.5 0 005.5 5.5l1.3-2 4.2 1.5v3a2 2 0 01-2 2A15.5 15.5 0 015 5.5a2 2 0 012-2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span><b>Телефон, Россия</b><small>+7 993 911-63-01</small></span></a></li>
           </ul>
-        </div>
-
-        <a class="card card--mail" href="mailto:hello@pilotarbuza.com">
-          <div class="card__top">
-            <span class="tag">почта</span>
-            <span class="card__arrow" aria-hidden="true">↗</span>
-          </div>
-          <div class="card__body">
-            <h3 class="card__mono">hello@<br>pilotarbuza.com</h3>
-          </div>
-        </a>
-
-        <a class="card card--tg" href="https://t.me/pilotarbuza" target="_blank" rel="noopener">
-          <div class="card__top">
-            <span class="tag">telegram</span>
-            <span class="card__arrow" aria-hidden="true">↗</span>
-          </div>
-          <div class="card__body">
-            <h3 class="card__mono">@pilotarbuza</h3>
-            <p>Самый быстрый способ написать.</p>
-          </div>
-        </a>
-      </div>
-    </section>
-
-    <section class="section about" id="about">
-      <div class="section__head">
-        <span class="mono">03 — о себе</span>
-        <h2>Пилот арбуза</h2>
-      </div>
-      <div class="about__grid">
-        <div class="about__melon" aria-hidden="true">
-          <div class="melon">
-            <div class="melon__rind"></div>
-            <div class="melon__flesh"></div>
-            <span class="seed s1"></span>
-            <span class="seed s2"></span>
-            <span class="seed s3"></span>
-            <span class="seed s4"></span>
-            <span class="seed s5"></span>
-            <div class="melon__shine"></div>
+          <div class="contact__more" data-reveal>
+            <span>Ещё:</span>
+            <a class="pill-dark" href="https://t.me/pilotann_bot" target="_blank" rel="noopener">Бот «Энн»</a>
+            <a class="pill-dark" href="https://pilotarbuza.ru" target="_blank" rel="noopener">Фото</a>
+            <a class="pill-dark" href="https://m.pilotarbuza.com" target="_blank" rel="noopener">Облако</a>
+            <a class="pill-dark" href="https://github.com/pilotarbuza" target="_blank" rel="noopener">GitHub</a>
           </div>
         </div>
-        <div class="about__text">
-          <p class="about__big">
-            Делаю понятные интерфейсы, поднимаю свои сервисы и люблю, когда вещи выглядят живыми — с текстурой, теплом и характером.
-          </p>
-          <p>
-            Этот сайт — точка входа. Всё большое лежит в портфолио, всё рабочее — в облаке.
-            Если что-то не открывается, скорее всего я это чиню прямо сейчас.
-          </p>
-          <dl class="facts">
-            <div><dt>Локация</dt><dd>Москва / онлайн</dd></div>
-            <div><dt>Формат</dt><dd>Проекты и консультации</dd></div>
-            <div><dt>Статус</dt><dd><span class="dot-live"></span> Открыт к предложениям</dd></div>
-          </dl>
+        <div class="radar" data-reveal>
+          <svg viewBox="0 0 360 360" aria-hidden="true">
+            <circle cx="180" cy="180" r="170" fill="none" stroke="rgba(243,238,230,.2)" stroke-width="1.5"/>
+            <circle cx="180" cy="180" r="118" fill="none" stroke="rgba(243,238,230,.14)"/>
+            <circle cx="180" cy="180" r="64" fill="none" stroke="rgba(243,238,230,.14)"/>
+            <line x1="180" y1="10" x2="180" y2="350" stroke="rgba(243,238,230,.1)"/>
+            <line x1="10" y1="180" x2="350" y2="180" stroke="rgba(243,238,230,.1)"/>
+            <g class="sweep"><path d="M180 180 L180 10 A170 170 0 0 0 60 60 Z" fill="#FF5C73" opacity=".16"/><line x1="180" y1="180" x2="180" y2="10" stroke="#FF5C73" stroke-width="2"/></g>
+            <circle class="ping" cx="250" cy="110" r="5" fill="#FF5C73" style="animation-delay:.5s"/><text x="262" y="106">TG</text>
+            <circle class="ping" cx="290" cy="230" r="5" fill="#FF5C73" style="animation-delay:1.27s"/><text x="262" y="254">WA</text>
+            <circle class="ping" cx="130" cy="270" r="5" fill="#FF5C73" style="animation-delay:2.3s"/><text x="142" y="288">IG</text>
+            <circle class="ping" cx="100" cy="120" r="5" fill="#FF5C73" style="animation-delay:3.4s"/><text x="66" y="108">MAIL</text>
+            <circle cx="180" cy="180" r="4" fill="#F3EEE6"/><text x="174" y="28" fill="#F3EEE6">N</text>
+          </svg>
         </div>
       </div>
     </section>
 
-    <section class="section contacts" id="contacts">
-      <div class="contacts__inner">
-        <span class="mono">04 — контакты</span>
-        <h2 class="contacts__title">Напишите —<br>отвечу быстро.</h2>
-        <div class="contacts__row">
-          <a class="btn btn--solid btn--lg" href="mailto:hello@pilotarbuza.com">hello@pilotarbuza.com</a>
-          <a class="btn btn--ghost btn--lg" href="https://t.me/pilotarbuza" target="_blank" rel="noopener">Telegram</a>
+    <!-- 04 · Обо мне -->
+    <section class="about" id="about">
+      <div class="about__text" data-reveal>
+        <h2 class="h2">Обо мне</h2>
+        <p class="about__big">Родился в Петербурге, вырос в Ухте и Щёлково. Авиацией занимаюсь со школы: ездил на тематические смены в «Орлёнок» и «Артек», писал исследовательские проекты про аэродинамику и композиты.</p>
+        <details class="acc acc--text" data-open-desktop>
+          <summary>Подробнее<i class="chev"></i></summary>
+          <div class="acc__body">
+            <p>С 2025 года учусь на Makine Mühendisliği в Selçuk Üniversitesi по гранту Türkiye Bursları, до этого год учил турецкий. Больше всего интересуют техобслуживание и ремонт воздушных судов. План: диплом в 2029 году, работа инженером в Германии, а из зарплаты — модульное обучение на EASA fATPL.</p>
+          </div>
+        </details>
+        <dl class="facts">
+          <div><dt>Учёба</dt><dd>Selçuk Üniversitesi, Makine Mühendisliği, в топ-20% потока</dd></div>
+          <div><dt>Грант</dt><dd>Türkiye Bursları</dd></div>
+          <div><dt>Интерес</dt><dd>ТОиР воздушных судов</dd></div>
+          <div><dt>Выпуск</dt><dd>2029</dd></div>
+        </dl>
+      </div>
+      <div class="langs card" data-reveal>
+        <h3>На каких частотах я на связи</h3>
+        <div class="lang" style="--lvl:1">
+          <div class="lang__head"><b>Русский</b><span>родной</span></div>
+          <div class="gauge"><i class="ticks"></i><b class="needle"></b></div>
+          <div class="scale doto"><span>A1</span><span>A2</span><span>B1</span><span>B2</span><span>C1</span><span>C2</span></div>
         </div>
+        <div class="lang" style="--lvl:.75">
+          <div class="lang__head"><b>Türkçe</b><span>C1, сертификат TÖMER</span></div>
+          <div class="gauge"><i class="ticks"></i><b class="needle"></b></div>
+          <div class="scale doto"><span>A1</span><span>A2</span><span>B1</span><span>B2</span><span>C1</span><span>C2</span></div>
+        </div>
+        <div class="lang" style="--lvl:.5833">
+          <div class="lang__head"><b>English</b><span>B2, EF SET</span></div>
+          <div class="gauge"><i class="ticks"></i><b class="needle"></b></div>
+          <div class="scale doto"><span>A1</span><span>A2</span><span>B1</span><span>B2</span><span>C1</span><span>C2</span></div>
+        </div>
+        <div class="lang lang--goal">
+          <div class="lang__head"><b>Deutsch</b><span class="wine">цель — B1–B2 к переезду</span></div>
+          <div class="gauge"><i class="ticks"></i><b class="goal"></b></div>
+          <div class="scale doto"><span>A1</span><span>A2</span><span>B1</span><span>B2</span><span>C1</span><span>C2</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 · Маршрут (скролл управляет самолётом) -->
+    <section class="route graticule" id="route">
+      <div class="route__sticky">
+        <div class="sec-head" data-reveal>
+          <h2 class="h2">Маршрут</h2>
+          <p>Как я сюда долетел и куда держу курс дальше.</p>
+        </div>
+        <div class="map-wrap" id="map-wrap">
+          <div class="map" id="map">
+            <svg width="1344" height="410" viewBox="0 0 1344 410" aria-hidden="true">
+              <path id="route-path" d="M60 180 C 120 180, 180 290, 236 290 S 350 160, 411 160 S 530 300, 587 300 S 700 170, 763 170 S 880 292, 939 292 S 1050 170, 1114 170 S 1240 105, 1290 105" fill="none" stroke="#13223A" stroke-width="2.5" stroke-dasharray="2 10" stroke-linecap="round" opacity=".55"/>
+              <path id="route-draw" d="M60 180 C 120 180, 180 290, 236 290 S 350 160, 411 160 S 530 300, 587 300 S 700 170, 763 170 S 880 292, 939 292 S 1050 170, 1114 170 S 1240 105, 1290 105" fill="none" stroke="#FF5C73" stroke-width="3.5" stroke-linecap="round"/>
+            </svg>
+            <div class="plane" id="plane"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M45 24c0-1.6-1.4-2.6-3.2-2.6H30L20 5h-4.2l5.2 16.4H10.4L6.6 15H3l2.4 9L3 33h3.6l3.8-6.4h10.6L15.8 43H20l10-16.4h11.8c1.8 0 3.2-1 3.2-2.6z" fill="#13223A"/></svg></div>
+
+            <div class="wp" data-at="0" style="left:60px;top:180px"><i class="tri"></i><div class="wp__label wp__label--up"><b>Санкт-Петербург</b><span>точка вылета</span></div></div>
+            <div class="wp" data-at=".15" style="left:236px;top:290px"><i class="tri"></i><div class="wp__label wp__label--down"><b>Ухта</b><span>детство</span></div></div>
+            <div class="wp" data-at=".29" style="left:411px;top:160px"><i class="tri"></i><div class="wp__label wp__label--up"><b>Щёлково</b><span>школа, 2013–2024</span></div></div>
+            <div class="wp" data-at=".43" style="left:587px;top:300px"><i class="tri"></i><div class="wp__label wp__label--down"><b>Орлёнок</b><span>2021, SkillWorks «Аддитивное производство»</span></div></div>
+            <div class="wp" data-at=".57" style="left:763px;top:170px"><i class="tri"></i><div class="wp__label wp__label--up"><b>Артек</b><span>тематические смены, 2022 и 2023</span></div></div>
+            <div class="wp wp--here" data-at=".71" style="left:939px;top:292px"><i class="ring"></i><i class="tri tri--accent"></i><div class="wp__label wp__label--down"><b>Конья</b><span>Selçuk Üniversitesi, с 2025</span></div><span class="hand wp__here">I'm here</span></div>
+            <div class="wp wp--future" data-at=".86" style="left:1114px;top:170px"><i class="tri"></i><div class="wp__label wp__label--down"><b>Германия</b><span>инженер по EU Blue Card, 2029</span></div></div>
+            <div class="wp wp--future wp--end" data-at="1" style="left:1290px;top:105px"><i class="target"></i><div class="wp__label wp__label--up wp__label--right"><b>EASA fATPL</b><span>модульное обучение в Европе</span></div></div>
+          </div>
+        </div>
+        <p class="route__hint doto">SCROLL TO FLY</p>
+      </div>
+    </section>
+
+    <!-- 06 · Проекты -->
+    <section class="projects" id="projects">
+      <div class="sec-head" data-reveal>
+        <h2 class="h2">Проекты</h2>
+        <p>Что делаю руками и головой, пока не летаю.<span class="only-m"> Листайте вбок.</span></p>
+      </div>
+      <div class="rail" data-rail>
+        <div class="rail__track projects__grid">
+          <article class="pcard pcard--ann dark" data-reveal>
+            <div class="pcard__side">
+              <div>
+                <span class="doto accent">@pilotann_bot</span>
+                <h3 class="pcard__big">Энн</h3>
+                <p>Крупнейший в мире бот с актуальной авиационной документацией, открытой для всех. А ещё книги, лекции и советы по поступлению в лётные вузы и училища.</p>
+              </div>
+              <a href="https://t.me/pilotann_bot" class="btn btn--light" target="_blank" rel="noopener">Открыть бота</a>
+            </div>
+            <div class="chat" id="chat">
+              <div class="chat__head"><i>Э</i><div><b>Энн</b><small>бот</small></div></div>
+              <div class="chat__body">
+                <div class="msg msg--me">Нужна актуальная редакция ФАП-128</div>
+                <div class="msg msg--typing" aria-label="Энн печатает"><span></span><span></span><span></span></div>
+                <div class="msg msg--bot">Держи свежую редакцию. По этой теме есть ещё лекции и пара книг — показать?</div>
+                <div class="chat__chips"><button type="button" class="chip">Документы</button><button type="button" class="chip">Книги и лекции</button><button type="button" class="chip">Поступление</button></div>
+              </div>
+              <form class="chat__input" onsubmit="return false"><label for="bot-msg" class="sr-only">Сообщение боту</label><input id="bot-msg" type="text" placeholder="Сообщение"><button type="button" aria-label="Отправить"><svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="#13223A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></form>
+            </div>
+          </article>
+
+          <article class="pcard pcard--kart graticule-fine" data-reveal>
+            <div class="pcard__top"><h3>Городской карт</h3><span class="stamp">НИР</span></div>
+            <p>Своя рама, расчёты на прочность и рабочие чертежи под токарный, фрезерный и сварку. Бюджет — до 50 000 ₽.</p>
+            <svg class="blueprint" viewBox="0 0 420 250" aria-hidden="true">
+              <g class="bp-lines" stroke="#13223A" fill="none">
+                <line x1="355" y1="22" x2="355" y2="228" stroke-width="3"/><line x1="62" y1="30" x2="62" y2="220" stroke-width="3"/>
+                <rect x="80" y="92" width="258" height="66" rx="10" stroke-width="2"/>
+                <line x1="300" y1="42" x2="300" y2="208" stroke-width="1.5" stroke-dasharray="6 4"/><line x1="110" y1="48" x2="110" y2="202" stroke-width="2"/>
+                <rect x="150" y="104" width="68" height="42" rx="8" stroke-width="1.5"/><circle cx="250" cy="125" r="13" stroke-width="1.5"/>
+              </g>
+              <g fill="#13223A" class="bp-fill"><rect x="276" y="30" width="48" height="24" rx="4"/><rect x="276" y="196" width="48" height="24" rx="4"/><rect x="84" y="34" width="54" height="28" rx="4"/><rect x="84" y="188" width="54" height="28" rx="4"/></g>
+              <g class="bp-dim" stroke="#7A1830" fill="none" stroke-width="1.2">
+                <rect x="92" y="108" width="40" height="34"/>
+                <line x1="395" y1="42" x2="395" y2="208"/><path d="M391 50 L395 42 L399 50 M391 200 L395 208 L399 200"/>
+                <line x1="24" y1="48" x2="24" y2="202"/><path d="M20 56 L24 48 L28 56 M20 194 L24 202 L28 194"/>
+              </g>
+              <g fill="#7A1830" font-size="12" text-anchor="middle" font-family="Geologica, sans-serif"><text transform="rotate(90 404 130)" x="404" y="130">колея 1000</text><text transform="rotate(-90 14 125)" x="14" y="125">колея 900</text><text x="112" y="130" font-size="10">ДВС</text></g>
+            </svg>
+            <div class="titleblock"><span>Вид сверху</span><span>Рама, бамперы</span><span>Лист 1</span></div>
+          </article>
+
+          <article class="pcard pcard--research card" data-reveal>
+            <h3>Исследовательские проекты</h3>
+            <ol class="rows">
+              <li style="--i:0"><span class="doto">2021</span><span>Аэродинамические законцовки и топливная эффективность</span></li>
+              <li style="--i:1"><span class="doto">2022</span><span>Сверхзвуковой беспилотник М118</span></li>
+              <li style="--i:2"><span class="doto">2023</span><span>Самолёт целиком из композитов: реально ли это</span></li>
+              <li style="--i:3"><span class="doto">2023</span><span>Как на самом деле возникает подъёмная сила и где ошибаются учебники</span></li>
+            </ol>
+          </article>
+
+          <article class="pcard pcard--brand" data-reveal data-tilt-stickers>
+            <div><h3 class="hand">pilot_arbuza</h3><p>Одежда с авиационными мемами. Принты на английском.</p></div>
+            <div class="stickers">
+              <span class="stk" style="--r:-6deg;--x:0;--y:6px">JUST press BUTTONS</span>
+              <span class="stk" style="--r:5deg;--x:96px;--y:52px">CERTIFIED FLAP OPERATOR</span>
+              <span class="stk stk--ink" style="--r:-2deg;--x:0;--y:102px">I'M NOT LOST, I'M HOLDING</span>
+              <span class="stk stk--accent" style="--r:5deg;--x:60px;--y:150px">1500 FLIGHT HOURS / 0 SLEEP</span>
+            </div>
+            <a href="#shop" class="btn btn--light">В магазин</a>
+          </article>
+
+          <article class="pcard pcard--channel" data-reveal>
+            <h3>Канал в Telegram</h3>
+            <a class="pcard__link" href="https://t.me/" target="_blank" rel="noopener">«капитан джек воробей»</a>
+            <div class="chart">
+              <span class="bars"><i style="--h:60%"></i><i style="--h:90%" class="bars--cream"></i><i style="--h:45%"></i><i style="--h:75%" class="bars--cream"></i></span>
+              <span>Каждый год — проходные баллы в вузы и лётные училища ГА, с 2026 года с инфографикой.</span>
+            </div>
+          </article>
+        </div>
+        <div class="rail__ui only-m"><span class="rail__count doto">01 / 05</span><span class="rail__dots"></span></div>
+      </div>
+    </section>
+
+    <!-- 07 · Что умею -->
+    <section class="skills" id="skills">
+      <div class="sec-head" data-reveal>
+        <h2 class="h2">Что умею</h2>
+        <p>Софт от CAD до CAM, мастерская и то, за что давали дипломы.<span class="only-m"> Нажмите на категорию, чтобы раскрыть.</span></p>
+      </div>
+      <div class="skills__grid">
+        <details class="acc skill span8" data-open-desktop data-open-mobile data-reveal><summary><span class="doto" data-flip>CAD</span><i class="chev"></i></summary><div class="acc__body tags"><span class="tag">SolidWorks</span><span class="tag">КОМПАС-3D</span><span class="tag">Autodesk Inventor</span><span class="tag">Fusion 360</span><span class="tag">Onshape</span><span class="tag">PTC Creo</span><span class="tag">CATIA</span><span class="tag">NX</span><span class="tag">FreeCAD</span><span class="tag">AutoCAD</span></div></details>
+        <details class="acc skill span4" data-open-desktop data-reveal><summary><span class="doto" data-flip>AI &amp; CAD</span><i class="chev"></i></summary><div class="acc__body tags"><span class="tag">MecAgent</span></div></details>
+        <details class="acc skill span4" data-open-desktop data-reveal><summary><span class="doto" data-flip>PLM</span><i class="chev"></i></summary><div class="acc__body tags"><span class="tag">Windchill</span><span class="tag">3DEXPERIENCE</span><span class="tag">Vault</span></div></details>
+        <details class="acc skill span4" data-open-desktop data-reveal><summary><span class="doto" data-flip>FEA &amp; SIMULATION</span><i class="chev"></i></summary><div class="acc__body tags"><span class="tag">Ansys</span><span class="tag">Abaqus</span><span class="tag">Altair</span></div></details>
+        <details class="acc skill span4" data-open-desktop data-reveal><summary><span class="doto" data-flip>SURFACE MODELING</span><i class="chev"></i></summary><div class="acc__body tags"><span class="tag">Rhino 3D</span></div></details>
+        <details class="acc skill span4" data-open-desktop data-reveal><summary><span class="doto" data-flip>CAM</span><i class="chev"></i></summary><div class="acc__body tags"><span class="tag">SolidCAM</span><span class="tag">Mastercam</span></div></details>
+        <details class="acc skill span4" data-open-desktop data-reveal><summary><span class="doto" data-flip>SCIENTIFIC COMPUTING</span><i class="chev"></i></summary><div class="acc__body tags"><span class="tag">MATLAB</span><span class="tag">Python</span></div></details>
+        <details class="acc skill span4" data-open-desktop data-reveal><summary><span class="doto" data-flip>GRAPHICS &amp; VIDEO</span><i class="chev"></i></summary><div class="acc__body tags"><span class="tag">Photoshop</span><span class="tag">Lightroom</span><span class="tag">Premiere Pro</span><span class="tag">Blender</span></div></details>
+        <details class="acc skill span4" data-open-desktop data-reveal><summary><span class="doto" data-flip>OFFICE &amp; SYSTEMS</span><i class="chev"></i></summary><div class="acc__body tags"><span class="tag">MS Office</span><span class="tag">Kali Linux</span></div></details>
+        <details class="acc skill span8" data-open-desktop data-reveal><summary><span class="doto" data-flip>WORKSHOP</span><i class="chev"></i></summary><div class="acc__body tags"><span class="tag tag--out">Токарный станок</span><span class="tag tag--out">Фрезерный станок</span><span class="tag tag--out">Сверлильный станок</span><span class="tag tag--out">3D-печать</span><span class="tag tag--out">Пайка</span><span class="tag tag--out">Измерительный инструмент</span><span class="tag tag--out">Микроконтроллеры</span></div></details>
+      </div>
+      <div class="skills__bottom">
+        <details class="acc ach" data-open-desktop data-reveal>
+          <summary><h3>Достижения и сертификаты</h3><i class="chev"></i></summary>
+          <ol class="rows acc__body">
+            <li style="--i:0"><span class="doto">2025</span><span>Сертификат турецкого языка C1, TÖMER</span></li>
+            <li style="--i:1"><span class="doto">2023</span><span>Тематическая смена в «Артеке»</span></li>
+            <li style="--i:2"><span class="doto">2022</span><span>Тематическая смена в «Артеке»</span></li>
+            <li style="--i:3"><span class="doto">2021</span><span>Диплом SkillWorks «Аддитивное производство», «Орлёнок»</span></li>
+          </ol>
+        </details>
+        <div class="card volunteer" data-reveal>
+          <div class="volunteer__top"><span class="doto volunteer__num"><span data-count="450">0</span>+</span><svg class="cross" width="56" height="56" viewBox="0 0 72 72" aria-hidden="true"><path d="M26 6 H46 V26 H66 V46 H46 V66 H26 V46 H6 V26 H26 Z" fill="none" stroke="#7A1830" stroke-width="3.5" stroke-linejoin="round"/></svg></div>
+          <h3>часов в «Волонтёрах-медиках»</h3>
+          <p>Инструктор первой помощи, в 2026 году получил квалификацию спасателя. Медсопровождение массовых мероприятий, помощь в скоропомощном комплексе ГКБ им. Вересаева, организация всероссийских форумов.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 08 · Вершины -->
+    <section class="peaks dark dots" id="peaks">
+      <div class="sec-head sec-head--dark" data-reveal>
+        <h2 class="h2">Вершины <span class="hand solo">solo!</span></h2>
+        <p>Три соло-восхождения. Высоты заодно переведены в эшелоны — профдеформация.<span class="only-m"> Листайте вбок.</span></p>
+      </div>
+      <div class="rail" data-rail>
+        <div class="rail__track peaks__grid">
+          <article class="peak" data-reveal>
+            <div class="peak__photo" data-parallax>
+              <svg viewBox="0 0 432 260" preserveAspectRatio="none" aria-hidden="true"><path d="M0 260 L0 190 L70 150 L130 170 L190 70 L225 95 L260 60 L330 150 L432 120 L432 260 Z" fill="#2A4468"/><path d="M172 100 L190 70 L225 95 L260 60 L292 104 L262 92 L242 108 L212 96 Z" fill="#E6EBEE" opacity=".85"/></svg>
+              <span class="ph">[фото с вершины Эльбруса]</span>
+            </div>
+            <div class="peak__row"><div><h3>Эльбрус</h3><span>Россия</span></div><span class="fl doto">FL185</span></div>
+            <div class="peak__alt led"><span class="doto odo" data-odometer="5642">0000</span><span>м</span></div>
+          </article>
+          <article class="peak" data-reveal>
+            <div class="peak__photo" data-parallax>
+              <svg viewBox="0 0 432 260" preserveAspectRatio="none" aria-hidden="true"><path d="M0 260 L0 210 L120 120 L216 40 L300 110 L340 100 L432 180 L432 260 Z" fill="#2A4468"/><path d="M180 70 L216 40 L252 70 L232 76 L216 64 L200 78 Z" fill="#E6EBEE" opacity=".85"/></svg>
+              <span class="ph">[фото с вершины Арарата]</span>
+            </div>
+            <div class="peak__row"><div><h3>Арарат</h3><span>Турция</span></div><span class="fl doto">FL169</span></div>
+            <div class="peak__alt led"><span class="doto odo" data-odometer="5137">0000</span><span>м</span></div>
+          </article>
+          <article class="peak" data-reveal>
+            <div class="peak__photo" data-parallax>
+              <svg viewBox="0 0 432 260" preserveAspectRatio="none" aria-hidden="true"><path d="M0 260 L0 200 L90 170 L170 110 L230 50 L290 120 L360 140 L432 110 L432 260 Z" fill="#2A4468"/><path d="M205 80 L230 50 L262 88 L242 84 L228 96 Z" fill="#E6EBEE" opacity=".85"/></svg>
+              <span class="ph">[фото с вершины Казбека]</span>
+            </div>
+            <div class="peak__row"><div><h3>Казбек</h3><span>Грузия</span></div><span class="fl doto">FL166</span></div>
+            <div class="peak__alt led"><span class="doto odo" data-odometer="5054">0000</span><span>м</span></div>
+          </article>
+        </div>
+        <div class="rail__ui only-m"><span class="rail__count doto">01 / 03</span><span class="rail__dots"></span></div>
+      </div>
+      <a class="peaks__more" href="https://pilotarbuza.ru" target="_blank" rel="noopener">Больше фото — на pilotarbuza.ru</a>
+    </section>
+
+    <!-- 09 · Магазин -->
+    <section class="shop" id="shop">
+      <div class="marquee-wrap" aria-label="Принты pilot_arbuza">
+        <div class="marquee doto led" id="marquee">
+          <span>JUST PRESS BUTTONS ● I'M NOT LOST, I'M HOLDING ● CERTIFIED FLAP OPERATOR ● CERTIFIED AUTOPILOT SUPERVISOR ● 1500 FLIGHT HOURS / 0 SLEEP ●&nbsp;</span>
+          <span aria-hidden="true">JUST PRESS BUTTONS ● I'M NOT LOST, I'M HOLDING ● CERTIFIED FLAP OPERATOR ● CERTIFIED AUTOPILOT SUPERVISOR ● 1500 FLIGHT HOURS / 0 SLEEP ●&nbsp;</span>
+        </div>
+      </div>
+      <div class="shop__inner">
+        <div class="sec-head sec-head--btn" data-reveal>
+          <div><h2 class="h2">Магазин</h2><p>Первая линейка футболок готовится к запуску.<span class="only-m"> Листайте вбок.</span></p></div>
+          <button type="button" class="btn btn--primary notify" id="notify"><span class="notify__a">Узнать о старте</span><span class="notify__b doto">YOU ARE ON THE LIST</span></button>
+        </div>
+        <div class="rail" data-rail>
+          <div class="rail__track shop__grid">
+            <article class="tee card" data-reveal data-tilt>
+              <div class="tee__stage"><svg viewBox="0 0 200 220" aria-hidden="true"><path d="M62 12 L84 4 C90 16 110 16 116 4 L138 12 L190 42 L170 82 L148 70 L148 212 L52 212 L52 70 L30 82 L10 42 Z" fill="#FFFFFF" stroke="#13223A" stroke-width="2" stroke-linejoin="round"/></svg><div class="tee__print">JUST<br><em>press</em><br>BUTTONS</div></div>
+              <div class="tee__row"><h3>JUST press BUTTONS</h3><span>[ЦЕНА]</span></div>
+            </article>
+            <article class="tee card" data-reveal data-tilt>
+              <div class="tee__stage"><svg viewBox="0 0 200 220" aria-hidden="true"><path d="M62 12 L84 4 C90 16 110 16 116 4 L138 12 L190 42 L170 82 L148 70 L148 212 L52 212 L52 70 L30 82 L10 42 Z" fill="#7A1830" stroke="#13223A" stroke-width="2" stroke-linejoin="round"/></svg><div class="tee__print tee__print--doto">I'M NOT LOST,<br>I'M HOLDING</div></div>
+              <div class="tee__row"><h3>I'M NOT LOST, I'M HOLDING</h3><span>[ЦЕНА]</span></div>
+            </article>
+            <article class="tee card" data-reveal data-tilt>
+              <div class="tee__stage"><svg viewBox="0 0 200 220" aria-hidden="true"><path d="M62 12 L84 4 C90 16 110 16 116 4 L138 12 L190 42 L170 82 L148 70 L148 212 L52 212 L52 70 L30 82 L10 42 Z" fill="#1A1F27" stroke="#13223A" stroke-width="2" stroke-linejoin="round"/></svg><div class="tee__print tee__print--light">1500 FLIGHT HOURS<br><span class="accent">0 SLEEP</span></div></div>
+              <div class="tee__row"><h3>1500 FLIGHT HOURS / 0 SLEEP</h3><span>[ЦЕНА]</span></div>
+            </article>
+          </div>
+          <div class="rail__ui only-m"><span class="rail__count doto">01 / 03</span><span class="rail__dots"></span></div>
+        </div>
+        <p class="shop__note" data-reveal>Следом — вторая линейка с принтами по авиационным профессиям: PUT YOUR OWN MASK ON FIRST, LET'S SPOOL UP TOGETHER, IT'S NOT BROKEN, IT'S DEFERRED, FOLLOW ME и DELAYED.</p>
       </div>
     </section>
   </main>
 
-  <footer class="foot">
-    <span class="mono">© <span id="year">2026</span> pilotarbuza</span>
-    <span class="mono foot__mid">сделано руками, с зерном и точками</span>
-    <a class="mono" href="#top">наверх ↑</a>
+  <footer class="foot dark dots">
+    <span>© <span id="year">2026</span> pilot_arbuza</span>
+    <span class="doto foot__mid">KONYA <time class="clock">--:--</time> STANDBY</span>
+    <a href="#hero">Наверх</a>
   </footer>
 
+  <div class="toast doto" id="toast" role="status" aria-live="polite"></div>
   <script src="assets/main.js" defer></script>
 </body>
 </html>
