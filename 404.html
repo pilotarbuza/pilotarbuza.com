@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -32,7 +32,7 @@
   <div class="grain" aria-hidden="true"></div>
   <main class="nf">
     <div class="nf__top">
-      <a class="brand" href="/" aria-label="pilot_arbuza, на главную" style="color:var(--cream)">
+      <a class="brand" href="/" data-i18n-aria="nav.home" aria-label="pilot_arbuza, home" style="color:var(--cream)">
         <svg width="36" height="36" viewBox="0 0 40 40" aria-hidden="true"><path d="M37 20 L11 7 Q3 20 11 33 Z" fill="#FF5C73"/><path d="M11 7 Q3 20 11 33" fill="none" stroke="#6FD08C" stroke-width="4" stroke-linecap="round"/><path d="M23 19 L17 3 L20.5 3 L29 19 Z" fill="#F3EEE6"/><path d="M23 21 L17 37 L20.5 37 L29 21 Z" fill="#F3EEE6"/><ellipse cx="15" cy="15" rx="1.3" ry="2" fill="#0E1A2B"/><ellipse cx="15" cy="25" rx="1.3" ry="2" fill="#0E1A2B"/><ellipse cx="31" cy="20" rx="1.3" ry="1.8" fill="#0E1A2B"/></svg>
         <span class="hand">pilot_arbuza</span>
       </a>
@@ -49,11 +49,11 @@
         <div class="hold" id="hold"><svg viewBox="0 0 48 48"><path d="M45 24c0-1.6-1.4-2.6-3.2-2.6H30L20 5h-4.2l5.2 16.4H10.4L6.6 15H3l2.4 9L3 33h3.6l3.8-6.4h10.6L15.8 43H20l10-16.4h11.8c1.8 0 3.2-1 3.2-2.6z" fill="#FF5C73"/></svg></div>
       </div>
       <h1 class="doto nf__404" id="n404">404</h1>
-      <p class="hand nf__hand">I'M NOT LOST, I'M HOLDING.</p>
-      <p class="nf__p">Такой страницы нет. Кружим в зоне ожидания, пока вы выбираете новый курс.</p>
+      <p class="hand nf__hand" data-i18n="nf.hand">I’M NOT LOST, I’M HOLDING.</p>
+      <p class="nf__p" data-i18n="nf.p">No such page. Circling in the holding pattern while you pick a new course.</p>
       <div class="nf__btns">
-        <a class="btn btn--light" href="/" id="home">На главную</a>
-        <a class="btn btn--ghost-light" href="/#contact">Написать мне</a>
+        <a class="btn btn--light" href="/" id="home" data-i18n="nf.home">Home</a>
+        <a class="btn btn--ghost-light" href="/#contact" data-i18n="nf.write">Write me</a>
       </div>
     </div>
     <div class="nf__foot doto">
@@ -62,6 +62,7 @@
       <span>EXPECT FURTHER CLEARANCE</span>
     </div>
   </main>
+  <script src="/assets/i18n.js"></script>
   <script>
     (() => {
       const tick = () => { let t = '--:--'; try { t = new Date().toLocaleTimeString('ru-RU', { timeZone: 'Europe/Istanbul', hour: '2-digit', minute: '2-digit' }); } catch (e) {} document.getElementById('clock').textContent = t; };
