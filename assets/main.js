@@ -228,7 +228,7 @@
       const a = Math.atan2(ahead.y - pt.y, ahead.x - pt.x) * 180 / Math.PI;
       plane.style.transform = `translate(${pt.x}px, ${pt.y}px) rotate(${a}deg)`;
       pathEl.style.strokeDashoffset = L * (1 - p);
-      wps.forEach(w => w.classList.toggle('passed', p >= +w.dataset.at - .01 && +w.dataset.at <= .72));
+      wps.forEach(w => w.classList.toggle('passed', !w.classList.contains('wp--future') && p >= +w.dataset.at - .01));
     }
     const loop = () => { target = progress(); cur += (target - cur) * (reduce ? 1 : .1); render(cur); requestAnimationFrame(loop); };
     fit(); render(0); loop();
@@ -300,4 +300,156 @@
   /* ---------- раскрывашки: на десктопе всё открыто, на мобильном по умолчанию свёрнуто ---------- */
   const syncAcc = () => $$('details.acc').forEach(d => { d.open = mobile.matches ? d.hasAttribute('data-open-mobile') : d.hasAttribute('data-open-desktop'); });
   syncAcc(); mobile.addEventListener('change', syncAcc);
+})();
+
+/* ============================================================
+   Глобус: растровая маска суши + пины, вращение по всем осям
+   ============================================================ */
+(() => {
+  const canvas = document.getElementById('globe');
+  if (!canvas || !window.PLACES) return;
+  const ctx = canvas.getContext('2d');
+  const tip = document.getElementById('globe-tip');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const places = window.PLACES;
+
+  // статистика
+  const visited = places.filter(p => !p.wish);
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.dataset.count = v; };
+  set('stat-countries', new Set(visited.map(p => p.c)).size);
+  set('stat-cities', visited.length);
+  set('stat-wish', places.filter(p => p.wish).length);
+
+  // маска суши в равнопромежуточной проекции
+  const MW = 1440, MH = 720; let mask = null;
+  function buildMask() {
+    if (!window.LAND) return;
+    const off = document.createElement('canvas'); off.width = MW; off.height = MH;
+    const o = off.getContext('2d'); o.fillStyle = '#fff';
+    o.beginPath();
+    window.LAND.forEach(poly => {
+      // разворачиваем долготы по непрерывности, чтобы контур через 180° не резал карту
+      let prev = poly[0][0], shift = 0; const pts = poly.map(([lon, lat]) => { let d = lon - prev; if (d > 180) shift -= 360; else if (d < -180) shift += 360; prev = lon; return [lon + shift, lat]; });
+      [-MW, 0, MW].forEach(dx => { pts.forEach(([lon, lat], i) => { const x = (lon + 180) / 360 * MW + dx, y = (90 - lat) / 180 * MH; i ? o.lineTo(x, y) : o.moveTo(x, y); }); o.closePath(); });
+    });
+    o.fill('evenodd');
+    const d = o.getImageData(0, 0, MW, MH).data; mask = new Uint8Array(MW * MH);
+    for (let i = 0; i < MW * MH; i++) mask[i] = d[i * 4] > 127 ? 1 : 0;
+  }
+
+  // вращение: матрица 3x3, строки
+  let R = [1, 0, 0, 0, 1, 0, 0, 0, 1];
+  const mul = (a, b) => [
+    a[0]*b[0]+a[1]*b[3]+a[2]*b[6], a[0]*b[1]+a[1]*b[4]+a[2]*b[7], a[0]*b[2]+a[1]*b[5]+a[2]*b[8],
+    a[3]*b[0]+a[4]*b[3]+a[5]*b[6], a[3]*b[1]+a[4]*b[4]+a[5]*b[7], a[3]*b[2]+a[4]*b[5]+a[5]*b[8],
+    a[6]*b[0]+a[7]*b[3]+a[8]*b[6], a[6]*b[1]+a[7]*b[4]+a[8]*b[7], a[6]*b[2]+a[7]*b[5]+a[8]*b[8]];
+  const rotX = a => [1, 0, 0, 0, Math.cos(a), -Math.sin(a), 0, Math.sin(a), Math.cos(a)];
+  const rotY = a => [Math.cos(a), 0, Math.sin(a), 0, 1, 0, -Math.sin(a), 0, Math.cos(a)];
+  const spin = (ay, ax) => { R = mul(mul(rotY(ay), rotX(ax)), R); };
+  // стартовый вид: Турция и Россия в центре
+  R = mul(rotX(0.75), rotY(-0.70));
+
+  const toXYZ = (lon, lat) => { const la = lat * Math.PI / 180, lo = lon * Math.PI / 180; return [Math.cos(la) * Math.sin(lo), Math.sin(la), Math.cos(la) * Math.cos(lo)]; };
+  const apply = (m, v) => [m[0]*v[0]+m[1]*v[1]+m[2]*v[2], m[3]*v[0]+m[4]*v[1]+m[5]*v[2], m[6]*v[0]+m[7]*v[1]+m[8]*v[2]];
+
+  let W = 0, img = null, buf = null;
+  function size() {
+    const r = canvas.getBoundingClientRect(); const dpr = Math.min(devicePixelRatio || 1, 1.5);
+    W = Math.max(64, Math.floor(r.width * dpr)); canvas.width = W; canvas.height = W;
+    img = ctx.createImageData(W, W); buf = new Uint32Array(img.data.buffer);
+  }
+  const OCEAN = [27, 45, 71], OCEAN2 = [14, 26, 43], LAND = [243, 238, 230], LAND2 = [160, 172, 190];
+  const pack = (r, g, b, a = 255) => (a << 24) | (b << 16) | (g << 8) | r;
+  function raster() {
+    const c = W / 2, rad = W / 2 - 1, inv = 1 / rad;
+    // обратная матрица = транспонированная
+    const m = [R[0], R[3], R[6], R[1], R[4], R[7], R[2], R[5], R[8]];
+    let k = 0;
+    for (let py = 0; py < W; py++) {
+      const y = (c - py) * inv;
+      for (let px = 0; px < W; px++, k++) {
+        const x = (px - c) * inv; const rr = x * x + y * y;
+        if (rr > 1) { buf[k] = 0; continue; }
+        const z = Math.sqrt(1 - rr);
+        const vx = m[0]*x + m[1]*y + m[2]*z, vy = m[3]*x + m[4]*y + m[5]*z, vz = m[6]*x + m[7]*y + m[8]*z;
+        const lat = Math.asin(vy), lon = Math.atan2(vx, vz);
+        let land = 0;
+        if (mask) { const mx = ((lon / Math.PI + 1) / 2 * MW) | 0, my = ((0.5 - lat / Math.PI) * MH) | 0; land = mask[(my * MW + mx)] || 0; }
+        const shade = 0.55 + 0.45 * z; // освещение от центра
+        const edge = rr > 0.92 ? 1 - (rr - 0.92) / 0.08 * 0.5 : 1;
+        const A = land ? LAND : OCEAN, B = land ? LAND2 : OCEAN2;
+        const t = shade * edge;
+        buf[k] = pack((B[0] + (A[0] - B[0]) * t) | 0, (B[1] + (A[1] - B[1]) * t) | 0, (B[2] + (A[2] - B[2]) * t) | 0);
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+  let pins = [];
+  function overlay() {
+    const c = W / 2, rad = W / 2 - 1;
+    // сетка меридианов и параллелей
+    ctx.strokeStyle = 'rgba(243,238,230,.10)'; ctx.lineWidth = Math.max(1, W / 600);
+    for (let lon = -180; lon < 180; lon += 30) { ctx.beginPath(); let up = false; for (let lat = -90; lat <= 90; lat += 3) { const v = apply(R, toXYZ(lon, lat)); if (v[2] < 0) { up = false; continue; } const X = c + v[0] * rad, Y = c - v[1] * rad; up ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); up = true; } ctx.stroke(); }
+    for (let lat = -60; lat <= 60; lat += 30) { ctx.beginPath(); let up = false; for (let lon = -180; lon <= 180; lon += 3) { const v = apply(R, toXYZ(lon, lat)); if (v[2] < 0) { up = false; continue; } const X = c + v[0] * rad, Y = c - v[1] * rad; up ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); up = true; } ctx.stroke(); }
+    // ободок
+    ctx.beginPath(); ctx.arc(c, c, rad - .5, 0, 6.2832); ctx.strokeStyle = 'rgba(243,238,230,.25)'; ctx.lineWidth = 1; ctx.stroke();
+    // пины
+    pins = [];
+    const s = W / 560;
+    places.forEach(p => {
+      const v = apply(R, toXYZ(p.lon, p.lat)); if (v[2] < 0.02) return;
+      const X = c + v[0] * rad, Y = c - v[1] * rad, r = (3.2 + 2.2 * v[2]) * s;
+      ctx.beginPath(); ctx.arc(X, Y, r + 2 * s, 0, 6.2832); ctx.fillStyle = 'rgba(14,26,43,.55)'; ctx.fill();
+      ctx.beginPath(); ctx.arc(X, Y, r, 0, 6.2832); ctx.fillStyle = p.wish ? '#3D6DF2' : '#FF5C73'; ctx.fill();
+      ctx.beginPath(); ctx.arc(X - r * .3, Y - r * .3, r * .3, 0, 6.2832); ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.fill();
+      pins.push({ p, X, Y, r });
+    });
+  }
+  let dirty = true, idle = 0, vx = 0, vy = 0, drag = null, auto = !reduce;
+  function frame() {
+    if (auto && !drag && Math.abs(vx) < 1e-4) { spin(0.0016, 0); dirty = true; }
+    if (!drag && (Math.abs(vx) > 1e-4 || Math.abs(vy) > 1e-4)) { spin(vx, vy); vx *= .94; vy *= .94; dirty = true; }
+    if (dirty && buf) { raster(); overlay(); dirty = false; }
+    requestAnimationFrame(frame);
+  }
+  const pos = e => { const r = canvas.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * W, (e.clientY - r.top) / r.height * W]; };
+  canvas.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, t: performance.now() }; vx = vy = 0; canvas.setPointerCapture(e.pointerId); canvas.classList.add('grabbing'); });
+  canvas.addEventListener('pointermove', e => {
+    if (drag) {
+      const r = canvas.getBoundingClientRect(); const k = 2 / r.width;
+      const ay = (e.clientX - drag.x) * k, ax = (e.clientY - drag.y) * k;
+      spin(ay, ax); vx = ay * .5; vy = ax * .5; drag.x = e.clientX; drag.y = e.clientY; dirty = true; tip.hidden = true; return;
+    }
+    const [x, y] = pos(e); let best = null;
+    pins.forEach(pn => { const d = Math.hypot(pn.X - x, pn.Y - y); if (d < pn.r + 8 && (!best || d < best.d)) best = { pn, d }; });
+    if (best) { const L = window.LANG || 'en'; tip.textContent = (best.pn.p[L] || best.pn.p.en).toUpperCase(); tip.style.left = best.pn.X / W * 100 + '%'; tip.style.top = best.pn.Y / W * 100 + '%'; tip.hidden = false; canvas.style.cursor = 'pointer'; }
+    else { tip.hidden = true; canvas.style.cursor = ''; }
+  });
+  const up = () => { drag = null; canvas.classList.remove('grabbing'); };
+  canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', up); canvas.addEventListener('pointerleave', () => { tip.hidden = true; });
+  canvas.addEventListener('wheel', e => { if (!e.shiftKey) return; e.preventDefault(); R = mul([Math.cos(e.deltaY * .003), -Math.sin(e.deltaY * .003), 0, Math.sin(e.deltaY * .003), Math.cos(e.deltaY * .003), 0, 0, 0, 1], R); dirty = true; }, { passive: false });
+  addEventListener('resize', () => { size(); dirty = true; });
+  const start = () => { buildMask(); size(); dirty = true; frame(); };
+  if (window.LAND) start(); else { const s = document.querySelector('script[src*="land.js"]'); if (s) s.addEventListener('load', start, { once: true }); addEventListener('load', () => { if (!buf) start(); }, { once: true }); }
+})();
+
+/* ============================================================
+   Лайтбокс для фото вершин
+   ============================================================ */
+(() => {
+  const lb = document.getElementById('lb'); if (!lb) return;
+  const img = document.getElementById('lb-img'), cap = document.getElementById('lb-cap');
+  let list = [], idx = 0, last = null;
+  const show = () => { const t = list[idx]; img.src = t.full; img.alt = t.alt; cap.textContent = t.alt.toUpperCase() + ' · ' + String(idx + 1).padStart(2, '0') + ' / ' + String(list.length).padStart(2, '0'); };
+  const open = (gal, i) => {
+    list = Array.from(gal.querySelectorAll('.thumb')).map(b => { const im = b.querySelector('img'); return { full: b.dataset.full || im.src, alt: im.alt }; });
+    idx = i; last = document.activeElement; lb.hidden = false; document.body.style.overflow = 'hidden'; show(); document.getElementById('lb-close').focus();
+  };
+  const close = () => { lb.hidden = true; document.body.style.overflow = ''; if (last) last.focus(); };
+  document.querySelectorAll('.thumbs').forEach(gal => gal.querySelectorAll('.thumb').forEach((b, i) => b.addEventListener('click', () => open(gal, i))));
+  document.getElementById('lb-close').addEventListener('click', close);
+  document.getElementById('lb-prev').addEventListener('click', () => { idx = (idx - 1 + list.length) % list.length; show(); });
+  document.getElementById('lb-next').addEventListener('click', () => { idx = (idx + 1) % list.length; show(); });
+  lb.addEventListener('click', e => { if (e.target === lb) close(); });
+  addEventListener('keydown', e => { if (lb.hidden) return; if (e.key === 'Escape') close(); if (e.key === 'ArrowLeft') { idx = (idx - 1 + list.length) % list.length; show(); } if (e.key === 'ArrowRight') { idx = (idx + 1) % list.length; show(); } });
 })();

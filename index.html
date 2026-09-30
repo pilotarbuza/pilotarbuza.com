@@ -88,7 +88,7 @@
             <a class="btn btn--ghost" href="#contact" data-i18n="nav.write">Get in touch</a>
           </div>
         </div>
-        <div class="intro__photo" data-reveal>
+        <div class="intro__photo intro__photo--round" data-reveal>
           <span class="hand intro__note">future captain (probably)</span>
           <svg class="intro__arrow" width="60" height="46" viewBox="0 0 60 46" aria-hidden="true"><path class="draw-once" d="M6 6 C 30 6, 44 18, 46 38" fill="none" stroke="#7A1830" stroke-width="2.5" stroke-linecap="round"/><path class="draw-once" d="M38 30 L46 40 L53 29" fill="none" stroke="#7A1830" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <img src="assets/img/portrait.jpg" data-i18n-alt="intro.alt" alt="Maksim Akhmadulin" width="600" height="600">
@@ -206,22 +206,42 @@
         <div class="map-wrap" id="map-wrap">
           <div class="map" id="map">
             <svg width="1344" height="410" viewBox="0 0 1344 410" aria-hidden="true">
-              <path id="route-path" d="M60 180 C 120 180, 180 290, 236 290 S 350 160, 411 160 S 530 300, 587 300 S 700 170, 763 170 S 880 292, 939 292 S 1050 170, 1114 170 S 1240 105, 1290 105" fill="none" stroke="#13223A" stroke-width="2.5" stroke-dasharray="2 10" stroke-linecap="round" opacity=".55"/>
-              <path id="route-draw" d="M60 180 C 120 180, 180 290, 236 290 S 350 160, 411 160 S 530 300, 587 300 S 700 170, 763 170 S 880 292, 939 292 S 1050 170, 1114 170 S 1240 105, 1290 105" fill="none" stroke="#FF5C73" stroke-width="3.5" stroke-linecap="round"/>
+              <path id="route-path" d="M60 180 C 150 180, 230 300, 310 300 S 470 150, 560 150 S 720 300, 810 300 S 970 170, 1060 170 S 1220 105, 1290 105" fill="none" stroke="#13223A" stroke-width="2.5" stroke-dasharray="2 10" stroke-linecap="round" opacity=".55"/>
+              <path id="route-draw" d="M60 180 C 150 180, 230 300, 310 300 S 470 150, 560 150 S 720 300, 810 300 S 970 170, 1060 170 S 1220 105, 1290 105" fill="none" stroke="#FF5C73" stroke-width="3.5" stroke-linecap="round"/>
             </svg>
             <div class="plane" id="plane"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M45 24c0-1.6-1.4-2.6-3.2-2.6H30L20 5h-4.2l5.2 16.4H10.4L6.6 15H3l2.4 9L3 33h3.6l3.8-6.4h10.6L15.8 43H20l10-16.4h11.8c1.8 0 3.2-1 3.2-2.6z" fill="#13223A"/></svg></div>
 
             <div class="wp" data-at="0" style="left:60px;top:180px"><i class="tri"></i><div class="wp__label wp__label--up"><b data-i18n="wp.spb">Saint Petersburg</b><span data-i18n="wp.spbv">departure point</span></div></div>
-            <div class="wp" data-at=".15" style="left:236px;top:290px"><i class="tri"></i><div class="wp__label wp__label--down"><b data-i18n="wp.ukhta">Ukhta</b><span data-i18n="wp.ukhtav">childhood</span></div></div>
-            <div class="wp" data-at=".29" style="left:411px;top:160px"><i class="tri"></i><div class="wp__label wp__label--up"><b data-i18n="wp.shch">Shchyolkovo</b><span data-i18n="wp.shchv">school, 2013–2024</span></div></div>
-            <div class="wp" data-at=".43" style="left:587px;top:300px"><i class="tri"></i><div class="wp__label wp__label--down"><b data-i18n="wp.orl">Orlyonok</b><span data-i18n="wp.orlv">2021, SkillWorks “Additive Manufacturing”</span></div></div>
-            <div class="wp" data-at=".57" style="left:763px;top:170px"><i class="tri"></i><div class="wp__label wp__label--up"><b data-i18n="wp.artek">Artek</b><span data-i18n="wp.artekv">themed sessions, 2022 and 2023</span></div></div>
-            <div class="wp wp--here" data-at=".71" style="left:939px;top:292px"><i class="ring"></i><i class="tri tri--accent"></i><div class="wp__label wp__label--down"><b data-i18n="wp.konya">Konya</b><span data-i18n="wp.konyav">Selçuk University, since 2025</span></div><span class="hand wp__here" data-i18n="wp.here">I'm here</span></div>
-            <div class="wp wp--future" data-at=".86" style="left:1114px;top:170px"><i class="tri"></i><div class="wp__label wp__label--down"><b data-i18n="wp.de">Germany</b><span data-i18n="wp.dev">engineer on an EU Blue Card, 2029</span></div></div>
+            <div class="wp" data-at=".2" style="left:310px;top:300px"><i class="tri"></i><div class="wp__label wp__label--down"><b data-i18n="wp.ukhta">Ukhta</b><span data-i18n="wp.ukhtav">childhood</span></div></div>
+            <div class="wp" data-at=".4" style="left:560px;top:150px"><i class="tri"></i><div class="wp__label wp__label--up"><b data-i18n="wp.shch">Shchyolkovo</b><span data-i18n="wp.shchv">school, 2013–2024</span></div></div>
+            <div class="wp wp--here" data-at=".6" style="left:810px;top:300px"><i class="ring"></i><i class="tri tri--accent"></i><div class="wp__label wp__label--down"><b data-i18n="wp.konya">Konya</b><span data-i18n="wp.konyav">Selçuk University, since 2025</span></div><span class="hand wp__here" data-i18n="wp.here">I’m here</span></div>
+            <div class="wp wp--future" data-at=".8" style="left:1060px;top:170px"><i class="tri"></i><div class="wp__label wp__label--down"><b data-i18n="wp.de">Germany</b><span data-i18n="wp.dev">engineer on an EU Blue Card, 2029</span></div></div>
             <div class="wp wp--future wp--end" data-at="1" style="left:1290px;top:105px"><i class="target"></i><div class="wp__label wp__label--up wp__label--right"><b>EASA fATPL</b><span data-i18n="wp.atplv">modular training in Europe</span></div></div>
           </div>
         </div>
         <p class="route__hint doto">SCROLL TO FLY</p>
+      </div>
+    </section>
+
+    <!-- 05b · Где я был: статистика и глобус -->
+    <section class="travel" id="travel">
+      <div class="sec-head" data-reveal>
+        <h2 class="h2" data-i18n="travel.h">Where I’ve been</h2>
+        <p data-i18n="travel.p">Every pin is a city I’ve set foot in. Drag the globe — it spins on every axis.</p>
+      </div>
+      <div class="travel__grid">
+        <div class="travel__side" data-reveal>
+          <div class="stat"><span class="doto stat__num" id="stat-countries">0</span><span data-i18n="travel.countries">countries</span></div>
+          <div class="stat"><span class="doto stat__num" id="stat-cities">0</span><span data-i18n="travel.cities">cities</span></div>
+          <div class="stat stat--wish"><span class="doto stat__num" id="stat-wish">0</span><span data-i18n="travel.wishn">on the wishlist</span></div>
+          <div class="legend"><span><i class="pin pin--v"></i><span data-i18n="travel.visited">visited</span></span><span><i class="pin pin--w"></i><span data-i18n="travel.wish">wishlist</span></span></div>
+          <a class="btn btn--ghost" href="https://pintraveler.net/map?user=A1e3iFNwtKaad9wb76cbAteSraG3" target="_blank" rel="noopener" data-i18n="travel.link">Full map on Pin Traveler</a>
+        </div>
+        <div class="globe-wrap" data-reveal>
+          <canvas id="globe" data-i18n-aria="travel.globe" aria-label="Globe with visited cities"></canvas>
+          <div class="globe__tip doto" id="globe-tip" hidden></div>
+          <span class="globe__hint doto" data-i18n="travel.drag">DRAG TO ROTATE</span>
+        </div>
       </div>
     </section>
 
@@ -357,6 +377,11 @@
             <div class="peak__photo" data-parallax>
               <svg viewBox="0 0 432 260" preserveAspectRatio="none" aria-hidden="true"><path d="M0 260 L0 190 L70 150 L130 170 L190 70 L225 95 L260 60 L330 150 L432 120 L432 260 Z" fill="#2A4468"/><path d="M172 100 L190 70 L225 95 L260 60 L292 104 L262 92 L242 108 L212 96 Z" fill="#E6EBEE" opacity=".85"/></svg>
               <span class="ph" data-i18n="pk.ph1">[summit photo, Elbrus]</span>
+              <div class="thumbs" data-gallery="elbrus">
+                <button type="button" class="thumb" data-i="0" data-i18n-aria="pk.open" aria-label="Open photo"><img src="assets/img/peaks/elbrus-1.svg" alt="Elbrus 1" loading="lazy"></button>
+                <button type="button" class="thumb" data-i="1" data-i18n-aria="pk.open" aria-label="Open photo"><img src="assets/img/peaks/elbrus-2.svg" alt="Elbrus 2" loading="lazy"></button>
+                <button type="button" class="thumb" data-i="2" data-i18n-aria="pk.open" aria-label="Open photo"><img src="assets/img/peaks/elbrus-3.svg" alt="Elbrus 3" loading="lazy"></button>
+              </div>
             </div>
             <div class="peak__row"><div><h3 data-i18n="pk.1">Elbrus</h3><span data-i18n="pk.1c">Russia</span></div><span class="fl doto">FL185</span></div>
             <div class="peak__alt led"><span class="doto odo" data-odometer="5642">0000</span><span data-i18n="pk.m">m</span></div>
@@ -365,6 +390,11 @@
             <div class="peak__photo" data-parallax>
               <svg viewBox="0 0 432 260" preserveAspectRatio="none" aria-hidden="true"><path d="M0 260 L0 210 L120 120 L216 40 L300 110 L340 100 L432 180 L432 260 Z" fill="#2A4468"/><path d="M180 70 L216 40 L252 70 L232 76 L216 64 L200 78 Z" fill="#E6EBEE" opacity=".85"/></svg>
               <span class="ph" data-i18n="pk.ph2">[summit photo, Ararat]</span>
+              <div class="thumbs" data-gallery="ararat">
+                <button type="button" class="thumb" data-i="0" data-i18n-aria="pk.open" aria-label="Open photo"><img src="assets/img/peaks/ararat-1.svg" alt="Ararat 1" loading="lazy"></button>
+                <button type="button" class="thumb" data-i="1" data-i18n-aria="pk.open" aria-label="Open photo"><img src="assets/img/peaks/ararat-2.svg" alt="Ararat 2" loading="lazy"></button>
+                <button type="button" class="thumb" data-i="2" data-i18n-aria="pk.open" aria-label="Open photo"><img src="assets/img/peaks/ararat-3.svg" alt="Ararat 3" loading="lazy"></button>
+              </div>
             </div>
             <div class="peak__row"><div><h3 data-i18n="pk.2">Ararat</h3><span data-i18n="pk.2c">Türkiye</span></div><span class="fl doto">FL169</span></div>
             <div class="peak__alt led"><span class="doto odo" data-odometer="5137">0000</span><span data-i18n="pk.m">m</span></div>
@@ -373,6 +403,11 @@
             <div class="peak__photo" data-parallax>
               <svg viewBox="0 0 432 260" preserveAspectRatio="none" aria-hidden="true"><path d="M0 260 L0 200 L90 170 L170 110 L230 50 L290 120 L360 140 L432 110 L432 260 Z" fill="#2A4468"/><path d="M205 80 L230 50 L262 88 L242 84 L228 96 Z" fill="#E6EBEE" opacity=".85"/></svg>
               <span class="ph" data-i18n="pk.ph3">[summit photo, Kazbek]</span>
+              <div class="thumbs" data-gallery="kazbek">
+                <button type="button" class="thumb" data-i="0" data-i18n-aria="pk.open" aria-label="Open photo"><img src="assets/img/peaks/kazbek-1.svg" alt="Kazbek 1" loading="lazy"></button>
+                <button type="button" class="thumb" data-i="1" data-i18n-aria="pk.open" aria-label="Open photo"><img src="assets/img/peaks/kazbek-2.svg" alt="Kazbek 2" loading="lazy"></button>
+                <button type="button" class="thumb" data-i="2" data-i18n-aria="pk.open" aria-label="Open photo"><img src="assets/img/peaks/kazbek-3.svg" alt="Kazbek 3" loading="lazy"></button>
+              </div>
             </div>
             <div class="peak__row"><div><h3 data-i18n="pk.3">Kazbek</h3><span data-i18n="pk.3c">Georgia</span></div><span class="fl doto">FL166</span></div>
             <div class="peak__alt led"><span class="doto odo" data-odometer="5054">0000</span><span data-i18n="pk.m">m</span></div>
@@ -425,7 +460,15 @@
   </footer>
 
   <div class="toast doto" id="toast" role="status" aria-live="polite"></div>
+  <div class="lb" id="lb" hidden role="dialog" aria-modal="true">
+    <button type="button" class="lb__close" id="lb-close" data-i18n-aria="lb.close" aria-label="Close">×</button>
+    <button type="button" class="lb__nav lb__prev" id="lb-prev" data-i18n-aria="lb.prev" aria-label="Previous">‹</button>
+    <figure class="lb__fig"><img id="lb-img" src="" alt=""><figcaption class="doto" id="lb-cap"></figcaption></figure>
+    <button type="button" class="lb__nav lb__next" id="lb-next" data-i18n-aria="lb.next" aria-label="Next">›</button>
+  </div>
   <script src="assets/i18n.js"></script>
+  <script src="assets/land.js" defer></script>
+  <script src="assets/places.js"></script>
   <script src="assets/main.js" defer></script>
 </body>
 </html>
