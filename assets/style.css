@@ -615,3 +615,49 @@ body.has-cursor .cursor { display: block; }
 }
 @media (min-width: 901px) { .pcard--brand { grid-column: span 7 !important; } .pcard--channel { grid-column: span 5 !important; } }
 @media (max-width: 900px) { .tkt__main, .tkt__txt { width: 100%; min-width: 0; } .tkt__txt small { display: block; } }
+
+/* ============================================================
+   v4: глобус с зумом, иконки контактов, аватары
+   ============================================================ */
+#globe { border-radius: 0; touch-action: pan-y; }
+.globe-wrap { width: min(100%, 600px); }
+.globe__tip { display: flex; flex-direction: column; gap: 1px; transform: translate(-50%, calc(-100% - 16px)); padding: 7px 12px; border-radius: 10px; font-family: var(--f-body); letter-spacing: 0; text-align: center; box-shadow: 0 10px 24px -10px rgba(0,0,0,.6); }
+.globe__tip[hidden] { display: none; }
+.globe__tip b { font-size: 14px; font-weight: 600; } .globe__tip span { font-size: 11px; color: var(--muted-d); }
+.globe__ctl { position: absolute; right: 2%; bottom: 8%; display: flex; flex-direction: column; gap: 6px; z-index: 2; }
+.globe__ctl button { width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(243,238,230,.25); background: rgba(14,26,43,.78); color: var(--cream); font: 500 20px/1 var(--f-body); display: grid; place-items: center; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); transition: background .25s, transform .25s var(--spring); }
+.globe__ctl button:hover { background: var(--accent); color: var(--night); transform: scale(1.08); }
+.globe__ctl button[data-g="reset"] { font-size: 18px; }
+.globe__hint { white-space: nowrap; }
+.cchips li { padding: 0; border: 0; background: none; }
+.cchips button { display: inline-flex; align-items: baseline; gap: 6px; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); font: 400 14px var(--f-body); transition: background .25s, color .25s, border-color .25s, transform .25s var(--spring); }
+.cchips button:hover { border-color: var(--ink); transform: translateY(-1px); }
+.cchips button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.cchips b { font-family: var(--f-doto); font-weight: 900; font-size: 15px; }
+
+/* иконки на талонах */
+.tkt__ico { flex: 0 0 auto; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--ic, var(--night)); color: #fff; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); transition: transform .4s var(--spring); overflow: hidden; }
+.tkt__ico svg { width: 22px; height: 22px; }
+.tkt__ico img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.tkt:hover .tkt__ico { transform: rotate(-8deg) scale(1.06); }
+.tkt__head { display: flex; align-items: center; gap: 10px; }
+.tkt__code { font-size: 22px; min-width: 0; }
+.ic-tg { --ic: #3C8FD6; } .ic-wa { --ic: #2EA36A; } .ic-ig { --ic: linear-gradient(135deg, #F4A24A, #E1476B 55%, #8D4BC9); }
+.ic-ig { background: linear-gradient(135deg, #F4A24A, #E1476B 55%, #8D4BC9); }
+.ic-mail { --ic: #FF5C73; } .ic-tr { --ic: #C8354A; } .ic-ru { --ic: #2C4C8F; }
+.ic-ann { --ic: #00707A; } .ic-pix { --ic: #7A1830; } .ic-nc { --ic: #2F6FC4; } .ic-gh { --ic: #13223A; }
+
+/* аватары в проектах */
+.chat__head img, .ch__ava { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; display: block; }
+.ch__row { display: flex; align-items: center; gap: 12px; }
+.ch__ava { width: 52px; height: 52px; box-shadow: 0 0 0 2px var(--paper), 0 0 0 3px var(--ink); }
+
+@media (max-width: 900px) {
+  .globe-wrap { width: min(100%, 460px); }
+  .globe__ctl { right: 0; bottom: 4%; }
+  .globe__ctl button { width: 40px; height: 40px; }
+  .globe__hint { font-size: 9.5px; letter-spacing: .14em; bottom: -24px; }
+  .tkt__ico { width: 34px; height: 34px; border-radius: 10px; }
+  .tkt__ico svg { width: 19px; height: 19px; }
+  .tkt__code { font-size: 18px; }
+}

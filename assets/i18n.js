@@ -1,8 +1,9 @@
 /* pilotarbuza.com — словари RU / EN / TR. Ключи совпадают с data-i18n в разметке. */
 window.I18N = {
   en: {
+    'travel.zoom': 'Zoom', 'travel.in': 'Zoom in', 'travel.out': 'Zoom out', 'travel.reset': 'Reset view',
     'travel.dest': 'destinations', 'kart.s1': 'Wheelbase', 'kart.s2': 'Track F / R', 'kart.s3': 'Frame', 'kart.s3v': 'tube Ø32×2, St 20', 'kart.s4': 'Engine', 'kart.s4v': 'ICE 6.5 hp, chain drive', 'kart.open': 'Open the drawing',
-    'travel.h': 'Where I’ve been', 'travel.p': 'Every pin is a place I’ve been. Drag the globe — it spins on every axis.', 'travel.countries': 'countries', 'travel.cities': 'cities', 'travel.wishn': 'on the wishlist', 'travel.visited': 'visited', 'travel.wish': 'wishlist', 'travel.link': 'Full map on Pin Traveler', 'travel.globe': 'Globe with visited cities', 'travel.drag': 'DRAG TO ROTATE',
+    'travel.h': 'Where I’ve been', 'travel.p': 'Every pin is a place I’ve been. Spin the globe, zoom in, or tap a country to fly there.', 'travel.countries': 'countries', 'travel.cities': 'cities', 'travel.wishn': 'on the wishlist', 'travel.visited': 'visited', 'travel.wish': 'wishlist', 'travel.link': 'Full map on Pin Traveler', 'travel.globe': 'Globe with visited cities', 'travel.drag': 'DRAG TO ROTATE · PINCH OR + TO ZOOM',
     'pk.open': 'Open photo', 'lb.close': 'Close', 'lb.prev': 'Previous', 'lb.next': 'Next',
     'meta.title': 'pilotarbuza — Maksim Akhmadulin',
     'meta.desc': 'Maksim Akhmadulin: mechanical engineer in progress, pilot by plan. Studying in Türkiye, an aviation documentation bot, the pilot_arbuza brand.',
@@ -23,7 +24,7 @@ window.I18N = {
     'wp.spb': 'Saint Petersburg', 'wp.spbv': 'departure point', 'wp.ukhta': 'Ukhta', 'wp.ukhtav': 'childhood', 'wp.shch': 'Shchyolkovo', 'wp.shchv': 'school, 2013–2024',
     'wp.konya': 'Konya', 'wp.konyav': 'Selçuk University, since 2025', 'wp.here': 'I’m here', 'wp.de': 'Germany', 'wp.dev': 'engineer on an EU Blue Card, 2029', 'wp.atplv': 'modular training in Europe',
     'proj.h': 'Projects', 'proj.p': 'What I do with my hands and head while not flying.', 'ui.swipe': ' Swipe sideways.',
-    'ann.h': 'Ann', 'ann.i': 'A', 'ann.bot': 'bot',
+    'ann.h': 'Ann', 'ann.bot': 'bot',
     'ann.p': 'The world’s largest bot with up-to-date aviation documentation, open to everyone. Plus books, lectures and advice on getting into flight schools and academies.',
     'ann.open': 'Open the bot', 'ann.me': 'I need the current edition of FAP-128', 'ann.typing': 'Ann is typing',
     'ann.reply': 'Here’s the latest edition. There are also lectures and a couple of books on this — want to see?',
@@ -46,8 +47,9 @@ window.I18N = {
     'nf.hand': 'I’M NOT LOST, I’M HOLDING.', 'nf.p': 'No such page. Circling in the holding pattern while you pick a new course.', 'nf.home': 'Home', 'nf.write': 'Write me'
   },
   ru: {
+    'travel.zoom': 'Масштаб', 'travel.in': 'Приблизить', 'travel.out': 'Отдалить', 'travel.reset': 'Сбросить вид',
     'travel.dest': 'мест', 'kart.s1': 'База', 'kart.s2': 'Колея пер. / задн.', 'kart.s3': 'Рама', 'kart.s3v': 'труба Ø32×2, Ст 20', 'kart.s4': 'Двигатель', 'kart.s4v': 'ДВС 6,5 л.с., цепной привод', 'kart.open': 'Открыть чертёж',
-    'travel.h': 'Где я был', 'travel.p': 'Каждый пин — место, где я был. Покрутите глобус: он вращается по всем осям.', 'travel.countries': 'стран', 'travel.cities': 'городов', 'travel.wishn': 'в списке желаний', 'travel.visited': 'был', 'travel.wish': 'хочу', 'travel.link': 'Полная карта на Pin Traveler', 'travel.globe': 'Глобус с посещёнными городами', 'travel.drag': 'ТЯНИТЕ, ЧТОБЫ КРУТИТЬ',
+    'travel.h': 'Где я был', 'travel.p': 'Каждый пин — место, где я был. Крутите глобус, приближайте или нажмите на страну, чтобы перелететь к ней.', 'travel.countries': 'стран', 'travel.cities': 'городов', 'travel.wishn': 'в списке желаний', 'travel.visited': 'был', 'travel.wish': 'хочу', 'travel.link': 'Полная карта на Pin Traveler', 'travel.globe': 'Глобус с посещёнными городами', 'travel.drag': 'ТЯНИТЕ, ЧТОБЫ КРУТИТЬ · ЩИПОК ИЛИ + ДЛЯ ЗУМА',
     'pk.open': 'Открыть фото', 'lb.close': 'Закрыть', 'lb.prev': 'Назад', 'lb.next': 'Вперёд',
     'meta.title': 'pilotarbuza — Максим Ахмадулин',
     'meta.desc': 'Максим Ахмадулин: инженер-механик в процессе, пилот по плану. Учёба в Турции, бот с авиационной документацией, бренд pilot_arbuza.',
@@ -68,7 +70,7 @@ window.I18N = {
     'wp.spb': 'Санкт-Петербург', 'wp.spbv': 'точка вылета', 'wp.ukhta': 'Ухта', 'wp.ukhtav': 'детство', 'wp.shch': 'Щёлково', 'wp.shchv': 'школа, 2013–2024',
     'wp.konya': 'Конья', 'wp.konyav': 'Selçuk Üniversitesi, с 2025', 'wp.here': 'I’m here', 'wp.de': 'Германия', 'wp.dev': 'инженер по EU Blue Card, 2029', 'wp.atplv': 'модульное обучение в Европе',
     'proj.h': 'Проекты', 'proj.p': 'Что делаю руками и головой, пока не летаю.', 'ui.swipe': ' Листайте вбок.',
-    'ann.h': 'Энн', 'ann.i': 'Э', 'ann.bot': 'бот',
+    'ann.h': 'Энн', 'ann.bot': 'бот',
     'ann.p': 'Крупнейший в мире бот с актуальной авиационной документацией, открытой для всех. А ещё книги, лекции и советы по поступлению в лётные вузы и училища.',
     'ann.open': 'Открыть бота', 'ann.me': 'Нужна актуальная редакция ФАП-128', 'ann.typing': 'Энн печатает',
     'ann.reply': 'Держи свежую редакцию. По этой теме есть ещё лекции и пара книг — показать?',
@@ -91,8 +93,9 @@ window.I18N = {
     'nf.hand': 'I’M NOT LOST, I’M HOLDING.', 'nf.p': 'Такой страницы нет. Кружим в зоне ожидания, пока вы выбираете новый курс.', 'nf.home': 'На главную', 'nf.write': 'Написать мне'
   },
   tr: {
+    'travel.zoom': 'Yakınlaştırma', 'travel.in': 'Yakınlaştır', 'travel.out': 'Uzaklaştır', 'travel.reset': 'Görünümü sıfırla',
     'travel.dest': 'yer', 'kart.s1': 'Dingil mesafesi', 'kart.s2': 'İz ön / arka', 'kart.s3': 'Şasi', 'kart.s3v': 'boru Ø32×2, St 20', 'kart.s4': 'Motor', 'kart.s4v': 'İYM 6,5 hp, zincir tahrik', 'kart.open': 'Çizimi aç',
-    'travel.h': 'Nerelerdeydim', 'travel.p': 'Her pin gittiğim bir yer. Küreyi sürükleyin — her eksende döner.', 'travel.countries': 'ülke', 'travel.cities': 'şehir', 'travel.wishn': 'istek listesinde', 'travel.visited': 'gittim', 'travel.wish': 'istek', 'travel.link': 'Tam harita Pin Traveler’da', 'travel.globe': 'Gidilen şehirlerle küre', 'travel.drag': 'DÖNDÜRMEK İÇİN SÜRÜKLEYİN',
+    'travel.h': 'Nerelerdeydim', 'travel.p': 'Her pin gittiğim bir yer. Küreyi çevirin, yakınlaştırın ya da oraya uçmak için bir ülkeye dokunun.', 'travel.countries': 'ülke', 'travel.cities': 'şehir', 'travel.wishn': 'istek listesinde', 'travel.visited': 'gittim', 'travel.wish': 'istek', 'travel.link': 'Tam harita Pin Traveler’da', 'travel.globe': 'Gidilen şehirlerle küre', 'travel.drag': 'ÇEVİRMEK İÇİN SÜRÜKLEYİN · YAKINLAŞTIRMAK İÇİN +',
     'pk.open': 'Fotoğrafı aç', 'lb.close': 'Kapat', 'lb.prev': 'Önceki', 'lb.next': 'Sonraki',
     'meta.title': 'pilotarbuza — Maksim Ahmadulin',
     'meta.desc': 'Maksim Ahmadulin: yolda olan bir makine mühendisi, plandaki pilot. Türkiye’de öğrenci, havacılık dokümantasyon botu ve pilot_arbuza markası.',
@@ -113,7 +116,7 @@ window.I18N = {
     'wp.spb': 'Sankt-Peterburg', 'wp.spbv': 'kalkış noktası', 'wp.ukhta': 'Uhta', 'wp.ukhtav': 'çocukluk', 'wp.shch': 'Şçolkovo', 'wp.shchv': 'okul, 2013–2024',
     'wp.konya': 'Konya', 'wp.konyav': 'Selçuk Üniversitesi, 2025’ten beri', 'wp.here': 'I’m here', 'wp.de': 'Almanya', 'wp.dev': 'AB Mavi Kart ile mühendis, 2029', 'wp.atplv': 'Avrupa’da modüler eğitim',
     'proj.h': 'Projeler', 'proj.p': 'Uçmadığım zamanlarda elimle ve kafamla yaptıklarım.', 'ui.swipe': ' Yana kaydırın.',
-    'ann.h': 'Ann', 'ann.i': 'A', 'ann.bot': 'bot',
+    'ann.h': 'Ann', 'ann.bot': 'bot',
     'ann.p': 'Herkese açık, güncel havacılık dokümantasyonuna sahip dünyanın en büyük botu. Ayrıca kitaplar, dersler ve uçuş okullarına giriş tavsiyeleri.',
     'ann.open': 'Botu aç', 'ann.me': 'FAP-128’in güncel sürümü lazım', 'ann.typing': 'Ann yazıyor',
     'ann.reply': 'Al, en yeni sürüm. Bu konuda dersler ve birkaç kitap da var — göstereyim mi?',
