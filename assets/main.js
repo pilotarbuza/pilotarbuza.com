@@ -1,5 +1,11 @@
 /* pilotarbuza.com — динамика */
 (() => {
+  // запрет pinch-zoom и double-tap zoom в iOS Safari
+  ['gesturestart', 'gesturechange', 'gestureend'].forEach(t => document.addEventListener(t, e => e.preventDefault(), { passive: false }));
+  let lastTouch = 0;
+  document.addEventListener('touchend', e => { const n = Date.now(); if (n - lastTouch < 320 && !e.target.closest('input, textarea')) e.preventDefault(); lastTouch = n; }, { passive: false });
+  document.addEventListener('touchmove', e => { if (e.touches && e.touches.length > 1) e.preventDefault(); }, { passive: false });
+
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -280,21 +286,28 @@
   if (notify) notify.addEventListener('click', () => { notify.classList.add('done'); notify.disabled = true; });
   $$('[data-copy]').forEach(a => a.addEventListener('click', e => {
     if (!navigator.clipboard) return; e.preventDefault();
-    navigator.clipboard.writeText(a.dataset.copy).then(() => say(window.t ? window.t('toast.copied') : 'ADDRESS COPIED')).catch(() => { location.href = a.href; });
+    navigator.clipboard.writeText(a.dataset.copy).then(() => (a.classList.add('copied'), setTimeout(() => a.classList.remove('copied'), 1600), say(window.t ? window.t('toast.copied') : 'ADDRESS COPIED'))).catch(() => { location.href = a.href; });
   }));
 
-  /* ---------- рельсы: счётчик и точки ---------- */
+  /* ---------- рельсы: счётчик, точки, стрелки, подсказка свайпа ---------- */
   $$('[data-rail]').forEach(rail => {
     const track = $('.rail__track', rail), count = $('.rail__count', rail), dotsBox = $('.rail__dots', rail);
+    const prev = $('.rail__prev', rail), next = $('.rail__next', rail);
     if (!track) return;
     const items = Array.from(track.children), n = items.length;
     if (dotsBox) dotsBox.innerHTML = items.map(() => '<i></i>').join('');
+    const step = () => (items[1] ? items[1].offsetLeft - items[0].offsetLeft : items[0].offsetWidth);
+    const cur = () => clamp(Math.round(track.scrollLeft / step()), 0, n - 1);
     const upd = () => {
-      const i = clamp(Math.round(track.scrollLeft / (items[0].offsetWidth + 12)), 0, n - 1);
+      const i = cur();
       if (count) count.textContent = String(i + 1).padStart(2, '0') + ' / ' + String(n).padStart(2, '0');
       if (dotsBox) $$('i', dotsBox).forEach((d, k) => d.classList.toggle('on', k === i));
+      if (prev) prev.disabled = i === 0; if (next) next.disabled = i === n - 1;
     };
+    const go = d => track.scrollTo({ left: clamp(cur() + d, 0, n - 1) * step(), behavior: 'smooth' });
+    if (prev) prev.addEventListener('click', () => go(-1)); if (next) next.addEventListener('click', () => go(1));
     track.addEventListener('scroll', upd, { passive: true }); upd();
+    if (!reduce) new IntersectionObserver(([e], o) => { if (e.isIntersecting && mobile.matches) { rail.classList.add('nudge'); o.disconnect(); } }, { threshold: .6 }).observe(track);
   });
 
   /* ---------- раскрывашки: на десктопе всё открыто, на мобильном по умолчанию свёрнуто ---------- */
@@ -314,11 +327,14 @@
   const places = window.PLACES;
 
   // статистика
-  const visited = places.filter(p => !p.wish);
   const set = (id, v) => { const el = document.getElementById(id); if (el) el.dataset.count = v; };
-  set('stat-countries', new Set(visited.map(p => p.c)).size);
-  set('stat-cities', visited.length);
-  set('stat-wish', places.filter(p => p.wish).length);
+  const byC = {}; places.forEach(p => { byC[p.c] = (byC[p.c] || 0) + 1; });
+  set('stat-countries', Object.keys(byC).length);
+  set('stat-cities', places.length);
+  const CN = { RU: ['Russia', 'Россия', 'Rusya'], TR: ['Türkiye', 'Турция', 'Türkiye'], CR: ['Crimea', 'Крым', 'Kırım'], IR: ['Iran', 'Иран', 'İran'], GE: ['Georgia', 'Грузия', 'Gürcistan'], TN: ['Tunisia', 'Тунис', 'Tunus'], UA: ['Ukraine', 'Украина', 'Ukrayna'], AZ: ['Azerbaijan', 'Азербайджан', 'Azerbaycan'] };
+  const chips = document.getElementById('cchips');
+  const drawChips = () => { if (!chips) return; const li = ['en', 'ru', 'tr'].indexOf(window.LANG || 'en'); chips.innerHTML = Object.entries(byC).sort((a, b) => b[1] - a[1]).map(([c, n]) => `<li>${(CN[c] || [c, c, c])[Math.max(0, li)]} <b>${n}</b></li>`).join(''); };
+  drawChips(); document.addEventListener('langchange', drawChips);
 
   // маска суши в равнопромежуточной проекции
   const MW = 1440, MH = 720; let mask = null;
@@ -395,12 +411,12 @@
     ctx.beginPath(); ctx.arc(c, c, rad - .5, 0, 6.2832); ctx.strokeStyle = 'rgba(243,238,230,.25)'; ctx.lineWidth = 1; ctx.stroke();
     // пины
     pins = [];
-    const s = W / 560;
+    const s = W / 640;
     places.forEach(p => {
       const v = apply(R, toXYZ(p.lon, p.lat)); if (v[2] < 0.02) return;
       const X = c + v[0] * rad, Y = c - v[1] * rad, r = (3.2 + 2.2 * v[2]) * s;
       ctx.beginPath(); ctx.arc(X, Y, r + 2 * s, 0, 6.2832); ctx.fillStyle = 'rgba(14,26,43,.55)'; ctx.fill();
-      ctx.beginPath(); ctx.arc(X, Y, r, 0, 6.2832); ctx.fillStyle = p.wish ? '#3D6DF2' : '#FF5C73'; ctx.fill();
+      ctx.beginPath(); ctx.arc(X, Y, r, 0, 6.2832); ctx.fillStyle = p.b ? '#3D6DF2' : '#FF5C73'; ctx.fill();
       ctx.beginPath(); ctx.arc(X - r * .3, Y - r * .3, r * .3, 0, 6.2832); ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.fill();
       pins.push({ p, X, Y, r });
     });
@@ -440,13 +456,16 @@
   const lb = document.getElementById('lb'); if (!lb) return;
   const img = document.getElementById('lb-img'), cap = document.getElementById('lb-cap');
   let list = [], idx = 0, last = null;
-  const show = () => { const t = list[idx]; img.src = t.full; img.alt = t.alt; cap.textContent = t.alt.toUpperCase() + ' · ' + String(idx + 1).padStart(2, '0') + ' / ' + String(list.length).padStart(2, '0'); };
+  const show = () => { const t = list[idx]; img.classList.remove('lb--doc'); document.getElementById('lb-prev').hidden = document.getElementById('lb-next').hidden = list.length < 2; img.src = t.full; img.alt = t.alt; cap.textContent = t.alt.toUpperCase() + ' · ' + String(idx + 1).padStart(2, '0') + ' / ' + String(list.length).padStart(2, '0'); };
   const open = (gal, i) => {
     list = Array.from(gal.querySelectorAll('.thumb')).map(b => { const im = b.querySelector('img'); return { full: b.dataset.full || im.src, alt: im.alt }; });
     idx = i; last = document.activeElement; lb.hidden = false; document.body.style.overflow = 'hidden'; show(); document.getElementById('lb-close').focus();
   };
   const close = () => { lb.hidden = true; document.body.style.overflow = ''; if (last) last.focus(); };
   document.querySelectorAll('.thumbs').forEach(gal => gal.querySelectorAll('.thumb').forEach((b, i) => b.addEventListener('click', () => open(gal, i))));
+  document.querySelectorAll('[data-lb-src]').forEach(b => b.addEventListener('click', () => {
+    list = [{ full: b.dataset.lbSrc, alt: b.dataset.lbAlt || '' }]; idx = 0; last = b; lb.hidden = false; document.body.style.overflow = 'hidden'; show(); img.classList.add('lb--doc'); document.getElementById('lb-close').focus();
+  }));
   document.getElementById('lb-close').addEventListener('click', close);
   document.getElementById('lb-prev').addEventListener('click', () => { idx = (idx - 1 + list.length) % list.length; show(); });
   document.getElementById('lb-next').addEventListener('click', () => { idx = (idx + 1) % list.length; show(); });
