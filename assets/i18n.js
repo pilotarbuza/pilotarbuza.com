@@ -1,7 +1,8 @@
 /* pilotarbuza.com — словари RU / EN / TR. Ключи совпадают с data-i18n в разметке. */
 window.I18N = {
   en: {
-    'travel.h': 'Where I’ve been', 'travel.p': 'Every pin is a city I’ve set foot in. Drag the globe — it spins on every axis.', 'travel.countries': 'countries', 'travel.cities': 'cities', 'travel.wishn': 'on the wishlist', 'travel.visited': 'visited', 'travel.wish': 'wishlist', 'travel.link': 'Full map on Pin Traveler', 'travel.globe': 'Globe with visited cities', 'travel.drag': 'DRAG TO ROTATE',
+    'travel.dest': 'destinations', 'kart.s1': 'Wheelbase', 'kart.s2': 'Track F / R', 'kart.s3': 'Frame', 'kart.s3v': 'tube Ø32×2, St 20', 'kart.s4': 'Engine', 'kart.s4v': 'ICE 6.5 hp, chain drive', 'kart.open': 'Open the drawing',
+    'travel.h': 'Where I’ve been', 'travel.p': 'Every pin is a place I’ve been. Drag the globe — it spins on every axis.', 'travel.countries': 'countries', 'travel.cities': 'cities', 'travel.wishn': 'on the wishlist', 'travel.visited': 'visited', 'travel.wish': 'wishlist', 'travel.link': 'Full map on Pin Traveler', 'travel.globe': 'Globe with visited cities', 'travel.drag': 'DRAG TO ROTATE',
     'pk.open': 'Open photo', 'lb.close': 'Close', 'lb.prev': 'Previous', 'lb.next': 'Next',
     'meta.title': 'pilotarbuza — Maksim Akhmadulin',
     'meta.desc': 'Maksim Akhmadulin: mechanical engineer in progress, pilot by plan. Studying in Türkiye, an aviation documentation bot, the pilot_arbuza brand.',
@@ -45,7 +46,8 @@ window.I18N = {
     'nf.hand': 'I’M NOT LOST, I’M HOLDING.', 'nf.p': 'No such page. Circling in the holding pattern while you pick a new course.', 'nf.home': 'Home', 'nf.write': 'Write me'
   },
   ru: {
-    'travel.h': 'Где я был', 'travel.p': 'Каждый пин — город, где я стоял ногами. Покрутите глобус: он вращается по всем осям.', 'travel.countries': 'стран', 'travel.cities': 'городов', 'travel.wishn': 'в списке желаний', 'travel.visited': 'был', 'travel.wish': 'хочу', 'travel.link': 'Полная карта на Pin Traveler', 'travel.globe': 'Глобус с посещёнными городами', 'travel.drag': 'ТЯНИТЕ, ЧТОБЫ КРУТИТЬ',
+    'travel.dest': 'мест', 'kart.s1': 'База', 'kart.s2': 'Колея пер. / задн.', 'kart.s3': 'Рама', 'kart.s3v': 'труба Ø32×2, Ст 20', 'kart.s4': 'Двигатель', 'kart.s4v': 'ДВС 6,5 л.с., цепной привод', 'kart.open': 'Открыть чертёж',
+    'travel.h': 'Где я был', 'travel.p': 'Каждый пин — место, где я был. Покрутите глобус: он вращается по всем осям.', 'travel.countries': 'стран', 'travel.cities': 'городов', 'travel.wishn': 'в списке желаний', 'travel.visited': 'был', 'travel.wish': 'хочу', 'travel.link': 'Полная карта на Pin Traveler', 'travel.globe': 'Глобус с посещёнными городами', 'travel.drag': 'ТЯНИТЕ, ЧТОБЫ КРУТИТЬ',
     'pk.open': 'Открыть фото', 'lb.close': 'Закрыть', 'lb.prev': 'Назад', 'lb.next': 'Вперёд',
     'meta.title': 'pilotarbuza — Максим Ахмадулин',
     'meta.desc': 'Максим Ахмадулин: инженер-механик в процессе, пилот по плану. Учёба в Турции, бот с авиационной документацией, бренд pilot_arbuza.',
@@ -89,7 +91,8 @@ window.I18N = {
     'nf.hand': 'I’M NOT LOST, I’M HOLDING.', 'nf.p': 'Такой страницы нет. Кружим в зоне ожидания, пока вы выбираете новый курс.', 'nf.home': 'На главную', 'nf.write': 'Написать мне'
   },
   tr: {
-    'travel.h': 'Nerelerdeydim', 'travel.p': 'Her pin, ayak bastığım bir şehir. Küreyi sürükleyin — her eksende döner.', 'travel.countries': 'ülke', 'travel.cities': 'şehir', 'travel.wishn': 'istek listesinde', 'travel.visited': 'gittim', 'travel.wish': 'istek', 'travel.link': 'Tam harita Pin Traveler’da', 'travel.globe': 'Gidilen şehirlerle küre', 'travel.drag': 'DÖNDÜRMEK İÇİN SÜRÜKLEYİN',
+    'travel.dest': 'yer', 'kart.s1': 'Dingil mesafesi', 'kart.s2': 'İz ön / arka', 'kart.s3': 'Şasi', 'kart.s3v': 'boru Ø32×2, St 20', 'kart.s4': 'Motor', 'kart.s4v': 'İYM 6,5 hp, zincir tahrik', 'kart.open': 'Çizimi aç',
+    'travel.h': 'Nerelerdeydim', 'travel.p': 'Her pin gittiğim bir yer. Küreyi sürükleyin — her eksende döner.', 'travel.countries': 'ülke', 'travel.cities': 'şehir', 'travel.wishn': 'istek listesinde', 'travel.visited': 'gittim', 'travel.wish': 'istek', 'travel.link': 'Tam harita Pin Traveler’da', 'travel.globe': 'Gidilen şehirlerle küre', 'travel.drag': 'DÖNDÜRMEK İÇİN SÜRÜKLEYİN',
     'pk.open': 'Fotoğrafı aç', 'lb.close': 'Kapat', 'lb.prev': 'Önceki', 'lb.next': 'Sonraki',
     'meta.title': 'pilotarbuza — Maksim Ahmadulin',
     'meta.desc': 'Maksim Ahmadulin: yolda olan bir makine mühendisi, plandaki pilot. Türkiye’de öğrenci, havacılık dokümantasyon botu ve pilot_arbuza markası.',
