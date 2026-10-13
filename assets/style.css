@@ -661,3 +661,51 @@ body.has-cursor .cursor { display: block; }
   .tkt__ico svg { width: 19px; height: 19px; }
   .tkt__code { font-size: 18px; }
 }
+
+/* ---------- футболки с мокапами ---------- */
+a.tee { color: inherit; }
+.tee__stage--img { background: #F6F2EA; overflow: hidden; }
+.tee__stage--img img { width: 100%; height: 100%; object-fit: contain; }
+.tee--more { background: var(--ink); color: var(--cream); justify-content: space-between; align-items: flex-start; min-height: 260px; }
+.tee--more .doto { font-size: clamp(88px, 9vw, 132px); line-height: .85; color: var(--accent); }
+.tee--more h3 { font-size: 26px; line-height: 1.15; letter-spacing: -0.02em; }
+
+/* ---------- магазин мерча: /shop/ ---------- */
+.sp-hero { padding: clamp(120px, 14vw, 180px) var(--gutter) clamp(48px, 6vw, 80px); }
+.sp-hero__in { max-width: var(--max); margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+.sp-hero__meta { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; font-size: 15px; color: var(--muted-d2); }
+.sp-hero h1 { font-size: clamp(52px, 9vw, 128px); letter-spacing: -0.04em; }
+.sp-hero p { max-width: 620px; font-size: clamp(18px, 2vw, 22px); line-height: 1.5; color: var(--muted-d2); }
+.sp-hero__btns { display: flex; gap: 12px; flex-wrap: wrap; }
+.sp { max-width: var(--max); margin: 0 auto; padding: clamp(48px, 7vw, 96px) var(--gutter); }
+.sp__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.sp-card { padding: 20px; display: flex; flex-direction: column; gap: 18px; border-radius: 24px; scroll-margin-top: 96px; }
+.sp-card__stage { position: relative; aspect-ratio: 900 / 840; border-radius: 16px; background: #F6F2EA; overflow: hidden; }
+.sp-card__stage img { width: 100%; height: 100%; object-fit: contain; transition: opacity .25s; }
+.sp-card__stage img.swap { opacity: 0; }
+.sp-card__n { position: absolute; left: 14px; top: 12px; font-size: 13px; color: var(--muted); }
+.sp-card h2 { font-size: 22px; line-height: 1.15; letter-spacing: -0.02em; }
+.sp-card__d { font-size: 15px; line-height: 1.5; color: var(--muted); min-height: 3em; }
+.sp-card__cw { display: flex; flex-direction: column; gap: 10px; }
+.sp-card__cw small { font-size: 14px; color: var(--ink-2); } .sp-card__cw small b { font-weight: 600; }
+.sw { display: flex; gap: 8px; flex-wrap: wrap; }
+.sw button { width: 44px; height: 44px; padding: 0; border-radius: 50%; border: 1.5px solid var(--line); background: var(--tee); display: grid; place-items: center; cursor: pointer; transition: transform .25s var(--spring), box-shadow .25s; }
+.sw button::after { content: ""; width: 14px; height: 14px; border-radius: 50%; background: var(--ink-c); }
+.sw button:hover { transform: scale(1.08); }
+.sw button[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--paper), 0 0 0 4px var(--ink); }
+.sp-card__buy { margin-top: auto; display: flex; flex-direction: column; gap: 12px; }
+.sp-card__price { font-size: 15px; font-weight: 500; color: var(--muted); }
+.sp-card__btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.sp-card__btns .btn { flex: 1 1 auto; min-height: 48px; padding: 0 18px; font-size: 15px; }
+.sp-how { background: var(--ink); color: var(--cream); padding: 28px; justify-content: space-between; }
+.sp-how h2 { font-size: 30px; }
+.sp-how ol { display: flex; flex-direction: column; gap: 14px; counter-reset: how; }
+.sp-how li { counter-increment: how; display: grid; grid-template-columns: 34px 1fr; gap: 8px; font-size: 16px; line-height: 1.45; color: var(--muted-d2); }
+.sp-how li::before { content: "0" counter(how); font-family: var(--f-doto); font-weight: 900; color: var(--accent); }
+.sp-how .hand { font-size: 22px; }
+@media (max-width: 1100px) { .sp__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .sp__grid { grid-template-columns: 1fr; gap: 16px; } .sp-card { padding: 16px; } .sp-card__d { min-height: 0; } }
+.marquee--auto { animation: marquee 32s linear infinite; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .marquee--auto { animation: none; } }
+a.tee .tee__row span { white-space: nowrap; flex: none; }
