@@ -22,31 +22,6 @@
   tick(); setInterval(tick, 15000);
   const y = $('#year'); if (y) y.textContent = new Date().getFullYear();
 
-  /* ---------- курсор-самолётик ---------- */
-  const cursor = $('#cursor');
-  if (cursor && fine.matches && !reduce) {
-    document.body.classList.add('has-cursor');
-    let cx = innerWidth / 2, cy = innerHeight / 2, tx = cx, ty = cy, ang = 0;
-    addEventListener('pointermove', e => {
-      tx = e.clientX; ty = e.clientY;
-      const el = e.target.closest('a, button, summary, input, [data-tilt]');
-      cursor.classList.toggle('cursor--link', !!el);
-      const dark = e.target.closest('.dark, .board, .pcard--ann, .pcard--brand, .chart, .menu, .marquee-wrap');
-      cursor.classList.toggle('cursor--dark', !!dark);
-    });
-    const loop = () => {
-      const dx = tx - cx, dy = ty - cy;
-      cx += dx * .22; cy += dy * .22;
-      if (Math.hypot(dx, dy) > .5) {
-        const target = Math.atan2(dy, dx) * 180 / Math.PI;
-        let d = target - ang; d = ((d + 540) % 360) - 180; ang += d * .15;
-      }
-      cursor.style.transform = `translate(${cx}px, ${cy}px) rotate(${ang}deg)`;
-      requestAnimationFrame(loop);
-    };
-    loop();
-  }
-
   /* ---------- шапка и меню ---------- */
   const top = $('#top'), hero = $('#hero');
   if (top && hero) {
