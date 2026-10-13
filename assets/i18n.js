@@ -1,6 +1,12 @@
 /* pilotarbuza.com — словари RU / EN / TR. Ключи совпадают с data-i18n в разметке. */
 window.I18N = {
   en: {
+    'sp.more': 'Details',
+    'pp.back': '← All prints', 'pp.f1': 'One-colour print on the back', 'pp.f2': 'Sizes XS–XXL', 'pp.f3': 'Nothing to pay now — I’ll message you to confirm the order',
+    'pp.share': 'Copy link', 'pp.copied': 'Link copied', 'pp.more': 'Other prints',
+    'sz.open': 'Size guide', 'sz.title': 'Size guide', 'sz.w': 'Chest width', 'sz.l': 'Length', 'sz.note': 'In centimetres, T-shirt laid flat. Approximate — I’ll confirm the exact numbers with you before printing.',
+    'l2.soon': 'Coming soon', 'l2.h': 'Second line', 'l2.p': 'Prints about aviation professions. The designs are in the works — these are the titles.', 'l2.btn': 'Tell me when it lands',
+    'l2.msg': 'Hi! Let me know when the second pilot_arbuza line is out.',
     'sp.desc': 'pilot_arbuza T-shirts with aviation memes: five prints, five colourways each. Preorders are open.',
     'sp.lead': 'T-shirts with aviation memes. Five prints, five colourways each — preorders are open.',
     'sp.pre': 'Preorder', 'sp.badge': 'Preorder',
@@ -63,6 +69,12 @@ window.I18N = {
     'nf.hand': 'I’M NOT LOST, I’M HOLDING.', 'nf.p': 'No such page. Circling in the holding pattern while you pick a new course.', 'nf.home': 'Home', 'nf.write': 'Write me'
   },
   ru: {
+    'sp.more': 'Подробнее',
+    'pp.back': '← Все принты', 'pp.f1': 'Принт в один цвет на спине', 'pp.f2': 'Размеры XS–XXL', 'pp.f3': 'Платить сейчас не нужно — я напишу, чтобы подтвердить заказ',
+    'pp.share': 'Скопировать ссылку', 'pp.copied': 'Ссылка скопирована', 'pp.more': 'Другие принты',
+    'sz.open': 'Размерная сетка', 'sz.title': 'Размерная сетка', 'sz.w': 'Ширина по груди', 'sz.l': 'Длина', 'sz.note': 'В сантиметрах, футболка разложена на столе. Значения ориентировочные — точные подтвержу перед печатью.',
+    'l2.soon': 'Скоро', 'l2.h': 'Вторая линейка', 'l2.p': 'Принты про авиационные профессии. Макеты в работе — пока только названия.', 'l2.btn': 'Сообщить о выходе',
+    'l2.msg': 'Привет! Сообщите, когда выйдет вторая линейка pilot_arbuza.',
     'sp.desc': 'Футболки pilot_arbuza с авиационными мемами: пять принтов, каждый в пяти расцветках. Открыт предзаказ.',
     'sp.lead': 'Футболки с авиационными мемами. Пять принтов, каждый в пяти расцветках — открыт предзаказ.',
     'sp.pre': 'Предзаказ', 'sp.badge': 'Предзаказ',
@@ -125,6 +137,12 @@ window.I18N = {
     'nf.hand': 'I’M NOT LOST, I’M HOLDING.', 'nf.p': 'Такой страницы нет. Кружим в зоне ожидания, пока вы выбираете новый курс.', 'nf.home': 'На главную', 'nf.write': 'Написать мне'
   },
   tr: {
+    'sp.more': 'Detaylar',
+    'pp.back': '← Tüm baskılar', 'pp.f1': 'Sırtta tek renk baskı', 'pp.f2': 'Bedenler XS–XXL', 'pp.f3': 'Şimdi ödeme yok — siparişi onaylamak için size yazacağım',
+    'pp.share': 'Bağlantıyı kopyala', 'pp.copied': 'Bağlantı kopyalandı', 'pp.more': 'Diğer baskılar',
+    'sz.open': 'Beden tablosu', 'sz.title': 'Beden tablosu', 'sz.w': 'Göğüs genişliği', 'sz.l': 'Boy', 'sz.note': 'Santimetre cinsinden, tişört düz serilmiş hâlde. Yaklaşık değerler — kesin ölçüleri baskıdan önce sizinle netleştiririm.',
+    'l2.soon': 'Yakında', 'l2.h': 'İkinci seri', 'l2.p': 'Havacılık meslekleri üzerine baskılar. Tasarımlar hazırlanıyor — şimdilik sadece isimler.', 'l2.btn': 'Çıkınca haber ver',
+    'l2.msg': 'Merhaba! pilot_arbuza ikinci serisi çıkınca haber verir misiniz?',
     'sp.desc': 'Havacılık esprili pilot_arbuza tişörtleri: beş baskı, her biri beş renkte. Ön sipariş açık.',
     'sp.lead': 'Havacılık esprili tişörtler. Beş baskı, her biri beş renkte — ön sipariş açık.',
     'sp.pre': 'Ön sipariş', 'sp.badge': 'Ön sipariş',
