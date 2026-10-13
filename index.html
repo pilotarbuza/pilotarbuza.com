@@ -310,7 +310,7 @@
               <span class="stk stk--ink" style="--r:-2deg;--x:0;--y:102px">I'M NOT LOST, I'M HOLDING</span>
               <span class="stk stk--accent" style="--r:5deg;--x:60px;--y:150px">1500 FLIGHT HOURS / 0 SLEEP</span>
             </div>
-            <a href="#shop" class="btn btn--light" data-i18n="brand.btn">To the shop</a>
+            <a href="shop/" class="btn btn--light" data-i18n="brand.btn">To the shop</a>
           </article>
 
           <article class="pcard pcard--channel" data-reveal>
@@ -423,24 +423,37 @@
       </div>
       <div class="shop__inner">
         <div class="sec-head sec-head--btn" data-reveal>
-          <div><h2 class="h2" data-i18n="shop.h">Shop</h2><p><span data-i18n="shop.p">The first line of T-shirts is getting ready to launch.</span><span class="only-m" data-i18n="ui.swipe"> Swipe sideways.</span></p></div>
-          <button type="button" class="btn btn--primary notify" id="notify"><span class="notify__a" data-i18n="shop.notify">Notify me at launch</span><span class="notify__b doto">YOU ARE ON THE LIST</span></button>
+          <div><h2 class="h2" data-i18n="shop.h">Shop</h2><p><span data-i18n="shop.p">The first line of T-shirts: five prints, five colourways each.</span><span class="only-m" data-i18n="ui.swipe"> Swipe sideways.</span></p></div>
+          <a class="btn btn--primary" href="shop/" data-i18n="shop.open">Open the shop</a>
         </div>
         <div class="rail" data-rail>
-        <div class="rail__ui only-m"><button type="button" class="rail__btn rail__prev" data-i18n-aria="lb.prev" aria-label="Previous">←</button><span class="rail__count doto">01 / 05</span><span class="rail__dots"></span><button type="button" class="rail__btn rail__next" data-i18n-aria="lb.next" aria-label="Next">→</button></div>
+        <div class="rail__ui only-m"><button type="button" class="rail__btn rail__prev" data-i18n-aria="lb.prev" aria-label="Previous">←</button><span class="rail__count doto">01 / 06</span><span class="rail__dots"></span><button type="button" class="rail__btn rail__next" data-i18n-aria="lb.next" aria-label="Next">→</button></div>
           <div class="rail__track shop__grid">
-            <article class="tee card" data-reveal data-tilt>
-              <div class="tee__stage"><svg viewBox="0 0 200 220" aria-hidden="true"><path d="M62 12 L84 4 C90 16 110 16 116 4 L138 12 L190 42 L170 82 L148 70 L148 212 L52 212 L52 70 L30 82 L10 42 Z" fill="#FFFFFF" stroke="#13223A" stroke-width="2" stroke-linejoin="round"/></svg><div class="tee__print">JUST<br><em>press</em><br>BUTTONS</div></div>
-              <div class="tee__row"><h3>JUST press BUTTONS</h3><span data-i18n="shop.price">[PRICE]</span></div>
-            </article>
-            <article class="tee card" data-reveal data-tilt>
-              <div class="tee__stage"><svg viewBox="0 0 200 220" aria-hidden="true"><path d="M62 12 L84 4 C90 16 110 16 116 4 L138 12 L190 42 L170 82 L148 70 L148 212 L52 212 L52 70 L30 82 L10 42 Z" fill="#7A1830" stroke="#13223A" stroke-width="2" stroke-linejoin="round"/></svg><div class="tee__print tee__print--doto">I'M NOT LOST,<br>I'M HOLDING</div></div>
-              <div class="tee__row"><h3>I'M NOT LOST, I'M HOLDING</h3><span data-i18n="shop.price">[PRICE]</span></div>
-            </article>
-            <article class="tee card" data-reveal data-tilt>
-              <div class="tee__stage"><svg viewBox="0 0 200 220" aria-hidden="true"><path d="M62 12 L84 4 C90 16 110 16 116 4 L138 12 L190 42 L170 82 L148 70 L148 212 L52 212 L52 70 L30 82 L10 42 Z" fill="#1A1F27" stroke="#13223A" stroke-width="2" stroke-linejoin="round"/></svg><div class="tee__print tee__print--light">1500 FLIGHT HOURS<br><span class="accent">0 SLEEP</span></div></div>
-              <div class="tee__row"><h3>1500 FLIGHT HOURS / 0 SLEEP</h3><span data-i18n="shop.price">[PRICE]</span></div>
-            </article>
+            <a class="tee card" href="shop/#buttons" data-reveal data-tilt>
+              <div class="tee__stage tee__stage--img"><img src="assets/img/shop/buttons-sky_on_cloud.webp" width="900" height="840" loading="lazy" alt="JUST press BUTTONS — pilot_arbuza T-shirt"></div>
+              <div class="tee__row"><h3>JUST press BUTTONS</h3><span data-i18n="shop.colors">5 colours</span></div>
+            </a>
+            <a class="tee card" href="shop/#flap" data-reveal data-tilt>
+              <div class="tee__stage tee__stage--img"><img src="assets/img/shop/flap-cloud_on_bordo.webp" width="900" height="840" loading="lazy" alt="CERTIFIED FLAP OPERATOR — pilot_arbuza T-shirt"></div>
+              <div class="tee__row"><h3>CERTIFIED FLAP OPERATOR</h3><span data-i18n="shop.colors">5 colours</span></div>
+            </a>
+            <a class="tee card" href="shop/#autopilot" data-reveal data-tilt>
+              <div class="tee__stage tee__stage--img"><img src="assets/img/shop/autopilot-high_on_night.webp" width="900" height="840" loading="lazy" alt="CERTIFIED AUTOPILOT SUPERVISOR — pilot_arbuza T-shirt"></div>
+              <div class="tee__row"><h3>CERTIFIED AUTOPILOT SUPERVISOR</h3><span data-i18n="shop.colors">5 colours</span></div>
+            </a>
+            <a class="tee card" href="shop/#holding" data-reveal data-tilt>
+              <div class="tee__stage tee__stage--img"><img src="assets/img/shop/holding-white_on_sky.webp" width="900" height="840" loading="lazy" alt="I'M NOT LOST, I'M HOLDING — pilot_arbuza T-shirt"></div>
+              <div class="tee__row"><h3>I'M NOT LOST, I'M HOLDING</h3><span data-i18n="shop.colors">5 colours</span></div>
+            </a>
+            <a class="tee card" href="shop/#1500" data-reveal data-tilt>
+              <div class="tee__stage tee__stage--img"><img src="assets/img/shop/1500-bordo_on_cloud.webp" width="900" height="840" loading="lazy" alt="1500 FLIGHT HOURS / 0 SLEEP — pilot_arbuza T-shirt"></div>
+              <div class="tee__row"><h3>1500 FLIGHT HOURS / 0 SLEEP</h3><span data-i18n="shop.colors">5 colours</span></div>
+            </a>
+            <a class="tee tee--more card" href="shop/" data-reveal>
+              <span class="doto">25</span>
+              <h3 data-i18n="shop.more">Five prints × five colourways</h3>
+              <span class="btn btn--light" data-i18n="shop.open">Open the shop</span>
+            </a>
           </div>
           
         </div>
