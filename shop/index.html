@@ -82,6 +82,23 @@
       </div>
       <noscript><p>The catalogue needs JavaScript. To preorder, write to <a href="https://t.me/pilot_arbuza">@pilot_arbuza</a> on Telegram.</p></noscript>
     </section>
+
+    <section class="l2 dark dots" id="line2">
+      <div class="l2__in">
+        <div class="l2__head">
+          <div><span class="doto l2__tag" data-i18n="l2.soon">Coming soon</span><h2 class="h2" data-i18n="l2.h">Second line</h2></div>
+          <p data-i18n="l2.p">Prints about aviation professions. The designs are in the works — these are the titles.</p>
+        </div>
+        <ul class="l2__grid">
+          <li><span class="doto">01</span><b>PUT YOUR OWN MASK ON FIRST</b></li>
+          <li><span class="doto">02</span><b>LET’S SPOOL UP TOGETHER</b></li>
+          <li><span class="doto">03</span><b>IT’S NOT BROKEN, IT’S DEFERRED</b></li>
+          <li><span class="doto">04</span><b>FOLLOW ME</b></li>
+          <li><span class="doto">05</span><b>DELAYED</b></li>
+        </ul>
+        <a class="btn btn--light" id="l2-btn" href="https://t.me/pilot_arbuza" target="_blank" rel="noopener" data-i18n="l2.btn">Tell me when it lands</a>
+      </div>
+    </section>
   </main>
 
   <footer class="foot dark dots">
@@ -89,45 +106,6 @@
     <span class="doto foot__mid">KONYA <time class="clock">--:--</time> STANDBY</span>
     <a href="/" data-i18n="sp.back">Back to the site</a>
   </footer>
-
-  <dialog class="pf" id="preorder" aria-labelledby="pf-h">
-    <div class="pf__head">
-      <h2 id="pf-h" data-i18n="f.title">Preorder</h2>
-      <button type="button" class="pf__x" data-close data-i18n-aria="lb.close" aria-label="Close">×</button>
-    </div>
-    <form id="pf-form" class="pf__form">
-      <div class="pf__pick">
-        <img id="pf-img" src="/assets/img/shop/buttons-sky_on_cloud.webp" width="900" height="840" alt="">
-        <div class="pf__pickr">
-          <label class="fld"><span data-i18n="f.print">Print</span><select name="print"></select></label>
-          <div class="fld"><span><span data-i18n="sp.color">Colourway</span>: <b id="pf-cw"></b></span><div class="sw" id="pf-sw" role="group"></div></div>
-        </div>
-      </div>
-      <div class="pf__row">
-        <label class="fld"><span data-i18n="f.size">Size</span>
-          <select name="size" required><option>XS</option><option>S</option><option selected>M</option><option>L</option><option>XL</option><option>XXL</option></select></label>
-        <label class="fld"><span data-i18n="f.qty">Quantity</span><input name="qty" type="number" min="1" max="10" value="1" inputmode="numeric" required></label>
-      </div>
-      <label class="fld"><span data-i18n="f.name">Your name</span><input name="name" type="text" minlength="2" maxlength="80" autocomplete="name" required></label>
-      <div class="pf__row pf__row--contact">
-        <label class="fld"><span data-i18n="f.via">Contact via</span>
-          <select name="contact_type"><option value="telegram">Telegram</option><option value="whatsapp">WhatsApp</option><option value="email">Email</option></select></label>
-        <label class="fld"><span data-i18n="f.contact">Contact</span><input name="contact" type="text" minlength="3" maxlength="120" required></label>
-      </div>
-      <label class="fld"><span data-i18n="f.city">City and country</span><input name="city" type="text" maxlength="120" autocomplete="address-level2"></label>
-      <label class="fld"><span data-i18n="f.comment">Comment</span><textarea name="comment" rows="2" maxlength="600"></textarea></label>
-      <label class="pf__hp" aria-hidden="true">Website<input name="website" type="text" tabindex="-1" autocomplete="off"></label>
-      <p class="pf__err" id="pf-err" role="alert" hidden><span data-i18n="f.err">Could not send the form. Message me on Telegram instead:</span> <a id="pf-fallback" href="https://t.me/pilot_arbuza" target="_blank" rel="noopener">@pilot_arbuza</a></p>
-      <button type="submit" class="btn btn--primary" id="pf-send" data-i18n="f.send">Send preorder</button>
-      <p class="pf__note" data-i18n="f.note">Nothing to pay now. Your contact is used only to confirm this order.</p>
-    </form>
-    <div class="pf__done" id="pf-done" hidden>
-      <span class="doto" id="pf-num"></span>
-      <h3 data-i18n="f.ok.h">Preorder received</h3>
-      <p data-i18n="f.ok.p">Thank you! I’ll get in touch to confirm the size, price and delivery.</p>
-      <button type="button" class="btn btn--primary" data-close data-i18n="f.ok.btn">Back to the catalogue</button>
-    </div>
-  </dialog>
 
   <script src="/assets/i18n.js"></script>
   <script src="/assets/shop.js" defer></script>

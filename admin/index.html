@@ -38,6 +38,19 @@
     .ord__side { display: flex; flex-direction: column; gap: 8px; }
     .ord__side textarea { min-height: 64px; }
     .ord__del { align-self: flex-start; border: 0; background: none; color: var(--wine); font: 500 14px var(--f-body); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 6px 0; }
+    .dm { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+    .dm__head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+    .dm__head h2 { font-size: 22px; letter-spacing: -0.01em; } .dm__head span { font-size: 14px; color: var(--muted); }
+    .dm__scroll { overflow-x: auto; }
+    .dm table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .dm th, .dm td { padding: 8px 10px; text-align: center; border-bottom: 1px solid var(--line); white-space: nowrap; }
+    .dm th:first-child, .dm td:first-child { text-align: left; }
+    .dm thead th { font-weight: 500; color: var(--muted); }
+    .dm td.hot { background: rgba(255,92,115,calc(var(--k) * .55)); font-weight: 600; }
+    .dm td.zero { color: var(--muted-d); }
+    .dm tfoot td, .dm td:last-child, .dm th:last-child { font-weight: 600; }
+    .dm__sizes { display: flex; gap: 8px; flex-wrap: wrap; }
+    .dm__sizes span { padding: 6px 12px; border-radius: 999px; background: var(--paper-2); font-size: 14px; } .dm__sizes b { margin-left: 6px; }
     .ad__empty { padding: 40px; text-align: center; color: var(--muted); }
     @media (max-width: 760px) { .ord { grid-template-columns: 64px minmax(0, 1fr); } .ord img { width: 64px; } .ord__side { grid-column: 1 / -1; } }
   </style>
@@ -62,6 +75,7 @@
             <button class="btn btn--primary btn--sm" type="button" id="logout">Выйти</button>
           </div>
         </div>
+        <section class="dm card" id="demand" hidden></section>
         <div class="ad__tools">
           <div class="chips" id="chips" role="group" aria-label="Статус"></div>
           <input class="fld-in" id="search" type="search" placeholder="Поиск: имя, контакт, город, №" aria-label="Поиск">

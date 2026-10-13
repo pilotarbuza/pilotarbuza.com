@@ -65,9 +65,30 @@
     return art;
   }
 
+  // Сводка спроса: сколько штук каждого принта, расцветки и размера заказано (отменённые не считаются).
+  function demand() {
+    const box = $('#demand'), live = state.orders.filter(o => o.status !== 'cancelled');
+    box.hidden = !live.length;
+    if (!live.length) return;
+    const prints = ['buttons', 'flap', 'autopilot', 'holding', '1500'].filter(p => p in state.prints), cws = Object.keys(CW), sum = f => live.filter(f).reduce((n, o) => n + o.qty, 0);
+    const total = sum(() => true), max = Math.max(1, ...prints.flatMap(p => cws.map(c => sum(o => o.print === p && o.colorway === c))));
+    const cell = (n, heat) => { const td = el('td', { textContent: n || '·', className: n ? (heat ? 'hot' : '') : 'zero' }); if (n && heat) td.style.setProperty('--k', n / max); return td; };
+    const table = el('table', {}, [
+      el('thead', {}, el('tr', {}, [el('th', { textContent: 'Принт' }), ...cws.map(c => el('th', { textContent: CW[c] })), el('th', { textContent: 'Всего' })])),
+      el('tbody', {}, prints.map(p => el('tr', {}, [el('td', { textContent: state.prints[p] }), ...cws.map(c => cell(sum(o => o.print === p && o.colorway === c), true)), cell(sum(o => o.print === p))]))),
+      el('tfoot', {}, el('tr', {}, [el('td', { textContent: 'Всего' }), ...cws.map(c => cell(sum(o => o.colorway === c))), cell(total)])),
+    ]);
+    const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'].map(z => el('span', {}, [z, el('b', { textContent: sum(o => o.size === z) })]));
+    box.replaceChildren(
+      el('div', { className: 'dm__head' }, [el('h2', { textContent: 'Спрос' }), el('span', { textContent: `${total} шт. в ${live.length} предзаказах, без отменённых` })]),
+      el('div', { className: 'dm__scroll' }, table),
+      el('div', { className: 'dm__sizes' }, sizes));
+  }
+
   function render() {
     const count = k => state.orders.filter(o => k === 'all' || o.status === k).length;
     $('#total').textContent = state.orders.length;
+    demand();
     $('#chips').replaceChildren(...['all', ...Object.keys(STATUS)].map(k => {
       const b = el('button', { type: 'button' }, [k === 'all' ? 'Все' : STATUS[k], el('b', { textContent: count(k) })]);
       b.setAttribute('aria-pressed', state.filter === k);
