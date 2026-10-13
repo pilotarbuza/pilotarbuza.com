@@ -17,8 +17,8 @@
 *, *::before, *::after { box-sizing: border-box; }
 html { scroll-behavior: smooth; overflow-x: hidden; touch-action: pan-x pan-y; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 17px; line-height: 1.5; -webkit-font-smoothing: antialiased; overflow-x: hidden; overflow-x: clip; position: relative; width: 100%; max-width: 100vw; }
-body.has-cursor, body.has-cursor a, body.has-cursor button { cursor: none; }
 a { color: inherit; text-decoration: none; }
+button, summary { cursor: pointer; } button:disabled { cursor: default; }
 a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 h1, h2, h3 { margin: 0; font-weight: 600; letter-spacing: -0.03em; line-height: 1; }
 p { margin: 0; }
@@ -43,16 +43,9 @@ img { max-width: 100%; display: block; }
 .sec-head--btn > div { display: flex; flex-direction: column; gap: 16px; }
 section { position: relative; }
 
-/* ---------- зерно, курсор, альтиметр ---------- */
+/* ---------- зерно, альтиметр ---------- */
 .grain { position: fixed; inset: 0; pointer-events: none; z-index: 90; opacity: .5; mix-blend-mode: overlay; background: url(img/grain.png) 0 0 / 220px 220px; animation: boil 1s steps(8) infinite; }
 @keyframes boil { 0%{background-position:0 0} 12.5%{background-position:-8px 6px} 25%{background-position:6px -9px} 37.5%{background-position:-4px -4px} 50%{background-position:9px 7px} 62.5%{background-position:-9px 2px} 75%{background-position:3px 9px} 87.5%{background-position:-2px -7px} 100%{background-position:0 0} }
-.cursor { position: fixed; left: 0; top: 0; width: 28px; height: 28px; margin: -14px 0 0 -14px; pointer-events: none; z-index: 100; display: none; will-change: transform; }
-.cursor svg { width: 100%; height: 100%; fill: var(--ink); transition: transform .3s var(--ease), fill .3s; }
-.cursor--dark svg { fill: var(--cream); }
-.cursor--link svg { transform: scale(.35); }
-.cursor::after { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 1.5px solid var(--accent); transform: scale(0); transition: transform .3s var(--spring); }
-.cursor--link::after { transform: scale(2); }
-body.has-cursor .cursor { display: block; }
 .alt { position: fixed; right: 14px; bottom: 16px; z-index: 80; display: flex; flex-direction: column; align-items: flex-end; font-family: var(--f-doto); font-weight: 900; letter-spacing: .1em; pointer-events: none; mix-blend-mode: difference; color: #fff; }
 .alt span { font-size: 10px; opacity: .7; } .alt b { font-size: 18px; }
 
@@ -476,7 +469,6 @@ body.has-cursor .cursor { display: block; }
   .intro { padding-top: 72px; gap: 40px; }
   .facts { grid-template-columns: 1fr; }
 }
-@media (hover: none), (pointer: coarse) { .cursor { display: none !important; } }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
   html { scroll-behavior: auto; }
