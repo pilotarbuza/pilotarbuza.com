@@ -92,10 +92,14 @@ window.PA = (() => {
     if (r.status === 401 && path !== 'login') { onAuthLost(); throw new Error('auth'); }
     return r;
   };
-  const toast = (text, bad = false) => {
-    const t = $('#toast');
-    t.textContent = text; t.classList.toggle('pl-toast--bad', bad); t.classList.add('pl-toast--on');
-    clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('pl-toast--on'), bad ? 5000 : 2600);
+  // action — необязательная кнопка в сообщении: { label: 'Вернуть', fn }
+  const toast = (text, bad = false, action = null) => {
+    const t = $('#toast'), btn = $('#toast-act');
+    $('#toast-text').textContent = text; t.classList.toggle('pl-toast--bad', bad); t.classList.add('pl-toast--on');
+    btn.hidden = !action;
+    btn.onclick = action ? () => { t.classList.remove('pl-toast--on'); action.fn(); } : null;
+    if (action) btn.textContent = action.label;
+    clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('pl-toast--on'), bad ? 5000 : action ? 6000 : 2600);
   };
   const FIELD = { title: 'название', name: 'имя', start: 'начало', end: 'конец', parent: 'этап', date: 'дата', text: 'текст', contact: 'контакт', email: 'почта', color: 'цвет' };
   const why = async r => {
