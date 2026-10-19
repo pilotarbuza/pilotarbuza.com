@@ -16,6 +16,9 @@ import urllib.parse, urllib.request
 from datetime import datetime, timezone
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import crm  # noqa: E402  план работ и CRM: server/crm.py
+
 PRINTS = {
     'buttons': 'JUST press BUTTONS', 'flap': 'CERTIFIED FLAP OPERATOR', 'autopilot': 'CERTIFIED AUTOPILOT SUPERVISOR',
     'holding': "I'M NOT LOST, I'M HOLDING", '1500': '1500 FLIGHT HOURS / 0 SLEEP',
@@ -25,6 +28,8 @@ SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL']
 CONTACT_TYPES = ['telegram', 'whatsapp', 'email']
 STATUSES = ['new', 'confirmed', 'paid', 'shipped', 'done', 'cancelled']
 MAX_BODY = 16 * 1024
+MAX_BATCH_BODY = 512 * 1024
+CRM_SEED = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'crm_seed.json')
 SESSION_TTL = 12 * 3600
 PBKDF2_ITERS = 600_000
 
@@ -99,6 +104,7 @@ def init_db():
             name TEXT NOT NULL, contact_type TEXT NOT NULL, contact TEXT NOT NULL,
             city TEXT NOT NULL DEFAULT '', comment TEXT NOT NULL DEFAULT '', lang TEXT NOT NULL DEFAULT '',
             status TEXT NOT NULL DEFAULT 'new', note TEXT NOT NULL DEFAULT '')''')
+        crm.init(con, CRM_SEED)
 
 
 def now_iso():
@@ -154,7 +160,7 @@ class Handler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
-    def read_json(self):
+    def read_json(self, limit=MAX_BODY):
         """Тело запроса как dict; None, если запрос не похож на наш (и ответ уже отправлен)."""
         origin = self.headers.get('Origin')
         if origin and urllib.parse.urlsplit(origin).netloc != self.headers.get('Host'):
@@ -167,7 +173,7 @@ class Handler(SimpleHTTPRequestHandler):
             n = int(self.headers.get('Content-Length') or 0)
         except ValueError:
             n = -1
-        if n < 0 or n > MAX_BODY:
+        if n < 0 or n > limit:
             self.send_json(413, {'error': 'too large'})
             return None
         try:
@@ -225,6 +231,13 @@ class Handler(SimpleHTTPRequestHandler):
             if not self.require_admin():
                 return
             return self.send_csv()
+        if path in ('/api/admin/crm', '/api/admin/crm/export.json'):
+            if not self.require_admin():
+                return
+            with db() as con:
+                data = crm.all_records(con)
+            headers = [('Content-Disposition', 'attachment; filename="plan-crm-%s.json"' % time.strftime('%Y%m%d'))] if path.endswith('.json') else []
+            return self.send_json(200, data, headers)
         self.send_json(404, {'error': 'not found'})
 
     def do_HEAD(self):
@@ -245,9 +258,49 @@ class Handler(SimpleHTTPRequestHandler):
             with LOCK:
                 SESSIONS.pop(self.token(), None)
             return self.send_json(200, {'ok': True}, [('Set-Cookie', 'pa_admin=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Strict')])
+        if path == '/api/admin/crm/batch':
+            if not self.require_admin():
+                return
+            data = self.read_json(MAX_BATCH_BODY)
+            if data is None:
+                return
+            return self.crm_call(lambda con: {'results': crm.batch(con, data.get('ops'))})
+        m = re.fullmatch(r'/api/admin/crm/([a-z]+)', path)
+        if m and m.group(1) in crm.KINDS:
+            if not self.require_admin():
+                return
+            data = self.read_json()
+            if data is None:
+                return
+            return self.crm_call(lambda con: crm.create(con, m.group(1), data), 201)
         self.send_json(404, {'error': 'not found'})
 
+    def crm_call(self, fn, code=200):
+        """Выполнить действие с планом/CRM в одной транзакции и ответить JSON."""
+        try:
+            with db() as con:
+                result = fn(con)
+        except crm.Bad as e:
+            return self.send_json(400, e.payload)
+        if result is None:
+            return self.send_json(404, {'error': 'not found'})
+        self.send_json(code, result)
+
+    def crm_route(self):
+        m = re.fullmatch(r'/api/admin/crm/([a-z]+)/(\d+)', self.route())
+        if m and m.group(1) in crm.KINDS:
+            return m.group(1), int(m.group(2))
+        return None
+
     def do_PATCH(self):
+        target = self.crm_route()
+        if target:
+            if not self.require_admin():
+                return
+            data = self.read_json()
+            if data is None:
+                return
+            return self.crm_call(lambda con: crm.update(con, target[0], target[1], data))
         m = re.fullmatch(r'/api/admin/orders/(\d+)', self.route())
         if not m:
             return self.send_json(404, {'error': 'not found'})
@@ -270,14 +323,17 @@ class Handler(SimpleHTTPRequestHandler):
         self.send_json(200 if cur.rowcount else 404, {'ok': bool(cur.rowcount)})
 
     def do_DELETE(self):
+        target = self.crm_route()
         m = re.fullmatch(r'/api/admin/orders/(\d+)', self.route())
-        if not m:
+        if not (m or target):
             return self.send_json(404, {'error': 'not found'})
         if not self.require_admin():
             return
         origin = self.headers.get('Origin')
         if origin and urllib.parse.urlsplit(origin).netloc != self.headers.get('Host'):
             return self.send_json(403, {'error': 'origin'})
+        if target:
+            return self.crm_call(lambda con: {'deleted': crm.delete(con, *target)} if crm.get(con, *target) else None)
         with db() as con:
             cur = con.execute('DELETE FROM orders WHERE id=?', [int(m.group(1))])
         self.send_json(200 if cur.rowcount else 404, {'ok': bool(cur.rowcount)})

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>План и CRM — pilot_arbuza</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Doto:wght@700;900&family=Geologica:wght@400;500;600;700&family=Gloria+Hallelujah&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/style.css">
+  <link rel="stylesheet" href="/assets/plan/plan.css">
+</head>
+<body class="pl">
+  <form class="pl-login card" id="login" hidden>
+    <span class="hand" style="font-size:22px">pilot_arbuza</span>
+    <h1>План и CRM</h1>
+    <label class="fld"><span>Пароль админки</span><input id="password" type="password" autocomplete="current-password" required></label>
+    <button class="btn btn--primary" type="submit">Войти</button>
+    <p class="pl-msg" id="login-msg" role="alert"></p>
+  </form>
+
+  <div class="pl-app" id="app" hidden>
+    <header class="pl-top">
+      <a class="pl-brand" href="/admin/plan/" aria-label="План и CRM, обзор"><span class="hand">pilot_arbuza</span><span class="pl-brand__sub" id="project-name">План</span></a>
+      <nav class="pl-tabs" id="tabs" aria-label="Разделы">
+        <a href="#overview" data-view="overview">Обзор</a>
+        <a href="#gantt" data-view="gantt">Гант</a>
+        <a href="#calendar" data-view="calendar">Календарь</a>
+        <a href="#board" data-view="board">Доска</a>
+        <a href="#crm" data-view="crm">Контакты</a>
+        <a href="#team" data-view="team">Команда</a>
+      </nav>
+      <div class="pl-top__acts">
+        <button class="btn btn--primary btn--sm" type="button" id="new-task">Новая задача</button>
+        <details class="pl-more">
+          <summary class="pl-ico" aria-label="Ещё"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></summary>
+          <div class="pl-more__menu card">
+            <a href="/admin/">Предзаказы</a>
+            <a href="/api/admin/crm/export.json">Скачать резервную копию</a>
+            <button type="button" id="logout">Выйти</button>
+          </div>
+        </details>
+      </div>
+    </header>
+    <main class="pl-main" id="view" tabindex="-1"></main>
+    <p class="pl-toast" id="toast" role="status" aria-live="polite"></p>
+  </div>
+
+  <dialog class="pl-drawer" id="drawer" aria-labelledby="drawer-title"></dialog>
+
+  <script src="/assets/plan/core.js" defer></script>
+  <script src="/assets/plan/gantt.js" defer></script>
+  <script src="/assets/plan/views.js" defer></script>
+  <script src="/assets/plan/app.js" defer></script>
+</body>
+</html>
