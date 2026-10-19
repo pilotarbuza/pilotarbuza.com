@@ -6,6 +6,13 @@
   <title>План и CRM — pilot_arbuza</title>
   <meta name="robots" content="noindex, nofollow">
   <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#E6EBEE">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="План">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="/admin/plan/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/assets/plan/icons/apple-touch-icon.png">
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,14 +25,16 @@
     <span class="hand" style="font-size:22px">pilot_arbuza</span>
     <h1>План и CRM</h1>
     <label class="fld"><span>Пароль админки</span><input id="password" type="password" autocomplete="current-password" required></label>
+    <label class="pl-check"><input type="checkbox" id="remember"> Запомнить на этом устройстве на 30 дней</label>
     <button class="btn btn--primary" type="submit">Войти</button>
     <p class="pl-msg" id="login-msg" role="alert"></p>
   </form>
 
   <div class="pl-app" id="app" hidden>
     <header class="pl-top">
-      <a class="pl-brand" href="/admin/plan/" aria-label="План и CRM, обзор"><span class="hand">pilot_arbuza</span><span class="pl-brand__sub" id="project-name">План</span></a>
+      <a class="pl-brand" href="#today" aria-label="План и CRM, сегодня"><span class="hand">pilot_arbuza</span><span class="pl-brand__sub" id="project-name">План</span></a>
       <nav class="pl-tabs" id="tabs" aria-label="Разделы">
+        <a href="#today" data-view="today">Сегодня</a>
         <a href="#overview" data-view="overview">Обзор</a>
         <a href="#gantt" data-view="gantt">Гант</a>
         <a href="#calendar" data-view="calendar">Календарь</a>
@@ -34,26 +43,49 @@
         <a href="#team" data-view="team">Команда</a>
       </nav>
       <div class="pl-top__acts">
-        <button class="btn btn--primary btn--sm" type="button" id="new-task">Новая задача</button>
+        <button class="btn btn--primary btn--sm pl-top__new" type="button" id="new-task">Новая задача</button>
         <details class="pl-more">
           <summary class="pl-ico" aria-label="Ещё"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></summary>
           <div class="pl-more__menu card">
+            <a href="#notify">Уведомления на телефон</a>
             <a href="/admin/">Предзаказы</a>
             <a href="/api/admin/crm/export.json">Скачать резервную копию</a>
-            <button type="button" id="logout">Выйти</button>
+            <button type="button" data-logout>Выйти</button>
           </div>
         </details>
       </div>
     </header>
     <main class="pl-main" id="view" tabindex="-1"></main>
-    <p class="pl-toast" id="toast" role="status" aria-live="polite"></p>
+
+    <nav class="pl-bnav" id="bnav" aria-label="Разделы">
+      <a href="#today" data-view="today"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 3v4M16 3v4M4 10h16"/><path d="M9 15l2 2 4-4"/></svg><span>Сегодня</span></a>
+      <a href="#calendar" data-view="calendar"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 3v4M16 3v4M4 10h16"/><circle cx="9" cy="14.5" r="1"/><circle cx="15" cy="14.5" r="1"/></svg><span>Календарь</span></a>
+      <button type="button" class="pl-bnav__add" id="bnav-add" aria-label="Новая задача"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+      <a href="#crm" data-view="crm"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="3.5"/><path d="M5 20c1.2-3.6 4-5 7-5s5.8 1.4 7 5"/></svg><span>Контакты</span></a>
+      <button type="button" id="bnav-more" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>Ещё</span></button>
+    </nav>
+    <p class="pl-toast" id="toast" role="status" aria-live="polite"><span id="toast-text"></span><button type="button" id="toast-act" hidden></button></p>
   </div>
 
   <dialog class="pl-drawer" id="drawer" aria-labelledby="drawer-title"></dialog>
+  <dialog class="pl-sheet" id="sheet" aria-label="Ещё">
+    <div class="pl-sheet__grip" aria-hidden="true"></div>
+    <nav class="pl-sheet__list">
+      <a href="#overview" data-view="overview">Обзор и этапы</a>
+      <a href="#gantt" data-view="gantt">Диаграмма Ганта</a>
+      <a href="#board" data-view="board">Доска</a>
+      <a href="#team" data-view="team">Команда</a>
+      <a href="#notify" data-view="notify">Уведомления</a>
+      <a href="/admin/">Предзаказы</a>
+      <a href="/api/admin/crm/export.json">Скачать резервную копию</a>
+      <button type="button" data-logout>Выйти</button>
+    </nav>
+  </dialog>
 
   <script src="/assets/plan/core.js" defer></script>
   <script src="/assets/plan/gantt.js" defer></script>
   <script src="/assets/plan/views.js" defer></script>
+  <script src="/assets/plan/mobile.js" defer></script>
   <script src="/assets/plan/app.js" defer></script>
 </body>
 </html>

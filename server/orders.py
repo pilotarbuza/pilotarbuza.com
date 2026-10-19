@@ -18,6 +18,7 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import crm  # noqa: E402  план работ и CRM: server/crm.py
+import push  # noqa: E402  уведомления на телефон: server/push.py
 
 PRINTS = {
     'buttons': 'JUST press BUTTONS', 'flap': 'CERTIFIED FLAP OPERATOR', 'autopilot': 'CERTIFIED AUTOPILOT SUPERVISOR',
@@ -31,10 +32,10 @@ MAX_BODY = 16 * 1024
 MAX_BATCH_BODY = 512 * 1024
 CRM_SEED = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'crm_seed.json')
 SESSION_TTL = 12 * 3600
+SESSION_TTL_LONG = 30 * 24 * 3600  # «запомнить на этом устройстве» — для приложения на телефоне
 PBKDF2_ITERS = 600_000
 
 CFG = {}
-SESSIONS = {}          # token -> срок действия; живут в памяти, перезапуск сервиса разлогинивает
 HITS = {}              # ключ -> отметки времени, для ограничения частоты
 LOCK = threading.Lock()
 
@@ -105,6 +106,9 @@ def init_db():
             city TEXT NOT NULL DEFAULT '', comment TEXT NOT NULL DEFAULT '', lang TEXT NOT NULL DEFAULT '',
             status TEXT NOT NULL DEFAULT 'new', note TEXT NOT NULL DEFAULT '')''')
         crm.init(con, CRM_SEED)
+        push.init(con)
+        # сессии хранятся в базе (только хеш токена), поэтому переживают перезапуск службы
+        con.execute('CREATE TABLE IF NOT EXISTS sessions (token_hash TEXT PRIMARY KEY, expires REAL NOT NULL)')
 
 
 def now_iso():
@@ -194,12 +198,11 @@ class Handler(SimpleHTTPRequestHandler):
 
     def authed(self):
         tok = self.token()
-        with LOCK:
-            exp = SESSIONS.get(tok)
-            if exp and exp > time.time():
-                return True
-            SESSIONS.pop(tok, None)
-        return False
+        if not tok:
+            return False
+        with db() as con:
+            r = con.execute('SELECT expires FROM sessions WHERE token_hash=?', [hashlib.sha256(tok.encode()).hexdigest()]).fetchone()
+        return bool(r and r[0] > time.time())
 
     def require_admin(self):
         if self.authed():
@@ -231,6 +234,11 @@ class Handler(SimpleHTTPRequestHandler):
             if not self.require_admin():
                 return
             return self.send_csv()
+        if path == '/api/admin/push':
+            if not self.require_admin():
+                return
+            with db() as con:
+                return self.send_json(200, push.info(con))
         if path in ('/api/admin/crm', '/api/admin/crm/export.json'):
             if not self.require_admin():
                 return
@@ -255,9 +263,11 @@ class Handler(SimpleHTTPRequestHandler):
             data = self.read_json()
             if data is None:
                 return
-            with LOCK:
-                SESSIONS.pop(self.token(), None)
+            with db() as con:
+                con.execute('DELETE FROM sessions WHERE token_hash=?', [hashlib.sha256(self.token().encode()).hexdigest()])
             return self.send_json(200, {'ok': True}, [('Set-Cookie', 'pa_admin=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Strict')])
+        if path.startswith('/api/admin/push/'):
+            return self.push_post(path)
         if path == '/api/admin/crm/batch':
             if not self.require_admin():
                 return
@@ -273,6 +283,38 @@ class Handler(SimpleHTTPRequestHandler):
             if data is None:
                 return
             return self.crm_call(lambda con: crm.create(con, m.group(1), data), 201)
+        self.send_json(404, {'error': 'not found'})
+
+    def push_post(self, path):
+        if not self.require_admin():
+            return
+        data = self.read_json()
+        if data is None:
+            return
+        action = path.rsplit('/', 1)[1]
+        if action == 'subscribe':
+            with db() as con:
+                err = push.subscribe(con, data)
+            return self.send_json(400, {'error': 'fields', 'fields': [err]}) if err else self.send_json(200, {'ok': True})
+        if action == 'unsubscribe':
+            sub_id = data.get('id') if isinstance(data.get('id'), int) else None
+            with db() as con:
+                n = push.unsubscribe(con, data.get('endpoint') if isinstance(data.get('endpoint'), str) else None, sub_id)
+            return self.send_json(200, {'ok': True, 'removed': n})
+        if action == 'settings':
+            with db() as con:
+                bad = push.update_settings(con, data)
+                st = push.settings(con)
+            return self.send_json(400, {'error': 'fields', 'fields': bad}) if bad else self.send_json(200, {'settings': st})
+        if action in ('test', 'digest'):
+            if action == 'test':
+                msg = {'title': 'Уведомления работают', 'body': 'Так будут приходить сводка по плану и напоминания о сроках.', 'url': push.APP_URL, 'tag': 'test'}
+            else:  # прислать сегодняшнюю сводку прямо сейчас
+                with db() as con:
+                    msg = push.build(crm.all_records(con), datetime.now(push.TZ).date(), 'digest')
+                if not msg:
+                    return self.send_json(200, {'sent': 0, 'empty': True})
+            return self.send_json(200, push.send_all(db, msg))
         self.send_json(404, {'error': 'not found'})
 
     def crm_call(self, fn, code=200):
@@ -383,13 +425,14 @@ class Handler(SimpleHTTPRequestHandler):
         if not CFG['hash'] or not isinstance(password, str) or not check_password(password):
             return self.send_json(401, {'error': 'password'})
         tok = secrets.token_urlsafe(32)
+        ttl = SESSION_TTL_LONG if data.get('remember') is True else SESSION_TTL
+        now = time.time()
+        with db() as con:
+            con.execute('DELETE FROM sessions WHERE expires < ?', [now])
+            con.execute('INSERT INTO sessions (token_hash, expires) VALUES (?, ?)', [hashlib.sha256(tok.encode()).hexdigest(), now + ttl])
         with LOCK:
-            now = time.time()
-            for k in [k for k, exp in SESSIONS.items() if exp < now]:
-                SESSIONS.pop(k, None)
-            SESSIONS[tok] = now + SESSION_TTL
             HITS.pop('login:' + self.ip(), None)
-        self.send_json(200, {'ok': True}, [('Set-Cookie', 'pa_admin=%s; Path=/; Max-Age=%d; HttpOnly; Secure; SameSite=Strict' % (tok, SESSION_TTL))])
+        self.send_json(200, {'ok': True}, [('Set-Cookie', 'pa_admin=%s; Path=/; Max-Age=%d; HttpOnly; Secure; SameSite=Strict' % (tok, ttl))])
 
     def send_csv(self):
         cols = ['id', 'created_at', 'status', 'print', 'colorway', 'size', 'qty', 'name', 'contact_type', 'contact', 'city', 'comment', 'note', 'lang', 'updated_at']
@@ -425,6 +468,7 @@ def main():
         return
     load_config(args.env_file)
     init_db()
+    push.start(db, crm)
     if not CFG['hash']:
         print('ADMIN_PASSWORD_HASH не задан — вход в админку закрыт.', file=sys.stderr)
     handler = Handler
