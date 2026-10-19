@@ -49,6 +49,10 @@ SCHEMA = {
         'contact': ('ref', 'contacts', True), 'date': ('date', True), 'type': ('enum', ACTIVITY_TYPES),
         'text': ('text', 4000, True),
     },
+    'lessons': {  # расписание пар в университете (раньше было в боте Энн, uni_schedule.py)
+        'weekday': ('int', 0, 6), 'first': ('int', 1, 15), 'last': ('int', 1, 15), 'course': ('str', 160, True),
+        'teacher': ('str', 120), 'room': ('str', 60), 'optional': ('bool',), 'note': ('str', 300),
+    },
     'calendar': {
         'title': ('str', 160, True), 'kind': ('enum', CAL_KINDS), 'start': ('date', True), 'end': ('date', True),
         'notes': ('text', 1000),
@@ -60,6 +64,7 @@ DEFAULTS = {
     'activities': {'type': 'note'},
     'calendar': {'kind': 'event'},
     'people': {'capacity': 8},
+    'lessons': {'weekday': 0, 'first': 1, 'last': 2, 'optional': False},
 }
 KINDS = list(SCHEMA)
 DATE_RE = re.compile(r'\d{4}-\d{2}-\d{2}')
@@ -102,6 +107,10 @@ def _field(spec, value):
         return _strip(value, spec[1])
     if t == 'text':
         return _strip(value, spec[1], multiline=True)
+    if t == 'bool':
+        if not isinstance(value, bool):
+            raise ValueError
+        return value
     if t == 'enum':
         if value not in spec[1]:
             raise ValueError
@@ -152,6 +161,8 @@ def validate(kind, data, current=None):
             bad.append(key)
     if kind in ('tasks', 'calendar') and out.get('start') and out.get('end') and out['end'] < out['start']:
         bad.append('end')
+    if kind == 'lessons' and out['last'] < out['first']:
+        bad.append('last')
     if bad:
         raise Bad('fields', fields=sorted(set(bad)))
     return out
@@ -163,13 +174,25 @@ def init(con, seed_path=None):
         id INTEGER PRIMARY KEY AUTOINCREMENT, kind TEXT NOT NULL, data TEXT NOT NULL,
         created_at TEXT NOT NULL, updated_at TEXT NOT NULL)''')
     con.execute('CREATE INDEX IF NOT EXISTS records_kind ON records(kind)')
-    empty = con.execute('SELECT COUNT(*) FROM records').fetchone()[0] == 0
-    if empty and seed_path and os.path.exists(seed_path):
-        with open(seed_path, encoding='utf-8') as f:
-            load_seed(con, json.load(f))
+    # какие виды записей уже загружались из сида: новый вид (например, lessons) подгрузится один раз и в старую базу
+    con.execute('CREATE TABLE IF NOT EXISTS crm_seeded (kind TEXT PRIMARY KEY)')
+    if not (seed_path and os.path.exists(seed_path)):
+        return
+    with open(seed_path, encoding='utf-8') as f:
+        seed = json.load(f)
+    seeded = {r[0] for r in con.execute('SELECT kind FROM crm_seeded')}
+    if not seeded and con.execute('SELECT COUNT(*) FROM records').fetchone()[0]:
+        seeded = {'people', 'projects', 'calendar', 'tasks', 'contacts', 'activities'}  # база до появления этой таблицы
+    todo = [k for k in SEED_ORDER if k in seed and k not in seeded]
+    if todo:
+        load_seed(con, seed, todo)
+    con.executemany('INSERT OR IGNORE INTO crm_seeded (kind) VALUES (?)', [[k] for k in SEED_ORDER if k in seed])
 
 
-def load_seed(con, seed):
+SEED_ORDER = ['people', 'projects', 'calendar', 'tasks', 'contacts', 'activities', 'lessons']
+
+
+def load_seed(con, seed, kinds=SEED_ORDER):
     """Сид ссылается на записи метками "@key"; при загрузке они превращаются в настоящие id."""
     ids = {}
 
@@ -181,7 +204,7 @@ def load_seed(con, seed):
         return value
 
     ts = _now()
-    for kind in ['people', 'projects', 'calendar', 'tasks', 'contacts', 'activities']:
+    for kind in kinds:
         pending = []
         for item in seed.get(kind, []):
             key = item.get('key')

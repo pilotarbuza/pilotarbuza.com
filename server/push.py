@@ -13,7 +13,17 @@ import webpush
 
 TZ = timezone(timedelta(hours=3))  # Турция, без перехода на летнее время
 SUBJECT = 'https://pilotarbuza.com'
-DEFAULTS = {'digest_on': True, 'digest_time': '08:30', 'evening_on': True, 'evening_time': '20:00'}
+DEFAULTS = {'digest_on': True, 'digest_time': '08:30', 'evening_on': True, 'evening_time': '20:00',
+            # университет (перенесено из бота Энн): утром пары на сегодня, перед первой парой, вечером на завтра
+            'uni_morning_on': True, 'uni_morning_time': '07:40', 'uni_before_on': True, 'uni_before_min': 15,
+            'uni_evening_on': True, 'uni_evening_time': '21:00', 'uni_paused': False}
+UNI_URL = '/admin/plan/#uni'
+SLOTS = {
+    1: ('08:30', '09:15'), 2: ('09:25', '10:10'), 3: ('10:20', '11:05'), 4: ('11:15', '12:00'),
+    5: ('12:10', '12:55'), 6: ('13:25', '14:10'), 7: ('14:20', '15:05'), 8: ('15:15', '16:00'),
+    9: ('16:10', '16:55'), 10: ('17:00', '17:45'), 11: ('17:50', '18:35'), 12: ('18:40', '19:25'),
+    13: ('19:30', '20:15'), 14: ('20:20', '21:05'), 15: ('21:10', '21:55'),
+}
 APP_URL = '/admin/plan/#today'
 
 
@@ -50,7 +60,9 @@ def update_settings(con, data):
     for k, v in data.items():
         if k not in DEFAULTS:
             continue
-        if k.endswith('_on') and isinstance(v, bool):
+        if (k.endswith('_on') or k == 'uni_paused') and isinstance(v, bool):
+            _put(con, k, v)
+        elif k == 'uni_before_min' and isinstance(v, int) and not isinstance(v, bool) and 5 <= v <= 120:
             _put(con, k, v)
         elif k.endswith('_time') and isinstance(v, str) and len(v) == 5 and v[2] == ':' and v[:2].isdigit() and v[3:].isdigit() and int(v[:2]) < 24 and int(v[3:]) < 60:
             _put(con, k, v)
@@ -179,6 +191,70 @@ def _cut(lines, limit=5):
     return '\n'.join(lines[:limit - 1] + ['…и ещё %d' % (len(lines) - limit + 1)])
 
 
+# ---------------- университет ----------------
+def lessons_on(records, day, with_optional=True):
+    return sorted((l for l in records.get('lessons', []) if l.get('weekday') == day.weekday() and (with_optional or not l.get('optional'))),
+                  key=lambda l: (bool(l.get('optional')), l['first']))
+
+
+def is_holiday(records, day):
+    d = day.isoformat()
+    return any(c.get('kind') == 'holiday' and c['start'] <= d <= c['end'] for c in records.get('calendar', []))
+
+
+def _lesson_line(l):
+    room = (', ауд. %s' % l['room']) if l.get('room') else ''
+    return '%s–%s %s%s' % (SLOTS[l['first']][0], SLOTS[l['last']][1], l['course'], room)
+
+
+def uni_message(records, day, kind, now=None):
+    """Сообщение о парах: kind = 'morning' (на сегодня), 'evening' (day — завтрашняя дата), 'before' (перед первой парой)."""
+    if is_holiday(records, day):
+        return None
+    must = lessons_on(records, day, with_optional=False)
+    if not must:
+        return None
+    start, end = SLOTS[must[0]['first']][0], max(SLOTS[l['last']][1] for l in must)
+    tag = 'uni-%s-%s' % (kind, day)
+    if kind == 'before':
+        first = must[0]
+        mins = max(1, round((datetime.combine(day, datetime.strptime(start, '%H:%M').time(), TZ) - now).total_seconds() / 60))
+        return {'title': 'Через %d мин — %s' % (mins, first['course']), 'body': _lesson_line(first) + ('\n' + first['teacher'] if first.get('teacher') else ''), 'url': UNI_URL, 'tag': tag}
+    lines = [_lesson_line(l) for l in must]
+    opt = [l for l in lessons_on(records, day) if l.get('optional')]
+    if opt:
+        lines.append('Можно не ходить: ' + ', '.join(l['course'] for l in opt))
+    title = ('Пары сегодня: %s–%s' if kind == 'morning' else 'Завтра первая пара в %s, до %s') % (start, end)
+    return {'title': title, 'body': _cut(lines), 'url': UNI_URL, 'tag': tag}
+
+
+def uni_due(records, st, now):
+    """Какие напоминания о парах пора отправить: список (ключ журнала, сообщение)."""
+    if st['uni_paused']:
+        return []
+    today, out = now.date(), []
+
+    def window(hm, grace=2 * 3600):  # как в боте: опоздавшее сообщение уходит в течение 2 часов
+        h, m = map(int, hm.split(':'))
+        return 0 <= (now - now.replace(hour=h, minute=m, second=0, microsecond=0)).total_seconds() < grace
+
+    if st['uni_morning_on'] and window(st['uni_morning_time']):
+        msg = uni_message(records, today, 'morning')
+        if msg:
+            out.append(('uni-morning:%s' % today, msg))
+    if st['uni_before_on'] and not is_holiday(records, today):
+        must = lessons_on(records, today, with_optional=False)
+        if must:
+            first = datetime.combine(today, datetime.strptime(SLOTS[must[0]['first']][0], '%H:%M').time(), TZ)
+            if first - timedelta(minutes=st['uni_before_min']) <= now < first:
+                out.append(('uni-before:%s' % today, uni_message(records, today, 'before', now)))
+    if st['uni_evening_on'] and window(st['uni_evening_time']):
+        msg = uni_message(records, today + timedelta(days=1), 'evening')
+        if msg:
+            out.append(('uni-evening:%s' % today, msg))
+    return out
+
+
 # ---------------- планировщик ----------------
 def tick(db, crm, now=None):
     now = now or datetime.now(TZ)
@@ -203,6 +279,17 @@ def tick(db, crm, now=None):
         if msg:
             res = send_all(db, msg)
             print('push %s: %s' % (key, res), file=sys.stderr)
+    # пары: окно отправки считается внутри uni_due, журнал защищает от повторов
+    with db() as con:
+        if not con.execute('SELECT 1 FROM push_subs LIMIT 1').fetchone():
+            return
+        records = crm.all_records(con)
+    for key, msg in uni_due(records, st, now):
+        with db() as con:
+            if con.execute('SELECT 1 FROM push_log WHERE key=?', [key]).fetchone():
+                continue
+            con.execute('INSERT INTO push_log (key, at) VALUES (?, ?)', [key, now.isoformat()])
+        print('push %s: %s' % (key, send_all(db, msg)), file=sys.stderr)
 
 
 def start(db, crm):

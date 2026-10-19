@@ -17,7 +17,7 @@ window.PA = (() => {
   const MON_N = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
   const WD = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
 
-  const state = { people: [], projects: [], tasks: [], contacts: [], activities: [], calendar: [], view: 'overview', ui: {} };
+  const state = { people: [], projects: [], tasks: [], contacts: [], activities: [], calendar: [], lessons: [], view: 'overview', ui: {} };
   try { state.ui = JSON.parse(localStorage.getItem('pa-plan-ui') || '{}') || {}; } catch (e) { state.ui = {}; }
   const saveUi = () => { try { localStorage.setItem('pa-plan-ui', JSON.stringify(state.ui)); } catch (e) { /* без памяти браузера тоже работает */ } };
 
@@ -124,7 +124,7 @@ window.PA = (() => {
   };
   const dropIds = ids => {
     const gone = new Set(ids);
-    for (const k of ['people', 'projects', 'tasks', 'contacts', 'activities', 'calendar']) state[k] = state[k].filter(x => !gone.has(x.id));
+    for (const k of ['people', 'projects', 'tasks', 'contacts', 'activities', 'calendar', 'lessons']) state[k] = state[k].filter(x => !gone.has(x.id));
     state.tasks.forEach(t => { t.deps = (t.deps || []).filter(d => !gone.has(d)); if (gone.has(t.parent)) t.parent = null; if (gone.has(t.assignee)) t.assignee = null; });
     state.contacts.forEach(c => { c.tasks = (c.tasks || []).filter(d => !gone.has(d)); });
   };
@@ -139,7 +139,7 @@ window.PA = (() => {
     const r = await api('crm');
     if (!r.ok) throw new Error(await why(r));
     const d = await r.json();
-    for (const k of ['people', 'projects', 'tasks', 'contacts', 'activities', 'calendar']) state[k] = d[k] || [];
+    for (const k of ['people', 'projects', 'tasks', 'contacts', 'activities', 'calendar', 'lessons']) state[k] = d[k] || [];
   };
 
   // ---------- общий рендер ----------
