@@ -2,7 +2,7 @@
 (() => {
   const { $, state, api } = PA;
   const login = $('#login'), app = $('#app'), sheet = $('#sheet');
-  const VIEWS = ['today', 'overview', 'gantt', 'calendar', 'board', 'crm', 'team', 'notify'];
+  const VIEWS = ['today', 'overview', 'gantt', 'calendar', 'board', 'crm', 'team', 'notify', 'uni'];
   const phone = () => window.matchMedia('(max-width: 860px)').matches;
   const standalone = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
 
@@ -18,7 +18,7 @@
     if (sheet.open) sheet.close();
     PA.render();
     document.querySelectorAll('#bnav a, #sheet a[data-view]').forEach(a => a.setAttribute('aria-current', a.dataset.view === state.view ? 'page' : 'false'));
-    $('#bnav-more').setAttribute('aria-current', ['overview', 'gantt', 'board', 'team', 'notify'].includes(state.view) ? 'page' : 'false');
+    $('#bnav-more').setAttribute('aria-current', ['crm', 'overview', 'gantt', 'board', 'team', 'notify'].includes(state.view) ? 'page' : 'false');
     window.scrollTo(0, 0);
   }
 
