@@ -1,0 +1,1645 @@
+{
+ "people": [
+  {
+   "key": "max",
+   "name": "Максим Ахмадулин",
+   "role": "Автор проекта, ведущий инженер",
+   "color": "#0B7A85",
+   "email": "akhmadulinmaksim@gmail.com",
+   "telegram": "@pilot_arbuza",
+   "capacity": 7
+  }
+ ],
+ "projects": [
+  {
+   "key": "any1",
+   "name": "Anemos ANY1",
+   "code": "ANY1",
+   "color": "#0B7A85",
+   "description": "Тилтротор VTOL ≤ 10 кг: учебная платформа и картографический вариант ANY1-M. Диплом, конкурс, первый продукт Anemos."
+  }
+ ],
+ "calendar": [
+  {
+   "title": "Сессия",
+   "kind": "session",
+   "start": "2027-01-01",
+   "end": "2027-01-31",
+   "notes": "Проект на паузе: только заказы и переписка."
+  },
+  {
+   "title": "Сессия",
+   "kind": "session",
+   "start": "2027-06-01",
+   "end": "2027-06-30",
+   "notes": "Проект на паузе: только заказы и переписка."
+  },
+  {
+   "title": "Каникулы — постройка и полёты",
+   "kind": "vacation",
+   "start": "2027-07-01",
+   "end": "2027-09-30",
+   "notes": "15–20 ч в неделю."
+  },
+  {
+   "title": "Сессия",
+   "kind": "session",
+   "start": "2028-01-01",
+   "end": "2028-01-31",
+   "notes": "Проект на паузе: только заказы и переписка."
+  },
+  {
+   "title": "Сессия",
+   "kind": "session",
+   "start": "2028-06-01",
+   "end": "2028-06-30",
+   "notes": "Проект на паузе: только заказы и переписка."
+  },
+  {
+   "title": "Каникулы — постройка и полёты",
+   "kind": "vacation",
+   "start": "2028-07-01",
+   "end": "2028-09-30",
+   "notes": "15–20 ч в неделю."
+  },
+  {
+   "title": "Cumhuriyet Bayramı",
+   "kind": "holiday",
+   "start": "2026-10-29",
+   "end": "2026-10-29",
+   "notes": ""
+  },
+  {
+   "title": "Yılbaşı",
+   "kind": "holiday",
+   "start": "2027-01-01",
+   "end": "2027-01-01",
+   "notes": ""
+  },
+  {
+   "title": "Ulusal Egemenlik ve Çocuk Bayramı",
+   "kind": "holiday",
+   "start": "2027-04-23",
+   "end": "2027-04-23",
+   "notes": ""
+  },
+  {
+   "title": "Emek ve Dayanışma Günü",
+   "kind": "holiday",
+   "start": "2027-05-01",
+   "end": "2027-05-01",
+   "notes": ""
+  },
+  {
+   "title": "Gençlik ve Spor Bayramı",
+   "kind": "holiday",
+   "start": "2027-05-19",
+   "end": "2027-05-19",
+   "notes": ""
+  },
+  {
+   "title": "Demokrasi ve Milli Birlik Günü",
+   "kind": "holiday",
+   "start": "2027-07-15",
+   "end": "2027-07-15",
+   "notes": ""
+  },
+  {
+   "title": "Zafer Bayramı",
+   "kind": "holiday",
+   "start": "2027-08-30",
+   "end": "2027-08-30",
+   "notes": ""
+  },
+  {
+   "title": "Cumhuriyet Bayramı",
+   "kind": "holiday",
+   "start": "2027-10-29",
+   "end": "2027-10-29",
+   "notes": ""
+  },
+  {
+   "title": "Yılbaşı",
+   "kind": "holiday",
+   "start": "2028-01-01",
+   "end": "2028-01-01",
+   "notes": ""
+  },
+  {
+   "title": "Ulusal Egemenlik ve Çocuk Bayramı",
+   "kind": "holiday",
+   "start": "2028-04-23",
+   "end": "2028-04-23",
+   "notes": ""
+  },
+  {
+   "title": "Emek ve Dayanışma Günü",
+   "kind": "holiday",
+   "start": "2028-05-01",
+   "end": "2028-05-01",
+   "notes": ""
+  },
+  {
+   "title": "Gençlik ve Spor Bayramı",
+   "kind": "holiday",
+   "start": "2028-05-19",
+   "end": "2028-05-19",
+   "notes": ""
+  },
+  {
+   "title": "Demokrasi ve Milli Birlik Günü",
+   "kind": "holiday",
+   "start": "2028-07-15",
+   "end": "2028-07-15",
+   "notes": ""
+  },
+  {
+   "title": "Zafer Bayramı",
+   "kind": "holiday",
+   "start": "2028-08-30",
+   "end": "2028-08-30",
+   "notes": ""
+  },
+  {
+   "title": "Cumhuriyet Bayramı",
+   "kind": "holiday",
+   "start": "2028-10-29",
+   "end": "2028-10-29",
+   "notes": ""
+  },
+  {
+   "title": "Ramazan Bayramı",
+   "kind": "holiday",
+   "start": "2027-03-09",
+   "end": "2027-03-11",
+   "notes": "Арефе 8 марта (полдня)."
+  },
+  {
+   "title": "Kurban Bayramı",
+   "kind": "holiday",
+   "start": "2027-05-16",
+   "end": "2027-05-19",
+   "notes": "Арефе 15 мая (полдня)."
+  },
+  {
+   "title": "Ramazan Bayramı",
+   "kind": "holiday",
+   "start": "2028-02-26",
+   "end": "2028-02-28",
+   "notes": "Ориентировочно — сверить с календарём Diyanet."
+  },
+  {
+   "title": "Kurban Bayramı",
+   "kind": "holiday",
+   "start": "2028-05-05",
+   "end": "2028-05-08",
+   "notes": "Ориентировочно — сверить с календарём Diyanet."
+  },
+  {
+   "title": "IMechE UAS Challenge 2027 — крайний срок регистрации",
+   "kind": "deadline",
+   "start": "2026-10-30",
+   "end": "2026-10-30",
+   "notes": "Решить, участвовать ли в 2027 г. Основной план — TEKNOFEST 2028."
+  },
+  {
+   "title": "Защита диплома (ориентир)",
+   "kind": "deadline",
+   "start": "2029-04-01",
+   "end": "2029-04-01",
+   "notes": "Весна 2029 — уточнить дату в деканате."
+  }
+ ],
+ "tasks": [
+  {
+   "key": "e0",
+   "title": "Этап 0. Закрытие концепции",
+   "kind": "phase",
+   "code": "0",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2026-10-15",
+   "end": "2026-12-31",
+   "deps": [],
+   "hours": 0,
+   "criteria": "",
+   "notes": "Только расчёты и письма, без покупок. Запас этапа — с 12 по 31 декабря.",
+   "priority": "normal",
+   "status": "todo",
+   "order": 10
+  },
+  {
+   "key": "t01",
+   "title": "XFLR5: рев. B и рев. C, перебор центровки, график «запас → балансировка на 16 м/с»",
+   "kind": "task",
+   "code": "0.1",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2026-10-19",
+   "end": "2026-11-01",
+   "deps": [],
+   "hours": 12,
+   "criteria": "",
+   "notes": "Недели 1–2. Перебор центровки по п. 4.5 из A1_XFLR5_setup.md.",
+   "priority": "normal",
+   "status": "doing",
+   "order": 20,
+   "parent": "@e0"
+  },
+  {
+   "key": "t02",
+   "title": "Решить размах (2,6 или 3,0 м) и место батареи; выпустить концепцию рев. C",
+   "kind": "task",
+   "code": "0.2",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2026-10-26",
+   "end": "2026-11-08",
+   "deps": [
+    "@t01"
+   ],
+   "hours": 8,
+   "criteria": "",
+   "notes": "Центр батареи у передней кромки, x ≈ +0,01…0,03 м. Записать решение в концепцию рев. C.",
+   "priority": "high",
+   "status": "todo",
+   "order": 30,
+   "parent": "@e0"
+  },
+  {
+   "key": "t03",
+   "title": "Письмо в SHGM: P2, VLOS-маршруты, испытательные полёты прототипа, сертификация ПО",
+   "kind": "task",
+   "code": "0.3",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2026-11-02",
+   "end": "2026-11-08",
+   "deps": [],
+   "hours": 3,
+   "criteria": "",
+   "notes": "Ответы нужны до проекта систем.",
+   "priority": "normal",
+   "status": "todo",
+   "order": 40,
+   "parent": "@e0"
+  },
+  {
+   "key": "t04",
+   "title": "Частоты: проверить редакцию BTK июля 2026 г.",
+   "kind": "task",
+   "code": "0.4",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2026-11-02",
+   "end": "2026-11-08",
+   "deps": [],
+   "hours": 2,
+   "criteria": "",
+   "notes": "Выбор канала связи — до покупки.",
+   "priority": "normal",
+   "status": "todo",
+   "order": 50,
+   "parent": "@e0"
+  },
+  {
+   "key": "t05",
+   "title": "AVL: устойчивость с поправкой на винты и фюзеляж, сравнение с XFLR5",
+   "kind": "task",
+   "code": "0.5",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2026-11-09",
+   "end": "2026-11-22",
+   "deps": [
+    "@t02"
+   ],
+   "hours": 10,
+   "criteria": "",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 60,
+   "parent": "@e0"
+  },
+  {
+   "key": "t06",
+   "title": "ArduPilot SITL: установка, модель tilt-tri, первое висение",
+   "kind": "task",
+   "code": "0.6",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2026-11-16",
+   "end": "2026-11-29",
+   "deps": [],
+   "hours": 10,
+   "criteria": "",
+   "notes": "Начало T-04: параметры Q_TILT_*, висение и рыскание наклоном гондол.",
+   "priority": "normal",
+   "status": "todo",
+   "order": 70,
+   "parent": "@e0"
+  },
+  {
+   "key": "t07",
+   "title": "Требования REQ-xxx и черновик матрицы трассируемости",
+   "kind": "task",
+   "code": "0.7",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2026-11-23",
+   "end": "2026-12-06",
+   "deps": [],
+   "hours": 8,
+   "criteria": "",
+   "notes": "Перечень требований из концепции; матрица «требование → анализ/испытание → результат».",
+   "priority": "normal",
+   "status": "todo",
+   "order": 80,
+   "parent": "@e0"
+  },
+  {
+   "key": "t08",
+   "title": "FTO-поиск по патентам (Quantum Systems и др.)",
+   "kind": "task",
+   "code": "0.8",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2026-11-30",
+   "end": "2026-12-06",
+   "deps": [],
+   "hours": 4,
+   "criteria": "",
+   "notes": "До замораживания схемы рыскания.",
+   "priority": "normal",
+   "status": "todo",
+   "order": 90,
+   "parent": "@e0"
+  },
+  {
+   "key": "t09",
+   "title": "Список покупок этапа 1 с ценами",
+   "kind": "task",
+   "code": "0.9",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2026-12-07",
+   "end": "2026-12-11",
+   "deps": [
+    "@t02"
+   ],
+   "hours": 3,
+   "criteria": "",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 100,
+   "parent": "@e0"
+  },
+  {
+   "key": "g0",
+   "title": "Ворота G0: концепция рев. C заморожена",
+   "kind": "milestone",
+   "code": "G0",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2026-12-11",
+   "end": "2026-12-11",
+   "deps": [
+    "@t02",
+    "@t05",
+    "@t07",
+    "@t09"
+   ],
+   "hours": 2,
+   "criteria": "Концепция рев. C заморожена, требования пронумерованы, решение по батарее записано.",
+   "notes": "Короткий обзор с руководителем. Не прошли — этап продлевается, следующий не начинается.",
+   "priority": "high",
+   "status": "todo",
+   "order": 110,
+   "parent": "@e0"
+  },
+  {
+   "key": "e1",
+   "title": "Этап 1. Стенды и эскизный проект",
+   "kind": "phase",
+   "code": "1",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2027-02-01",
+   "end": "2027-05-31",
+   "deps": [
+    "@g0"
+   ],
+   "hours": 0,
+   "criteria": "",
+   "notes": "Январь — сессия, проект на паузе.",
+   "priority": "normal",
+   "status": "todo",
+   "order": 120
+  },
+  {
+   "key": "t11",
+   "title": "Закупка: мотор V505, ESC, винты 16×8 и 16×5,4, тензодатчик, термобокс",
+   "kind": "task",
+   "code": "1.1",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2027-02-01",
+   "end": "2027-02-14",
+   "deps": [
+    "@g0"
+   ],
+   "hours": 4,
+   "criteria": "",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 130,
+   "parent": "@e1"
+  },
+  {
+   "key": "t12",
+   "title": "Сборка тягового стенда",
+   "kind": "task",
+   "code": "1.2",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2027-02-08",
+   "end": "2027-02-21",
+   "deps": [
+    "@t11"
+   ],
+   "hours": 10,
+   "criteria": "",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 140,
+   "parent": "@e1"
+  },
+  {
+   "key": "T01",
+   "title": "T-01 Тяговый стенд: V505 + 16×8 и 16×5,4, наклон 0–110°, термобокс +40 °C",
+   "kind": "test",
+   "code": "T-01",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2027-02-22",
+   "end": "2027-03-21",
+   "deps": [
+    "@t12"
+   ],
+   "hours": 14,
+   "criteria": "Тяга, ток и температура сняты; тяговооружённость висения ≥ 1,6 при +40 °C.",
+   "notes": "",
+   "priority": "high",
+   "status": "todo",
+   "order": 150,
+   "parent": "@e1"
+  },
+  {
+   "key": "t13",
+   "title": "Сервопривод наклона и стенд механизма наклона из гондолы",
+   "kind": "task",
+   "code": "1.3",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2027-03-01",
+   "end": "2027-03-21",
+   "deps": [
+    "@t11"
+   ],
+   "hours": 10,
+   "criteria": "",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 160,
+   "parent": "@e1"
+  },
+  {
+   "key": "T02",
+   "title": "T-02 Стенд механизма наклона",
+   "kind": "test",
+   "code": "T-02",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2027-03-22",
+   "end": "2027-04-25",
+   "deps": [
+    "@t13"
+   ],
+   "hours": 12,
+   "criteria": "Момент до 4 Н·м, ≥ 200°/с, люфт ≤ 0,5°, 2000+ циклов при 50 °C; поведение при отказе питания и заклинивании записано.",
+   "notes": "Ресурсные циклы можно гонять автоматически, без присутствия.",
+   "priority": "high",
+   "status": "todo",
+   "order": 170,
+   "parent": "@e1"
+  },
+  {
+   "key": "t14",
+   "title": "CAD эскизного проекта: гондолы, разъём консолей, отсек ПН, балка",
+   "kind": "task",
+   "code": "1.4",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2027-02-15",
+   "end": "2027-05-09",
+   "deps": [],
+   "hours": 40,
+   "criteria": "",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 180,
+   "parent": "@e1"
+  },
+  {
+   "key": "t15",
+   "title": "Ansys: лонжерон консоли (Ø16 против Ø18–20), узел гондолы, модальный анализ балки и консоли",
+   "kind": "task",
+   "code": "1.5",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2027-04-01",
+   "end": "2027-05-16",
+   "deps": [],
+   "hours": 24,
+   "criteria": "",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 190,
+   "parent": "@e1"
+  },
+  {
+   "key": "T04",
+   "title": "T-04 SITL tilt-tri: переходы, отказ мотора, флюгирование",
+   "kind": "test",
+   "code": "T-04",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2027-02-01",
+   "end": "2027-05-23",
+   "deps": [
+    "@t06"
+   ],
+   "hours": 20,
+   "criteria": "Висение, рыскание и переходы без потери высоты > 3 м; отказ мотора и флюгирование отработаны.",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 200,
+   "parent": "@e1"
+  },
+  {
+   "key": "g1",
+   "title": "Ворота G1 — эскизный проект (PDR)",
+   "kind": "milestone",
+   "code": "G1",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2027-05-28",
+   "end": "2027-05-28",
+   "deps": [
+    "@T01",
+    "@T02",
+    "@T04",
+    "@t14",
+    "@t15"
+   ],
+   "hours": 2,
+   "criteria": "Тяга и ток на 1000 м и +40 °C измерены; механизм наклона прошёл ресурс; масса по CAD ≤ 9,5 кг; SITL переходит без потери высоты > 3 м.",
+   "notes": "Короткий обзор с руководителем. Не прошли — этап продлевается, следующий не начинается.",
+   "priority": "high",
+   "status": "todo",
+   "order": 210,
+   "parent": "@e1"
+  },
+  {
+   "key": "e2",
+   "title": "Этап 2. Демонстратор 1:2",
+   "kind": "phase",
+   "code": "2",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2027-06-01",
+   "end": "2027-09-30",
+   "deps": [
+    "@g1"
+   ],
+   "hours": 0,
+   "criteria": "",
+   "notes": "Июнь — сессия; основная работа — каникулы.",
+   "priority": "normal",
+   "status": "todo",
+   "order": 220
+  },
+  {
+   "key": "t21",
+   "title": "Чертежи демонстратора 1:2 (размах 1,3–1,5 м, ~1,25 кг), заказ пенопласта и б/у электроники",
+   "kind": "task",
+   "code": "2.1",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2027-06-01",
+   "end": "2027-06-30",
+   "deps": [
+    "@g1"
+   ],
+   "hours": 6,
+   "criteria": "",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 230,
+   "parent": "@e2"
+  },
+  {
+   "key": "t22",
+   "title": "Постройка демонстратора",
+   "kind": "task",
+   "code": "2.2",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2027-07-01",
+   "end": "2027-07-31",
+   "deps": [
+    "@t21"
+   ],
+   "hours": 60,
+   "criteria": "",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 240,
+   "parent": "@e2"
+  },
+  {
+   "key": "T05",
+   "title": "T-05 Демонстратор 1:2: висение, рыскание наклоном гондол, переходы",
+   "kind": "test",
+   "code": "T-05",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2027-08-01",
+   "end": "2027-08-31",
+   "deps": [
+    "@t22"
+   ],
+   "hours": 40,
+   "criteria": "10+ переходов в обе стороны, рыскание наклоном гондол работает при ветре до 5 м/с.",
+   "notes": "",
+   "priority": "high",
+   "status": "todo",
+   "order": 250,
+   "parent": "@e2"
+  },
+  {
+   "key": "t23",
+   "title": "Сравнить полётные логи с SITL, поправить коэффициенты",
+   "kind": "task",
+   "code": "2.3",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2027-09-01",
+   "end": "2027-09-19",
+   "deps": [
+    "@T05"
+   ],
+   "hours": 15,
+   "criteria": "",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 260,
+   "parent": "@e2"
+  },
+  {
+   "key": "t24",
+   "title": "Заказ длинных позиций: 2 мотора, 2 ESC, Pixhawk 6C, GNSS, ячейки батареи",
+   "kind": "task",
+   "code": "2.4",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2027-09-06",
+   "end": "2027-09-26",
+   "deps": [],
+   "hours": 5,
+   "criteria": "",
+   "notes": "Заказывать за этап до нужды: поставки в Турцию бывают > 6 недель.",
+   "priority": "normal",
+   "status": "todo",
+   "order": 270,
+   "parent": "@e2"
+  },
+  {
+   "key": "g2",
+   "title": "Ворота G2: логика tilt-tri подтверждена в полёте",
+   "kind": "milestone",
+   "code": "G2",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2027-09-30",
+   "end": "2027-09-30",
+   "deps": [
+    "@T05",
+    "@t23"
+   ],
+   "hours": 2,
+   "criteria": "10+ успешных переходов на демонстраторе, логика tilt-tri в ArduPilot подтверждена.",
+   "notes": "Короткий обзор с руководителем. Не прошли — этап продлевается, следующий не начинается.",
+   "priority": "high",
+   "status": "todo",
+   "order": 280,
+   "parent": "@e2"
+  },
+  {
+   "key": "e3",
+   "title": "Этап 3. Рабочий проект и постройка ANY1",
+   "kind": "phase",
+   "code": "3",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2027-10-01",
+   "end": "2028-02-29",
+   "deps": [
+    "@g2"
+   ],
+   "hours": 0,
+   "criteria": "",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 290
+  },
+  {
+   "key": "t31",
+   "title": "Рабочий проект (CDR): чертежи, раскладка слоёв, оснастка",
+   "kind": "task",
+   "code": "3.1",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2027-10-01",
+   "end": "2027-11-30",
+   "deps": [
+    "@g2"
+   ],
+   "hours": 50,
+   "criteria": "",
+   "notes": "",
+   "priority": "high",
+   "status": "todo",
+   "order": 300,
+   "parent": "@e3"
+  },
+  {
+   "key": "t32",
+   "title": "Формы под крыло и гондолы (3D-печать / ЧПУ)",
+   "kind": "task",
+   "code": "3.2",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2027-11-01",
+   "end": "2027-11-30",
+   "deps": [],
+   "hours": 20,
+   "criteria": "",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 310,
+   "parent": "@e3"
+  },
+  {
+   "key": "t33",
+   "title": "Крыло и консоли",
+   "kind": "task",
+   "code": "3.3",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2027-11-22",
+   "end": "2027-12-19",
+   "deps": [
+    "@t32"
+   ],
+   "hours": 35,
+   "criteria": "",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 320,
+   "parent": "@e3"
+  },
+  {
+   "key": "T07",
+   "title": "T-07 Статика консоли и разъёма",
+   "kind": "test",
+   "code": "T-07",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2027-12-20",
+   "end": "2027-12-31",
+   "deps": [
+    "@t33"
+   ],
+   "hours": 8,
+   "criteria": "Эксплуатационная нагрузка (n = 4) без остаточной деформации; расчётная (n = 6) без разрушения; прогиб совпадает с Ansys ±15%.",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 330,
+   "parent": "@e3"
+  },
+  {
+   "key": "t34",
+   "title": "Сборка батареи и проверка ячеек (по выходным в сессию)",
+   "kind": "task",
+   "code": "3.4",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2028-01-03",
+   "end": "2028-01-23",
+   "deps": [
+    "@t24"
+   ],
+   "hours": 8,
+   "criteria": "",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 340,
+   "parent": "@e3"
+  },
+  {
+   "key": "T08",
+   "title": "T-08 Батарея в жару",
+   "kind": "test",
+   "code": "T-08",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2028-01-17",
+   "end": "2028-01-31",
+   "deps": [
+    "@t34"
+   ],
+   "hours": 5,
+   "criteria": "Разряд профилем миссии при +40 °C; ячейки ≤ 60 °C, просадка в норме.",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 350,
+   "parent": "@e3"
+  },
+  {
+   "key": "t35",
+   "title": "Фюзеляж, балка, оперение",
+   "kind": "task",
+   "code": "3.5",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2028-02-01",
+   "end": "2028-02-20",
+   "deps": [
+    "@t31"
+   ],
+   "hours": 35,
+   "criteria": "",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 360,
+   "parent": "@e3"
+  },
+  {
+   "key": "T03",
+   "title": "T-03 Модальный тест балки с оперением",
+   "kind": "test",
+   "code": "T-03",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2028-02-21",
+   "end": "2028-02-27",
+   "deps": [
+    "@t35"
+   ],
+   "hours": 5,
+   "criteria": "Первая изгибная частота > 260 Гц, вне гармоник винтов.",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 370,
+   "parent": "@e3"
+  },
+  {
+   "key": "T18",
+   "title": "T-18 Сброс на лыжи (посадочный удар)",
+   "kind": "test",
+   "code": "T-18",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2028-02-21",
+   "end": "2028-02-27",
+   "deps": [
+    "@t35"
+   ],
+   "hours": 3,
+   "criteria": "Сброс с 0,3 м с полной массой без повреждений.",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 380,
+   "parent": "@e3"
+  },
+  {
+   "key": "t36",
+   "title": "Взвешивание, центровка, выбор батареи 12S4P или 12S3P",
+   "kind": "task",
+   "code": "3.6",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2028-02-21",
+   "end": "2028-02-27",
+   "deps": [
+    "@t35",
+    "@T08"
+   ],
+   "hours": 4,
+   "criteria": "",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 390,
+   "parent": "@e3"
+  },
+  {
+   "key": "t37",
+   "title": "Регистрация аппарата, Remote ID, модуль İHATTYS; лицензия пилота",
+   "kind": "task",
+   "code": "3.7",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2028-02-01",
+   "end": "2028-02-27",
+   "deps": [],
+   "hours": 6,
+   "criteria": "",
+   "notes": "Без этого нельзя летать на полноразмерном.",
+   "priority": "high",
+   "status": "todo",
+   "order": 400,
+   "parent": "@e3"
+  },
+  {
+   "key": "g3",
+   "title": "Ворота G3 — готовность к полётам (FRR)",
+   "kind": "milestone",
+   "code": "G3",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2028-02-29",
+   "end": "2028-02-29",
+   "deps": [
+    "@T07",
+    "@T08",
+    "@T03",
+    "@T18",
+    "@t36",
+    "@t37"
+   ],
+   "hours": 2,
+   "criteria": "Масса ≤ 10 кг, ЦТ в окне, все наземные испытания пройдены, регистрация и Remote ID оформлены.",
+   "notes": "Короткий обзор с руководителем. Не прошли — этап продлевается, следующий не начинается.",
+   "priority": "high",
+   "status": "todo",
+   "order": 410,
+   "parent": "@e3"
+  },
+  {
+   "key": "e4",
+   "title": "Этап 4. Лётные испытания",
+   "kind": "phase",
+   "code": "4",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2028-03-01",
+   "end": "2028-06-30",
+   "deps": [
+    "@g3"
+   ],
+   "hours": 0,
+   "criteria": "",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 420
+  },
+  {
+   "key": "T09",
+   "title": "T-09 Наземная интеграция",
+   "kind": "test",
+   "code": "T-09",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2028-03-01",
+   "end": "2028-03-14",
+   "deps": [
+    "@g3"
+   ],
+   "hours": 8,
+   "criteria": "Вибрации IMU в норме ArduPilot, компас без помех от ESC, связь C2 на 2 км.",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 430,
+   "parent": "@e4"
+  },
+  {
+   "key": "T10",
+   "title": "T-10 Отказы на земле",
+   "kind": "test",
+   "code": "T-10",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2028-03-08",
+   "end": "2028-03-21",
+   "deps": [
+    "@g3"
+   ],
+   "hours": 6,
+   "criteria": "Failsafe связи и батареи, geofence, отказ сервопривода наклона — реакция по программе.",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 440,
+   "parent": "@e4"
+  },
+  {
+   "key": "T06a",
+   "title": "T-06a Привязное висение",
+   "kind": "test",
+   "code": "T-06a",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2028-03-15",
+   "end": "2028-03-31",
+   "deps": [
+    "@T09",
+    "@T10"
+   ],
+   "hours": 6,
+   "criteria": "Висение 60 с на привязи, ток и температура ESC в норме.",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 450,
+   "parent": "@e4"
+  },
+  {
+   "key": "T06b",
+   "title": "T-06b Свободное висение и рыскание в штиль",
+   "kind": "test",
+   "code": "T-06b",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2028-04-01",
+   "end": "2028-04-15",
+   "deps": [
+    "@T06a"
+   ],
+   "hours": 6,
+   "criteria": "Удержание точки ±1 м, разворот 360°.",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 460,
+   "parent": "@e4"
+  },
+  {
+   "key": "T06c",
+   "title": "T-06c Рыскание при ветре 6 → 10 м/с",
+   "kind": "test",
+   "code": "T-06c",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2028-04-16",
+   "end": "2028-04-30",
+   "deps": [
+    "@T06b"
+   ],
+   "hours": 6,
+   "criteria": "Удержание курса, запас хода наклона ≥ 30%.",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 470,
+   "parent": "@e4"
+  },
+  {
+   "key": "T11",
+   "title": "T-11 Переходы на высоте ≥ 30 м",
+   "kind": "test",
+   "code": "T-11",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2028-05-01",
+   "end": "2028-05-21",
+   "deps": [
+    "@T06c"
+   ],
+   "hours": 8,
+   "criteria": "Переход вперёд и назад, потеря высоты < 5 м.",
+   "notes": "",
+   "priority": "high",
+   "status": "todo",
+   "order": 480,
+   "parent": "@e4"
+  },
+  {
+   "key": "T12",
+   "title": "T-12 Крейсер и устойчивость",
+   "kind": "test",
+   "code": "T-12",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2028-05-08",
+   "end": "2028-05-31",
+   "deps": [
+    "@T11"
+   ],
+   "hours": 8,
+   "criteria": "Балансировка на 16/21/26 м/с, импульсы рулей — сравнить с XFLR5.",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 490,
+   "parent": "@e4"
+  },
+  {
+   "key": "t41",
+   "title": "Анализ логов лётных испытаний (сессия, без полётов)",
+   "kind": "task",
+   "code": "4.1",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2028-06-01",
+   "end": "2028-06-25",
+   "deps": [
+    "@T12"
+   ],
+   "hours": 8,
+   "criteria": "",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 500,
+   "parent": "@e4"
+  },
+  {
+   "key": "g4",
+   "title": "Ворота G4: 10+ полных профилей без происшествий",
+   "kind": "milestone",
+   "code": "G4",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2028-06-30",
+   "end": "2028-06-30",
+   "deps": [
+    "@T11",
+    "@T12",
+    "@t41"
+   ],
+   "hours": 2,
+   "criteria": "10+ полных профилей без происшествий, все режимы в журнале испытаний.",
+   "notes": "Короткий обзор с руководителем. Не прошли — этап продлевается, следующий не начинается.",
+   "priority": "high",
+   "status": "todo",
+   "order": 510,
+   "parent": "@e4"
+  },
+  {
+   "key": "e5",
+   "title": "Этап 5. Характеристики, модуль ANY1-M, конкурс",
+   "kind": "phase",
+   "code": "5",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2028-07-01",
+   "end": "2028-10-31",
+   "deps": [
+    "@g4"
+   ],
+   "hours": 0,
+   "criteria": "",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 520
+  },
+  {
+   "key": "T13",
+   "title": "T-13 Продолжительность и мощность",
+   "kind": "test",
+   "code": "T-13",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2028-07-01",
+   "end": "2028-07-20",
+   "deps": [
+    "@g4"
+   ],
+   "hours": 12,
+   "criteria": "Мощность на 21 м/с и время полёта против расчёта (320 Вт, ~80 мин).",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 530,
+   "parent": "@e5"
+  },
+  {
+   "key": "T14",
+   "title": "T-14 Сваливание",
+   "kind": "test",
+   "code": "T-14",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2028-07-10",
+   "end": "2028-07-31",
+   "deps": [
+    "@g4"
+   ],
+   "hours": 8,
+   "criteria": "Скорость сваливания ≤ 15 м/с, срыв начинается у корня.",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 540,
+   "parent": "@e5"
+  },
+  {
+   "key": "T16",
+   "title": "T-16 Полный профиль в жару",
+   "kind": "test",
+   "code": "T-16",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2028-07-15",
+   "end": "2028-08-15",
+   "deps": [
+    "@T13"
+   ],
+   "hours": 10,
+   "criteria": "Профиль миссии при +35…40 °C без перегрева.",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 550,
+   "parent": "@e5"
+  },
+  {
+   "key": "T15",
+   "title": "T-15 Ветер 10–14 м/с и порывы",
+   "kind": "test",
+   "code": "T-15",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2028-08-01",
+   "end": "2028-08-25",
+   "deps": [
+    "@T13"
+   ],
+   "hours": 10,
+   "criteria": "Взлёт, висение, переход и посадка без выхода за пределы.",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 560,
+   "parent": "@e5"
+  },
+  {
+   "key": "T17",
+   "title": "T-17 Картографический модуль ANY1-M",
+   "kind": "test",
+   "code": "T-17",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2028-08-01",
+   "end": "2028-08-31",
+   "deps": [
+    "@T13"
+   ],
+   "hours": 16,
+   "criteria": "Съёмка участка, точность PPK по контрольным точкам ≤ 5 см.",
+   "notes": "Камера A1-M вне бюджета: кафедра, спонсор или на время.",
+   "priority": "normal",
+   "status": "todo",
+   "order": 570,
+   "parent": "@e5"
+  },
+  {
+   "key": "t51",
+   "title": "Отчёт об испытаниях, закрытая матрица трассируемости",
+   "kind": "task",
+   "code": "5.1",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2028-09-01",
+   "end": "2028-10-20",
+   "deps": [
+    "@T14",
+    "@T15",
+    "@T16",
+    "@T17"
+   ],
+   "hours": 40,
+   "criteria": "",
+   "notes": "",
+   "priority": "high",
+   "status": "todo",
+   "order": 580,
+   "parent": "@e5"
+  },
+  {
+   "key": "t52",
+   "title": "Фото и видео для диплома и портфолио",
+   "kind": "task",
+   "code": "5.2",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2028-09-15",
+   "end": "2028-10-15",
+   "deps": [],
+   "hours": 10,
+   "criteria": "",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 590,
+   "parent": "@e5"
+  },
+  {
+   "key": "g5",
+   "title": "Ворота G5: каждое требование закрыто",
+   "kind": "milestone",
+   "code": "G5",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2028-10-31",
+   "end": "2028-10-31",
+   "deps": [
+    "@t51"
+   ],
+   "hours": 2,
+   "criteria": "Каждое требование закрыто анализом или испытанием, отклонения записаны.",
+   "notes": "Короткий обзор с руководителем. Не прошли — этап продлевается, следующий не начинается.",
+   "priority": "high",
+   "status": "todo",
+   "order": 600,
+   "parent": "@e5"
+  },
+  {
+   "key": "er",
+   "title": "Конкурс, финансирование, документы",
+   "kind": "phase",
+   "code": "R",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2026-11-16",
+   "end": "2028-08-31",
+   "deps": [],
+   "hours": 0,
+   "criteria": "",
+   "notes": "Сроки TEKNOFEST указаны по обычному циклу конкурса — сверить с объявлением на teknofest.org.",
+   "priority": "normal",
+   "status": "todo",
+   "order": 610
+  },
+  {
+   "key": "r1",
+   "title": "Узнать условия поддержки: BAP Selçuk, TÜBİTAK 2209-A",
+   "kind": "task",
+   "code": "R.1",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2026-11-16",
+   "end": "2026-12-11",
+   "deps": [],
+   "hours": 3,
+   "criteria": "",
+   "notes": "Закрыть разрыв бюджета ~40 тыс. ₽.",
+   "priority": "normal",
+   "status": "todo",
+   "order": 620,
+   "parent": "@er"
+  },
+  {
+   "key": "r2",
+   "title": "Следить за объявлением TEKNOFEST 2028",
+   "kind": "task",
+   "code": "R.2",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2027-09-01",
+   "end": "2027-11-30",
+   "deps": [],
+   "hours": 2,
+   "criteria": "",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 630,
+   "parent": "@er"
+  },
+  {
+   "key": "r3",
+   "title": "TEKNOFEST: заявка и предварительный отчёт (ÖTR)",
+   "kind": "task",
+   "code": "R.3",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2027-12-01",
+   "end": "2028-02-15",
+   "deps": [
+    "@r2"
+   ],
+   "hours": 20,
+   "criteria": "",
+   "notes": "Данные T-01, T-02, T-05 к этому времени уже есть.",
+   "priority": "high",
+   "status": "todo",
+   "order": 640,
+   "parent": "@er"
+  },
+  {
+   "key": "r4",
+   "title": "TEKNOFEST: критический отчёт (KTR) и видео полёта",
+   "kind": "task",
+   "code": "R.4",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2028-04-01",
+   "end": "2028-05-31",
+   "deps": [
+    "@r3"
+   ],
+   "hours": 20,
+   "criteria": "",
+   "notes": "Данные T-06, T-11.",
+   "priority": "high",
+   "status": "todo",
+   "order": 650,
+   "parent": "@er"
+  },
+  {
+   "key": "r5",
+   "title": "Финал TEKNOFEST 2028 (даты по объявлению)",
+   "kind": "task",
+   "code": "R.5",
+   "project": "@any1",
+   "assignee": "@max",
+   "start": "2028-08-01",
+   "end": "2028-08-31",
+   "deps": [
+    "@r4"
+   ],
+   "hours": 30,
+   "criteria": "",
+   "notes": "",
+   "priority": "normal",
+   "status": "todo",
+   "order": 660,
+   "parent": "@er"
+  }
+ ],
+ "contacts": [
+  {
+   "key": "adv",
+   "name": "Prof. Dr. Abdullah Engin Özçelik",
+   "org": "Selçuk Üniversitesi, Makine Mühendisliği",
+   "kind": "university",
+   "role": "Научный руководитель (danışman)",
+   "status": "active",
+   "next_step": "Ворота G0: показать концепцию рев. C и решение по батарее",
+   "next_date": "2026-12-11",
+   "tasks": [
+    "@g0"
+   ]
+  },
+  {
+   "key": "shgm",
+   "name": "SHGM",
+   "org": "Sivil Havacılık Genel Müdürlüğü",
+   "kind": "regulator",
+   "role": "Регулятор: БПЛА, лицензии, разрешения",
+   "url": "https://web.shgm.gov.tr",
+   "status": "new",
+   "next_step": "Отправить вопросы: P2, VLOS-маршруты, испытательные полёты прототипа, сертификация ПО",
+   "next_date": "2026-11-08",
+   "tasks": [
+    "@t03",
+    "@t37"
+   ]
+  },
+  {
+   "key": "btk",
+   "name": "BTK",
+   "org": "Bilgi Teknolojileri ve İletişim Kurumu",
+   "kind": "regulator",
+   "role": "Радиочастоты",
+   "url": "https://www.btk.gov.tr",
+   "status": "new",
+   "next_step": "Проверить разрешённые частоты по редакции июля 2026 г.",
+   "next_date": "2026-11-08",
+   "tasks": [
+    "@t04"
+   ]
+  },
+  {
+   "key": "tf",
+   "name": "TEKNOFEST",
+   "org": "TEKNOFEST / T3 Vakfı",
+   "kind": "competition",
+   "role": "Конкурс 2028, категория Serbest Görev",
+   "url": "https://www.teknofest.org",
+   "status": "new",
+   "next_step": "Следить за объявлением TEKNOFEST 2028",
+   "next_date": "2027-09-01",
+   "tasks": [
+    "@r2",
+    "@r3",
+    "@r4",
+    "@r5"
+   ]
+  },
+  {
+   "key": "imeche",
+   "name": "IMechE UAS Challenge",
+   "org": "Institution of Mechanical Engineers",
+   "kind": "competition",
+   "role": "Конкурс 2027 (запасной вариант)",
+   "status": "new",
+   "next_step": "Решить, регистрироваться ли на 2027 г.",
+   "next_date": "2026-10-30"
+  },
+  {
+   "key": "bap",
+   "name": "BAP / TÜBİTAK 2209-A",
+   "org": "Selçuk Üniversitesi BAP, TÜBİTAK",
+   "kind": "sponsor",
+   "role": "Поддержка студенческих проектов",
+   "status": "new",
+   "next_step": "Узнать условия и сроки подачи",
+   "next_date": "2026-12-11",
+   "tasks": [
+    "@r1"
+   ]
+  },
+  {
+   "key": "tmotor",
+   "name": "T-Motor",
+   "org": "T-Motor",
+   "kind": "supplier",
+   "role": "Моторы V505, ESC",
+   "url": "https://store.tmotor.com",
+   "status": "new",
+   "next_step": "Запросить цены и срок доставки в Турцию",
+   "next_date": "2027-01-15",
+   "tasks": [
+    "@t11",
+    "@t24"
+   ]
+  },
+  {
+   "key": "holybro",
+   "name": "Holybro",
+   "org": "Holybro",
+   "kind": "supplier",
+   "role": "Pixhawk 6C, GNSS",
+   "url": "https://holybro.com",
+   "status": "new",
+   "next_step": "Проверить наличие Pixhawk 6C и GNSS",
+   "next_date": "2027-08-15",
+   "tasks": [
+    "@t24"
+   ]
+  },
+  {
+   "key": "club",
+   "name": "Авиамодельный клуб (Конья)",
+   "org": "",
+   "kind": "other",
+   "role": "Б/у электроника для демонстратора, площадка для полётов",
+   "status": "new",
+   "next_step": "Найти клуб и договориться о полётах",
+   "next_date": "2027-05-01",
+   "tasks": [
+    "@t21",
+    "@T05"
+   ],
+   "notes": "Запасной вариант площадки, если не будет ясности с разрешениями SHGM."
+  }
+ ],
+ "activities": []
+}
