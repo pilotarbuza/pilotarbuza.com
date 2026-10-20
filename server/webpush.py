@@ -269,6 +269,7 @@ def send(sub, message, priv, pub, subject, ttl=86400, urgency='normal'):
         with urllib.request.urlopen(req, timeout=15) as r:
             return r.status
     except urllib.error.HTTPError as e:
+        e.close()
         return e.code
     except (urllib.error.URLError, OSError):
         return 0
