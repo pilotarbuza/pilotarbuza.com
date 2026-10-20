@@ -11,7 +11,7 @@
   ORDERS_HOST/PORT     по умолчанию 127.0.0.1:8787, наружу сервис отдаёт Caddy
   TG_BOT_TOKEN, TG_CHAT_ID   необязательно: уведомление о новом предзаказе в Telegram
 """
-import argparse, base64, csv, functools, getpass, hashlib, hmac, io, json, os, re, secrets, sqlite3, sys, threading, time
+import argparse, base64, contextlib, csv, functools, getpass, hashlib, hmac, io, json, os, re, secrets, sqlite3, sys, threading, time
 import urllib.parse, urllib.request
 from datetime import datetime, timezone
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -89,10 +89,17 @@ def allowed(key, limit, window):
         return ok
 
 
+@contextlib.contextmanager
 def db():
+    """Соединение с базой: коммит при успехе, откат при ошибке и всегда закрытие —
+    иначе соединения копятся, и служба упирается в лимит открытых файлов."""
     con = sqlite3.connect(CFG['db'], timeout=10)
     con.row_factory = sqlite3.Row
-    return con
+    try:
+        with con:
+            yield con
+    finally:
+        con.close()
 
 
 def init_db():
@@ -131,7 +138,8 @@ def notify(order):
     def send():
         try:
             data = urllib.parse.urlencode({'chat_id': CFG['tg_chat'], 'text': text.strip()}).encode()
-            urllib.request.urlopen('https://api.telegram.org/bot%s/sendMessage' % CFG['tg_token'], data, timeout=10).read()
+            with urllib.request.urlopen('https://api.telegram.org/bot%s/sendMessage' % CFG['tg_token'], data, timeout=10) as r:
+                r.read()
         except Exception as e:  # уведомление не должно ронять приём заказа
             print('telegram notify failed:', type(e).__name__, file=sys.stderr)
     threading.Thread(target=send, daemon=True).start()
@@ -140,6 +148,7 @@ def notify(order):
 class Handler(SimpleHTTPRequestHandler):
     server_version = 'pa-orders'
     static = None
+    timeout = 30  # зависшее подключение закрывается, а не держит поток и файл
 
     def log_message(self, fmt, *args):
         sys.stderr.write('%s %s\n' % (self.ip(), fmt % args))
@@ -147,7 +156,8 @@ class Handler(SimpleHTTPRequestHandler):
     # ---------- вспомогательное ----------
     def ip(self):
         peer = self.client_address[0]
-        fwd = self.headers.get('X-Forwarded-For') if self.headers else None
+        h = getattr(self, 'headers', None)  # при тайм-ауте заголовков ещё нет
+        fwd = h.get('X-Forwarded-For') if h else None
         if fwd and peer in ('127.0.0.1', '::1'):
             return fwd.split(',')[-1].strip()
         return peer
