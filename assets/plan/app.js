@@ -45,15 +45,19 @@
     try { await PA.load(); PA.render(); } catch (e) { /* сессия кончилась — покажет форму входа */ }
   });
 
+  // Причина видна сразу: нет связи у телефона или сервер ответил ошибкой (502 — служба заказов не отвечает Caddy).
+  const NO_NET = 'Нет связи с сервером — проверьте интернет и попробуйте ещё раз.';
+  const down = status => 'Сервер недоступен (ошибка ' + status + ')' + (status === 502 || status === 503 ? ': служба заказов не отвечает.' : '.');
+
   login.addEventListener('submit', async e => {
     e.preventDefault();
     const out = $('#login-msg'), pw = $('#password');
     out.textContent = '';
     let r;
-    try { r = await api('login', { method: 'POST', body: JSON.stringify({ password: pw.value, remember: $('#remember').checked }) }); } catch (ex) { out.textContent = 'Сервер недоступен.'; return; }
+    try { r = await api('login', { method: 'POST', body: JSON.stringify({ password: pw.value, remember: $('#remember').checked }) }); } catch (ex) { out.textContent = NO_NET; return; }
     pw.value = '';
     if (r.ok) { show(true); return start(); }
-    out.textContent = r.status === 429 ? 'Слишком много попыток. Подождите 15 минут.' : r.status === 401 ? 'Неверный пароль.' : 'Сервер недоступен.';
+    out.textContent = r.status === 429 ? 'Слишком много попыток. Подождите 15 минут.' : r.status === 401 ? 'Неверный пароль.' : down(r.status);
   });
   document.querySelectorAll('[data-logout]').forEach(b => b.addEventListener('click', async () => { await api('logout', { method: 'POST', body: '{}' }).catch(() => {}); location.reload(); }));
   $('#new-task').addEventListener('click', () => PA.openTask(null));
@@ -68,6 +72,8 @@
 
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('/admin/plan/sw.js', { scope: '/admin/plan/' }).catch(() => {});
 
-  fetch('/api/admin/me', { credentials: 'same-origin' }).then(r => r.json()).then(d => { show(!!d.auth); if (d.auth) start(); })
-    .catch(() => { show(false); $('#login-msg').textContent = 'Сервер недоступен.'; });
+  fetch('/api/admin/me', { credentials: 'same-origin' })
+    .then(r => r.ok ? r.json() : Promise.reject(new Error(down(r.status))))
+    .then(d => { show(!!d.auth); if (d.auth) start(); })
+    .catch(e => { show(false); $('#login-msg').textContent = e.message.startsWith('Сервер') ? e.message : NO_NET; });
 })();
