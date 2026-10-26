@@ -275,6 +275,9 @@ class Handler(SimpleHTTPRequestHandler):
                 data = crm.all_records(con)
             headers = [('Content-Disposition', 'attachment; filename="plan-crm-%s.json"' % time.strftime('%Y%m%d'))] if path.endswith('.json') else []
             return self.send_json(200, data, headers)
+        if path == '/api/places':
+            with db() as con:
+                return self.send_json(200, {'places': me.public_places(con)})
         if path.startswith('/api/me/'):
             return self.me_get(path)
         self.send_json(404, {'error': 'not found'})

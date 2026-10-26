@@ -740,6 +740,10 @@ body::before { content: ""; position: fixed; inset: -10vh -10vw; z-index: -1; po
 .seg--mini { margin: 0; width: auto; padding: 3px; }
 .seg--mini button { height: 30px; padding: 0 14px; font-size: 13px; }
 .me-globe { padding: 8px 0 4px; }
+.me-globe .glegend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 14px; margin: 10px 0 0; padding: 0; list-style: none; font-size: 13px; color: var(--label2); }
+.me-globe .glegend li { display: inline-flex; align-items: center; gap: 6px; }
+.me-globe .glegend i { width: 9px; height: 9px; border-radius: 50%; box-shadow: 0 0 0 1.5px #fff, 0 1px 3px rgba(8,16,30,.35); }
+.me-globe .glegend b { font-weight: 600; color: var(--ink); }
 .me-globe .globe-wrap { position: relative; width: min(100%, 520px); aspect-ratio: 1; margin: 0 auto; }
 .me-globe #globe { width: 100%; height: 100%; display: block; border-radius: 50%; cursor: grab; touch-action: pan-y; }
 .me-globe #globe.grabbing { cursor: grabbing; }

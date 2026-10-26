@@ -25,7 +25,7 @@ API после входа в админку (cookie):
   POST   /api/me/import    ключ track: {"points": [{"lat", "lon", "date"}]} или строки «lat;lon;дата» — фото из галереи
   POST   /api/me/brief     ключ brief: {"kind": "morning|evening", "text": "..."}
 """
-import bisect, hashlib, json, math, os, re, secrets, sys, threading, unicodedata, urllib.request
+import bisect, hashlib, json, math, os, re, secrets, sys, threading, time, unicodedata, urllib.request
 from datetime import date, datetime, timedelta, timezone
 
 import crm
@@ -525,6 +525,20 @@ def cities(con):
                         points=c['n'], near=c['km'] > CITY_NEAR_KM, km=round(c['km']), sources=sorted(c['sources']), place_ids=c.get('place_ids', [])))
     res.sort(key=lambda x: (x['last'] or '', x['days']), reverse=True)
     return res
+
+
+_public = {'t': 0, 'data': None}
+
+
+def public_places(con, ttl=600):
+    """Города для глобуса на главной сайта: только центр города, название и год последнего визита —
+    без дат, отметок и «рядом с». Пересчитывается не чаще раза в ttl секунд."""
+    now = time.time()
+    if _public['data'] is None or now - _public['t'] > ttl:
+        _public['data'] = [{'en': c['name'], 'native': c['native'] or None, 'ru': c['ru'], 'c': c['country'], 'lat': c['lat'], 'lon': c['lon'],
+                            'y': int(c['last'][:4]) if c['last'] else None} for c in cities(con) if not c['near']]
+        _public['t'] = now
+    return _public['data']
 
 
 # ---------------- дни ----------------

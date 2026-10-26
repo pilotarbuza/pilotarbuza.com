@@ -1,7 +1,8 @@
 /* pilotarbuza.com — глобус «Где я был».
    Растровая ортографическая проекция по маске суши и границ (world-atlas 50m),
-   вращение по долготе и широте (север всегда сверху), инерция, зум 1–8× колесом с Ctrl/щипком/кнопками/двойным тапом,
-   перелёт к стране по клику на чип, подписи городов при приближении. */
+   вращение по долготе и широте (север всегда сверху), инерция, зум до 120× колесом с Ctrl/щипком/кнопками/двойным тапом
+   (с 4× маска суши перерисовывается в высоком разрешении только для видимого участка, чтобы берег оставался чётким), перелёт к стране по клику на чип, подписи городов при приближении.
+   Пины окрашены по году последнего визита; города из отметок и фото приходят с /api/places (или из приложения — window.globeAdd). */
 (() => {
   const canvas = document.getElementById('globe');
   if (!canvas || !window.PLACES) return;
@@ -10,19 +11,40 @@
   const tip = document.getElementById('globe-tip');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const places = window.PLACES;
+  const base = places.map(p => ({ ...p }));          // места сайта — чтобы приложение могло пересобрать список
   const D = Math.PI / 180;
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
   const L = () => window.LANG || 'en';
   const name = p => p[L()] || p.en;
 
   /* ---------- статистика и чипы стран ---------- */
-  const byC = {}; places.forEach(p => { (byC[p.c] = byC[p.c] || []).push(p); });
+  let byC = {};
   const setCount = (id, v) => { const el = document.getElementById(id); if (el) el.dataset.count = v; };
-  setCount('stat-countries', Object.keys(byC).length);
-  setCount('stat-cities', places.length);
+  function recount() {
+    byC = {}; places.forEach(p => { (byC[p.c] = byC[p.c] || []).push(p); });
+    setCount('stat-countries', Object.keys(byC).length);
+    setCount('stat-cities', places.length);
+  }
+  recount();
   const CN = { RU: ['Russia', 'Россия', 'Rusya'], TR: ['Türkiye', 'Турция', 'Türkiye'], CR: ['Crimea', 'Крым', 'Kırım'], IR: ['Iran', 'Иран', 'İran'], GE: ['Georgia', 'Грузия', 'Gürcistan'], TN: ['Tunisia', 'Тунис', 'Tunus'], UA: ['Ukraine', 'Украина', 'Ukrayna'], AZ: ['Azerbaijan', 'Азербайджан', 'Azerbaycan'] };
-  // в личном приложении есть полный справочник стран (assets/me/world.js: ru, en, tr)
-  const cname = c => (CN[c] || (window.WORLD && WORLD.names[c] ? [WORLD.names[c][1], WORLD.names[c][0], WORLD.names[c][2]] : [c, c, c]))[Math.max(0, ['en', 'ru', 'tr'].indexOf(L()))];
+  const region = c => { try { return new Intl.DisplayNames([L()], { type: 'region' }).of(c); } catch (e) { return c; } };
+  const cname = c => (CN[c] ? CN[c][Math.max(0, ['en', 'ru', 'tr'].indexOf(L()))] : region(c));
+  const full = p => (p.native && p.native !== name(p) ? `${name(p)} · ${p.native}` : name(p));
+
+  /* ---------- цвет пина — год последнего визита ---------- */
+  const NOW_Y = new Date().getFullYear();
+  const YC = ['#FF5C73', '#F5A524', '#2FB57C', '#3D9DF2', '#8B6CF2'];   // этот год, прошлый, позапрошлый…
+  const OLD = '#8C98AC';                                                // раньше и без даты
+  const pinColor = p => (p.y ? YC[NOW_Y - p.y] || OLD : OLD);
+  const EARLIER = { en: 'Earlier', ru: 'Раньше', tr: 'Daha önce' };
+  const legend = document.getElementById('globe-legend');
+  function drawLegend() {
+    if (!legend) return;
+    const n = {}; places.forEach(p => { const k = p.y && YC[NOW_Y - p.y] ? p.y : 0; n[k] = (n[k] || 0) + 1; });
+    legend.innerHTML = Object.keys(n).map(Number).sort((a, b) => (b || -1) - (a || -1))
+      .map(y => `<li><i style="background:${y ? YC[NOW_Y - y] : OLD}"></i>${y || EARLIER[L()] || EARLIER.en} <b>${n[y]}</b></li>`).join('');
+  }
+  drawLegend();
   const chips = document.getElementById('cchips');
   let activeC = null;
   const drawChips = () => {
@@ -30,7 +52,7 @@
     chips.innerHTML = Object.entries(byC).sort((a, b) => b[1].length - a[1].length)
       .map(([c, list]) => `<li><button type="button" data-c="${c}" aria-pressed="${c === activeC}">${cname(c)} <b>${list.length}</b></button></li>`).join('');
   };
-  drawChips(); document.addEventListener('langchange', () => { drawChips(); dirty = true; });
+  drawChips(); document.addEventListener('langchange', () => { drawChips(); drawLegend(); dirty = true; });
 
   /* ---------- маска суши и границ ---------- */
   const MW = 4096, MH = 2048;
@@ -48,11 +70,36 @@
     const d = o.getImageData(0, 0, MW, MH).data;
     land = new Uint8Array(MW * MH);
     for (let i = 0, j = 0; i < land.length; i++, j += 4) land[i] = d[j];
+    landRings = G.L.map(r => { const pts = unwrap(decode(r)); let a = 1e9, b = -1e9, c = 1e9, d = -1e9; pts.forEach(([lo, la]) => { a = Math.min(a, lo); b = Math.max(b, lo); c = Math.min(c, la); d = Math.max(d, la); }); return { pts, lo0: a, lo1: b, la0: c, la1: d }; });
     coast = G.L.map(r => toVec(decode(r)));
     borders = G.B.map(r => toVec(decode(r)));
   }
   // кольцо → Float32Array единичных векторов + центр и угловой радиус для отсечения
-  let coast = [], borders = [];
+  let coast = [], borders = [], landRings = [];
+
+  // крупный план: своя маска суши N×N на участок вокруг центра вида (с запасом, чтобы не пересчитывать на каждом кадре)
+  const ZN = 1024;
+  let zm = null;
+  function zoomMask() {
+    const ang = Math.asin(Math.min(1, 1 / view.k)) / D;              // угловой радиус линзы
+    if (zm && Math.abs(Math.log(zm.k / view.k)) < .45 && Math.abs(view.lat - zm.cla) < zm.r * .45 && Math.abs(normLon(view.lon - zm.clo)) < zm.rl * .45) return zm;
+    const r = Math.max(ang * 2.2, .3), cla = view.lat, clo = view.lon;
+    const rl = Math.min(180, r / Math.max(Math.cos(Math.min(89, Math.abs(cla) + r) * D), .03));
+    const o = document.createElement('canvas').getContext('2d', { willReadFrequently: true }); o.canvas.width = o.canvas.height = ZN;
+    const su = ZN / (2 * rl), sv = ZN / (2 * r), lo0 = clo - rl, lo1 = clo + rl, la0 = cla - r, la1 = cla + r;
+    o.fillStyle = 'rgb(255,0,0)'; o.beginPath();
+    landRings.forEach(rg => {
+      if (rg.la1 < la0 || rg.la0 > la1) return;
+      [-360, 0, 360].forEach(dx => {
+        if (rg.lo1 + dx < lo0 || rg.lo0 + dx > lo1) return;
+        rg.pts.forEach(([lo, la], i) => { const x = (lo + dx - lo0) * su, y = (la1 - la) * sv; i ? o.lineTo(x, y) : o.moveTo(x, y); }); o.closePath();
+      });
+    });
+    o.fill('evenodd');
+    const d = o.getImageData(0, 0, ZN, ZN).data, m = new Uint8Array(ZN * ZN);
+    for (let i = 0, j = 0; i < m.length; i++, j += 4) m[i] = d[j];
+    return (zm = { k: view.k, cla, clo, r, rl, su, sv, m });
+  }
   function toVec(pts) {
     const v = new Float32Array(pts.length * 3); let cx = 0, cy = 0, cz = 0;
     pts.forEach(([lo, la], i) => { const a = la * D, b = lo * D, c = Math.cos(a); const x = c * Math.sin(b), y = Math.sin(a), z = c * Math.cos(b); v[i * 3] = x; v[i * 3 + 1] = y; v[i * 3 + 2] = z; cx += x; cy += y; cz += z; });
@@ -66,7 +113,7 @@
   const vel = { lon: 0, lat: 0 };
   let target = null;                                 // перелёт {lon, lat, k, t0, from}
   let lastInteract = 0, dirty = true, moving = false;
-  const KMAX = 7;
+  const KMAX = 120, KV = 4;                          // с KV× — подробная маска суши видимого участка
   const normLon = l => ((l + 540) % 360) - 180;
 
   // мир (lat, lon) → вид (x, y, z), z > 0 — передняя полусфера
@@ -98,7 +145,7 @@
     const img = octx.createImageData(S, S), buf = new Uint32Array(img.data.buffer);
     const c = S / 2, lens = R0 / W * S, Rk = lens * view.k, inv = 1 / Rk, lens2 = lens * lens;
     const L0 = view.lon * D, A = view.lat * D, cL = Math.cos(L0), sL = Math.sin(L0), cA = Math.cos(A), sA = Math.sin(A);
-    const bil = q >= 0.99;
+    const bil = q >= 0.99, zk = land && view.k >= KV ? zoomMask() : null;
     for (let py = 0; py < S; py++) {
       const dyp = py + .5 - c, y2 = -dyp * inv;
       for (let px = 0, k = py * S; px < S; px++, k++) {
@@ -112,7 +159,12 @@
         const lat = Math.asin(y), lon = Math.atan2(x, z);
         let u = (lon / Math.PI + 1) / 2 * MW - .5, v = (.5 - lat / Math.PI) * MH - .5;
         let ln = 0;
-        if (land) {
+        if (zk) {
+          let dl = lon / D - zk.clo; if (dl > 180) dl -= 360; else if (dl < -180) dl += 360;
+          const zu = clamp((dl + zk.rl) * zk.su - .5, 0, ZN - 1.001), zv = clamp((zk.cla + zk.r - lat / D) * zk.sv - .5, 0, ZN - 1.001);
+          const u0 = zu | 0, v0 = zv | 0, fu = zu - u0, fv = zv - v0, r0 = v0 * ZN + u0, r1 = r0 + ZN;
+          ln = (zk.m[r0] * (1 - fu) + zk.m[r0 + 1] * fu) * (1 - fv) + (zk.m[r1] * (1 - fu) + zk.m[r1 + 1] * fu) * fv;
+        } else if (land) {
           if (bil) {
             if (v < 0) v = 0; if (v > MH - 1.001) v = MH - 1.001;
             const u0 = Math.floor(u), v0 = v | 0, fu = u - u0, fv = v - v0;
@@ -144,18 +196,23 @@
     // сетка
     ctx.strokeStyle = 'rgba(243,238,230,.09)'; ctx.lineWidth = Math.max(1, dpr * .6);
     const stepG = view.k > 3 ? 10 : 30;
-    const line = (fn) => { ctx.beginPath(); let on = false; for (let t = 0; t <= 1.0001; t += .01) { const [la, lo] = fn(t); const v = project(la, lo); if (v[2] < 0) { on = false; continue; } const X = c + v[0] * Rk, Y = c - v[1] * Rk; on ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); on = true; } ctx.stroke(); };
-    for (let lo = -180; lo < 180; lo += stepG) line(t => [-90 + 180 * t, lo]);
-    for (let la = -60; la <= 60; la += stepG) line(t => [la, -180 + 360 * t]);
-    // берега и границы — векторно, чётко на любом зуме
     const L0 = view.lon * D, A = view.lat * D, cL = Math.cos(L0), sL = Math.sin(L0), cA = Math.cos(A), sA = Math.sin(A);
     const lensR = R0 / Rk;
-    const stroke = (rings, style, width, closed) => {
+    const visible = rg => {
+      const [x, y, z] = rg.c, x1 = x * cL - z * sL, z1 = x * sL + z * cL, y2 = y * cA - z1 * sA, z2 = y * sA + z1 * cA;
+      if (z2 < -Math.sin(Math.min(rg.rad, 1.5707))) return false;                       // целиком на обратной стороне
+      return !(Math.hypot(x1, y2) - Math.sin(Math.min(rg.rad, 1.5707)) > lensR + .02 && z2 > 0); // вне линзы
+    };
+    const line = (fn) => { ctx.beginPath(); let on = false; for (let t = 0; t <= 1.0001; t += .01) { const [la, lo] = fn(t); const v = project(la, lo); if (v[2] < 0) { on = false; continue; } const X = c + v[0] * Rk, Y = c - v[1] * Rk; on ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); on = true; } ctx.stroke(); };
+    if (view.k <= 12) {
+      for (let lo = -180; lo < 180; lo += stepG) line(t => [-90 + 180 * t, lo]);
+      for (let la = -60; la <= 60; la += stepG) line(t => [la, -180 + 360 * t]);
+    }
+    // берега и границы — векторно, чётко на любом зуме
+    const stroke = (rings, style, width) => {
       ctx.beginPath();
       rings.forEach(rg => {
-        const [x, y, z] = rg.c, x1 = x * cL - z * sL, z1 = x * sL + z * cL, y2 = y * cA - z1 * sA, z2 = y * sA + z1 * cA;
-        if (z2 < -Math.sin(Math.min(rg.rad, 1.5707))) return;                       // целиком на обратной стороне
-        if (Math.hypot(x1, y2) - Math.sin(Math.min(rg.rad, 1.5707)) > lensR + .02 && z2 > 0) return; // вне линзы
+        if (!visible(rg)) return;
         const v = rg.v; let on = false;
         for (let i = 0; i < v.length; i += 3) {
           const px = v[i], py = v[i + 1], pz = v[i + 2];
@@ -167,12 +224,12 @@
       });
       ctx.strokeStyle = style; ctx.lineWidth = width; ctx.lineJoin = 'round'; ctx.stroke();
     };
-    const zw = Math.min(1.6, .7 + Math.log2(view.k) * .3);
+    const zw = Math.min(1.8, .7 + Math.log2(view.k) * .25);
     stroke(borders, 'rgba(19,34,58,.32)', dpr * .75 * zw);
     stroke(coast, 'rgba(19,34,58,.55)', dpr * .8 * zw);
     // пины
     pins = [];
-    const ps = dpr * (1 + Math.log2(view.k) * .35);
+    const ps = dpr * Math.min(1.4, 1 + Math.log2(view.k) * .1);
     places.forEach(p => {
       const v = project(p.lat, p.lon); if (v[2] < .04) return;
       const X = c + v[0] * Rk, Y = c - v[1] * Rk;
@@ -183,25 +240,24 @@
     const dim = activeC ? .28 : 1;
     pins.forEach(pn => {
       const { p, X, Y, z } = pn, on = !activeC || p.c === activeC;
-      const r = (2.6 + 1.6 * z) * ps * (pn === selected || p === (selected && selected.p) ? 1.5 : 1);
+      const r = (2 + .8 * z) * ps * (pn === selected || p === (selected && selected.p) ? 1.6 : 1);
       ctx.globalAlpha = on ? 1 : dim;
-      ctx.beginPath(); ctx.arc(X, Y + r * .25, r * 1.25, 0, 6.2832); ctx.fillStyle = 'rgba(8,16,30,.45)'; ctx.fill();
-      ctx.beginPath(); ctx.arc(X, Y, r, 0, 6.2832); ctx.fillStyle = p.b ? '#3D6DF2' : '#FF5C73'; ctx.fill();
-      ctx.lineWidth = Math.max(1, dpr * .8); ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.stroke();
-      ctx.beginPath(); ctx.arc(X - r * .32, Y - r * .32, r * .32, 0, 6.2832); ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.fill();
+      ctx.beginPath(); ctx.arc(X, Y + r * .2, r + 1.2 * dpr, 0, 6.2832); ctx.fillStyle = 'rgba(8,16,30,.3)'; ctx.fill();
+      ctx.beginPath(); ctx.arc(X, Y, r, 0, 6.2832); ctx.fillStyle = pinColor(p); ctx.fill();
+      ctx.lineWidth = dpr; ctx.strokeStyle = 'rgba(255,255,255,.95)'; ctx.stroke();
       pn.r = r;
     });
     ctx.globalAlpha = 1;
     // подписи при приближении
-    if (view.k >= 2.6) {
-      const boxes = []; ctx.font = `600 ${Math.round(11 * dpr)}px Geologica, system-ui, sans-serif`; ctx.textBaseline = 'middle';
+    if (view.k >= 3) {
+      const boxes = []; ctx.font = `500 ${Math.round(10.5 * dpr)}px Geologica, system-ui, sans-serif`; ctx.textBaseline = 'middle';
       pins.slice().sort((a, b) => b.z - a.z).forEach(pn => {
         if (activeC && pn.p.c !== activeC) return;
-        const t = name(pn.p), w = ctx.measureText(t).width + 10 * dpr, h = 18 * dpr, x = pn.X + pn.r + 4 * dpr, y = pn.Y - h / 2;
+        const t = name(pn.p), w = ctx.measureText(t).width + 9 * dpr, h = 16 * dpr, x = pn.X + pn.r + 3 * dpr, y = pn.Y - h / 2;
         if (boxes.some(b => x < b[0] + b[2] && x + w > b[0] && y < b[1] + b[3] && y + h > b[1])) return;
         boxes.push([x, y, w, h]);
-        ctx.fillStyle = 'rgba(14,26,43,.82)'; roundRect(x, y, w, h, 6 * dpr); ctx.fill();
-        ctx.fillStyle = '#F3EEE6'; ctx.fillText(t, x + 5 * dpr, y + h / 2 + .5);
+        ctx.fillStyle = 'rgba(14,26,43,.72)'; roundRect(x, y, w, h, h / 2); ctx.fill();
+        ctx.fillStyle = '#F3EEE6'; ctx.fillText(t, x + 4.5 * dpr, y + h / 2 + .5);
       });
     }
     ctx.restore();
@@ -251,6 +307,13 @@
   const local = e => { const r = canvas.getBoundingClientRect(); return [(e.clientX - r.left) * dpr, (e.clientY - r.top) * dpr]; };
   const setTouch = () => { canvas.style.touchAction = view.k > 1.05 ? 'none' : 'pan-y'; };
   function flyTo(lon, lat, k, dur = 900) { target = { lon, lat: clamp(lat, -85, 85), k: clamp(k, 1, KMAX), t0: performance.now(), dur: reduce ? 1 : dur, from: { ...view } }; vel.lon = vel.lat = 0; lastInteract = performance.now(); setTimeout(setTouch, dur); kick(); }
+  // зум с якорем: точка под пальцами/курсором остаётся на месте
+  function zoomAt(x, y, k) {
+    const g = unproject(x, y);
+    view.k = clamp(k, 1, KMAX);
+    if (!g) return;
+    for (let i = 0; i < 2; i++) { const h = unproject(x, y); if (!h) break; view.lon = normLon(view.lon + g[1] - h[1]); view.lat = clamp(view.lat + g[0] - h[0], -85, 85); }
+  }
   function zoomBy(f) { flyTo(view.lon, view.lat, view.k * f, 380); }
   function pickPin(x, y) { let best = null; pins.forEach(pn => { const d = Math.hypot(pn.X - x, pn.Y - y); if (d < pn.r + 9 * dpr && (!best || d < best.d)) best = { pn, d }; }); return best && best.pn; }
 
@@ -258,7 +321,7 @@
     pts.set(e.pointerId, local(e)); canvas.setPointerCapture(e.pointerId);
     target = null; lastInteract = performance.now();
     if (pts.size === 1) { const [x, y] = local(e); drag = { x, y, t: performance.now(), moved: 0, hist: [] }; vel.lon = vel.lat = 0; canvas.classList.add('grabbing'); }
-    if (pts.size === 2) { const [a, b] = [...pts.values()]; pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), k: view.k }; drag = null; }
+    if (pts.size === 2) { const [a, b] = [...pts.values()]; pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), k: view.k, x: (a[0] + b[0]) / 2, y: (a[1] + b[1]) / 2 }; drag = null; }
     kick();
   });
   canvas.addEventListener('pointermove', e => {
@@ -267,7 +330,7 @@
       return;
     }
     pts.set(e.pointerId, local(e)); lastInteract = performance.now();
-    if (pinch && pts.size >= 2) { const [a, b] = [...pts.values()]; const d = Math.hypot(a[0] - b[0], a[1] - b[1]); view.k = clamp(pinch.k * d / pinch.d, 1, KMAX); dirty = true; kick(); return; }
+    if (pinch && pts.size >= 2) { const [a, b] = [...pts.values()]; const d = Math.hypot(a[0] - b[0], a[1] - b[1]); zoomAt(pinch.x, pinch.y, pinch.k * d / pinch.d); dirty = true; kick(); return; }
     if (!drag) return;
     const [x, y] = local(e), dx = x - drag.x, dy = y - drag.y;
     drag.moved += Math.abs(dx) + Math.abs(dy);
@@ -297,7 +360,7 @@
   canvas.addEventListener('wheel', e => {
     if (!(e.ctrlKey || e.metaKey || view.k > 1.05)) return;   // обычное колесо листает страницу, пока глобус не приближен
     e.preventDefault(); lastInteract = performance.now(); target = null;
-    view.k = clamp(view.k * Math.exp(-e.deltaY * (e.ctrlKey ? .012 : .0025)), 1, KMAX); setTouch(); dirty = true; kick();
+    const [x, y] = local(e); zoomAt(x, y, view.k * Math.exp(-e.deltaY * (e.ctrlKey ? .012 : .0025))); setTouch(); dirty = true; kick();
   }, { passive: false });
   canvas.addEventListener('dblclick', e => e.preventDefault());
 
@@ -317,14 +380,14 @@
     if (!pn) { tip.hidden = true; return; }
     const cur = pins.find(q => q.p === pn.p);
     if (!cur) { tip.hidden = true; return; }
-    tip.innerHTML = `<b>${name(cur.p)}</b><span>${cname(cur.p.c)}</span>`;
+    tip.innerHTML = `<b>${full(cur.p)}</b><span>${cname(cur.p.c)}${cur.p.y ? ' · ' + cur.p.y : ''}</span>`;
     tip.style.left = cur.X / W * 100 + '%'; tip.style.top = cur.Y / W * 100 + '%'; tip.hidden = false;
   }
 
   /* ---------- кнопки и чипы ---------- */
   const btn = sel => wrap.querySelector(sel);
-  btn('[data-g="in"]')?.addEventListener('click', () => zoomBy(1.8));
-  btn('[data-g="out"]')?.addEventListener('click', () => zoomBy(1 / 1.8));
+  btn('[data-g="in"]')?.addEventListener('click', () => zoomBy(2));
+  btn('[data-g="out"]')?.addEventListener('click', () => zoomBy(.5));
   btn('[data-g="reset"]')?.addEventListener('click', () => { activeC = null; selected = null; drawChips(); flyTo(38, 44, 1, 900); });
   chips?.addEventListener('click', e => {
     const b = e.target.closest('button[data-c]'); if (!b) return;
@@ -335,9 +398,24 @@
     list.forEach(p => { const la = p.lat * D, lo = p.lon * D; sx += Math.cos(la) * Math.sin(lo); sy += Math.sin(la); sz += Math.cos(la) * Math.cos(lo); });
     const lat = Math.atan2(sy, Math.hypot(sx, sz)) / D, lon = Math.atan2(sx, sz) / D;
     const spread = Math.max(...list.map(p => Math.acos(clamp(Math.sin(p.lat * D) * Math.sin(lat * D) + Math.cos(p.lat * D) * Math.cos(lat * D) * Math.cos((p.lon - lon) * D), -1, 1))), 1.5 * D);
-    flyTo(lon, lat, clamp(.8 / Math.sin(Math.min(spread * 1.25, Math.PI / 2)), 1, 7), 1100);
+    flyTo(lon, lat, clamp(.8 / Math.sin(Math.min(spread * 1.25, Math.PI / 2)), 1, 24), 1100);
     if (matchMedia('(max-width: 900px)').matches) wrap.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
   });
+
+  /* ---------- города из отметок и фото ---------- */
+  // рядом (до 15 км) с местом сайта — не дублируем, а только берём год; reset — пересобрать от мест сайта
+  const km = (a, b) => { const x = (b.lon - a.lon) * D * Math.cos((a.lat + b.lat) / 2 * D), y = (b.lat - a.lat) * D; return Math.hypot(x, y) * 6371; };
+  window.globeAdd = (list, reset) => {
+    if (reset) { places.length = 0; base.forEach(p => places.push({ ...p })); }
+    (list || []).forEach(q => {
+      const hit = places.find(p => km(p, q) < 15);
+      if (!hit) return places.push(q);
+      if (q.y && (!hit.y || q.y > hit.y)) hit.y = q.y;
+      if (q.native && !hit.native) hit.native = q.native;
+    });
+    selected = hover = null; recount(); drawChips(); drawLegend(); dirty = true; kick();
+  };
+  if (window.GLOBE_FEED !== false) fetch('/api/places').then(r => (r.ok ? r.json() : null)).then(d => d && window.globeAdd(d.places)).catch(() => {});
 
   /* ---------- старт ---------- */
   addEventListener('resize', () => { size(); kick(); });

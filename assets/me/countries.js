@@ -213,21 +213,14 @@
 
   // ---------- глобус ----------
   // тот же глобус, что на главной сайта (assets/globe.js): места с сайта (assets/places.js, Pin Traveler)
-  // плюс города из отметок и фото; глобус перечитывает список мест при каждой отрисовке
-  let globeEl = null, globeLoading = null, sitePlaces = null;
+  // плюс города из отметок и фото (свежие, из state.cities — не ждём кэша /api/places); цвет пина — год последнего визита
+  let globeEl = null, globeLoading = null;
   const script = src => new Promise((res, rej) => document.head.append(el('script', { src, onload: res, onerror: rej })));
-  const near = (a, b) => { const p = Math.PI / 180, x = (b.lon - a.lon) * p * Math.cos((a.lat + b.lat) / 2 * p), y = (b.lat - a.lat) * p; return Math.hypot(x, y) * 6371; };
-  function syncPlaces() {
-    if (!sitePlaces || !window.PLACES) return;
-    const list = window.PLACES;
-    list.length = 0;
-    sitePlaces.forEach(p => list.push(p));
-    (state.cities || []).filter(c => !c.near).forEach(c => { if (!sitePlaces.some(p => near(p, c) < 15)) list.push({ en: cityName(c), ru: c.ru, c: c.country, lat: c.lat, lon: c.lon }); });
-    dispatchEvent(new Event('resize'));
-  }
+  const syncPlaces = () => window.globeAdd && window.globeAdd((state.cities || []).filter(c => !c.near)
+    .map(c => ({ en: c.name, native: c.native, ru: c.ru, c: c.country, lat: c.lat, lon: c.lon, y: c.last ? Number(c.last.slice(0, 4)) : null })), true);
   function globe() {
     if (!globeEl) {
-      globeEl = el('div', { class: 'me-globe' }, el('div', { class: 'globe-wrap' }, [
+      globeEl = el('div', { class: 'me-globe' }, [el('div', { class: 'globe-wrap' }, [
         el('canvas', { id: 'globe', 'aria-label': 'Глобус: где я был' }),
         el('div', { class: 'globe__tip', id: 'globe-tip', hidden: true }),
         el('div', { class: 'globe__ctl', role: 'group', 'aria-label': 'Масштаб' }, [
@@ -235,19 +228,19 @@
           el('button', { type: 'button', 'data-g': 'out', 'aria-label': 'Отдалить', text: '−' }),
           el('button', { type: 'button', 'data-g': 'reset', 'aria-label': 'Сбросить вид', text: '⟲' }),
         ]),
-      ]));
+      ]), el('ul', { class: 'glegend', id: 'globe-legend', 'aria-label': 'Год последнего визита' })]);
     }
     // скрипты глобуса ищут холст по id, поэтому грузятся, когда он уже на странице
     requestAnimationFrame(() => {
       if (!globeLoading) globeLoading = (async () => {
         window.LANG = 'en';
+        window.GLOBE_FEED = false;
         if (!window.PLACES) await script('/assets/places.js');
-        sitePlaces = window.PLACES.slice();
-        syncPlaces();
         if (!window.GEO) await script('/assets/geo.js');
         await script('/assets/globe.js');
+        syncPlaces();
       })().catch(() => { globeLoading = null; toast('Глобус не загрузился', true); });
-      else globeLoading.then(syncPlaces);
+      else globeLoading.then(() => { syncPlaces(); dispatchEvent(new Event('resize')); });
     });
     return globeEl;
   }
