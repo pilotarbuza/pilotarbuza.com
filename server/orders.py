@@ -18,6 +18,7 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import crm  # noqa: E402  план работ и CRM: server/crm.py
+import me  # noqa: E402  личное приложение /me/: server/me.py
 import push  # noqa: E402  уведомления на телефон: server/push.py
 
 PRINTS = {
@@ -30,6 +31,8 @@ CONTACT_TYPES = ['telegram', 'whatsapp', 'email']
 STATUSES = ['new', 'confirmed', 'paid', 'shipped', 'done', 'cancelled']
 MAX_BODY = 16 * 1024
 MAX_BATCH_BODY = 512 * 1024
+MAX_ME_BODY = 2 * 1024 * 1024      # заметка целиком (HTML и текст для поиска)
+MAX_IMPORT_BODY = 4 * 1024 * 1024  # точки с фото из галереи
 CRM_SEED = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'crm_seed.json')
 SESSION_TTL = 12 * 3600
 SESSION_TTL_LONG = 30 * 24 * 3600  # «запомнить на этом устройстве» — для приложения на телефоне
@@ -113,6 +116,7 @@ def init_db():
             city TEXT NOT NULL DEFAULT '', comment TEXT NOT NULL DEFAULT '', lang TEXT NOT NULL DEFAULT '',
             status TEXT NOT NULL DEFAULT 'new', note TEXT NOT NULL DEFAULT '')''')
         crm.init(con, CRM_SEED)
+        me.init(con)
         push.init(con)
         # сессии хранятся в базе (только хеш токена), поэтому переживают перезапуск службы
         con.execute('CREATE TABLE IF NOT EXISTS sessions (token_hash TEXT PRIMARY KEY, expires REAL NOT NULL)')
@@ -174,15 +178,15 @@ class Handler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
-    def read_json(self, limit=MAX_BODY):
-        """Тело запроса как dict; None, если запрос не похож на наш (и ответ уже отправлен)."""
+    def same_origin(self):
         origin = self.headers.get('Origin')
         if origin and urllib.parse.urlsplit(origin).netloc != self.headers.get('Host'):
             self.send_json(403, {'error': 'origin'})
-            return None
-        if 'application/json' not in (self.headers.get('Content-Type') or ''):
-            self.send_json(415, {'error': 'content-type'})
-            return None
+            return False
+        return True
+
+    def read_body(self, limit):
+        """Сырое тело запроса; None, если оно больше limit (ответ уже отправлен)."""
         try:
             n = int(self.headers.get('Content-Length') or 0)
         except ValueError:
@@ -190,8 +194,20 @@ class Handler(SimpleHTTPRequestHandler):
         if n < 0 or n > limit:
             self.send_json(413, {'error': 'too large'})
             return None
+        return self.rfile.read(n)
+
+    def read_json(self, limit=MAX_BODY):
+        """Тело запроса как dict; None, если запрос не похож на наш (и ответ уже отправлен)."""
+        if not self.same_origin():
+            return None
+        if 'application/json' not in (self.headers.get('Content-Type') or ''):
+            self.send_json(415, {'error': 'content-type'})
+            return None
+        raw = self.read_body(limit)
+        if raw is None:
+            return None
         try:
-            data = json.loads(self.rfile.read(n) or b'{}')
+            data = json.loads(raw or b'{}')
         except ValueError:
             data = None
         if not isinstance(data, dict):
@@ -216,12 +232,15 @@ class Handler(SimpleHTTPRequestHandler):
 
     def require_admin(self):
         if self.authed():
-            return True
+            return self.same_origin()
         self.send_json(401, {'error': 'auth'})
         return False
 
     def route(self):
         return urllib.parse.urlsplit(self.path).path.rstrip('/') or '/'
+
+    def query(self):
+        return dict(urllib.parse.parse_qsl(urllib.parse.urlsplit(self.path).query))
 
     # ---------- методы ----------
     def do_GET(self):
@@ -256,6 +275,8 @@ class Handler(SimpleHTTPRequestHandler):
                 data = crm.all_records(con)
             headers = [('Content-Disposition', 'attachment; filename="plan-crm-%s.json"' % time.strftime('%Y%m%d'))] if path.endswith('.json') else []
             return self.send_json(200, data, headers)
+        if path.startswith('/api/me/'):
+            return self.me_get(path)
         self.send_json(404, {'error': 'not found'})
 
     def do_HEAD(self):
@@ -285,6 +306,8 @@ class Handler(SimpleHTTPRequestHandler):
             if data is None:
                 return
             return self.crm_call(lambda con: {'results': crm.batch(con, data.get('ops'))})
+        if path.startswith('/api/me/'):
+            return self.me_post(path)
         m = re.fullmatch(r'/api/admin/crm/([a-z]+)', path)
         if m and m.group(1) in crm.KINDS:
             if not self.require_admin():
@@ -345,6 +368,14 @@ class Handler(SimpleHTTPRequestHandler):
         return None
 
     def do_PATCH(self):
+        m = re.fullmatch(r'/api/me/r/([a-z]+)/(\d+)', self.route())
+        if m and m.group(1) in me.KINDS:
+            if not self.require_admin():
+                return
+            data = self.read_json(MAX_ME_BODY)
+            if data is None:
+                return
+            return self.crm_call(lambda con: me.update(con, m.group(1), int(m.group(2)), data))
         target = self.crm_route()
         if target:
             if not self.require_admin():
@@ -375,6 +406,16 @@ class Handler(SimpleHTTPRequestHandler):
         self.send_json(200 if cur.rowcount else 404, {'ok': bool(cur.rowcount)})
 
     def do_DELETE(self):
+        m = re.fullmatch(r'/api/me/(r/([a-z]+)|files)/(\d+)', self.route())
+        if m and (m.group(1) == 'files' or m.group(2) in me.KINDS):
+            if not self.require_admin() or not self.same_origin():
+                return
+            rid = int(m.group(3))
+            if m.group(1) == 'files':
+                with db() as con:
+                    n = con.execute('DELETE FROM me_files WHERE id=?', [rid]).rowcount
+                return self.send_json(200 if n else 404, {'ok': bool(n)})
+            return self.crm_call(lambda con: me.delete(con, m.group(2), rid))
         target = self.crm_route()
         m = re.fullmatch(r'/api/admin/orders/(\d+)', self.route())
         if not (m or target):
@@ -389,6 +430,152 @@ class Handler(SimpleHTTPRequestHandler):
         with db() as con:
             cur = con.execute('DELETE FROM orders WHERE id=?', [int(m.group(1))])
         self.send_json(200 if cur.rowcount else 404, {'ok': bool(cur.rowcount)})
+
+    # ---------- личное приложение /me/ ----------
+    def me_get(self, path):
+        if not self.require_admin():
+            return
+        q = self.query()
+        if path == '/api/me/all':
+            with db() as con:
+                return self.send_json(200, me.everything(con))
+        if path == '/api/me/briefs':
+            before = int(q['before']) if q.get('before', '').isdigit() else None
+            with db() as con:
+                return self.send_json(200, {'briefs': me.briefs(con, before)})
+        if path == '/api/me/points':
+            try:
+                d = crm._date(q.get('date'))
+            except ValueError:
+                return self.send_json(400, {'error': 'fields', 'fields': ['date']})
+            with db() as con:
+                return self.send_json(200, {'points': me.points_on(con, d)})
+        if path == '/api/me/rates':
+            return self.send_json(200, me.rates(db))
+        m = re.fullmatch(r'/api/me/files/(\d+)', path)
+        if m:
+            with db() as con:
+                r = con.execute('SELECT name, type, data FROM me_files WHERE id=?', [int(m.group(1))]).fetchone()
+            if not r:
+                return self.send_json(404, {'error': 'not found'})
+            self.send_response(200)
+            self.send_header('Content-Type', r['type'])
+            self.send_header('Content-Length', str(len(r['data'])))
+            self.send_header('Content-Disposition', "inline; filename*=UTF-8''%s" % urllib.parse.quote(r['name']))
+            self.send_header('Cache-Control', 'private, max-age=86400')
+            self.send_header('X-Content-Type-Options', 'nosniff')
+            self.send_header('Content-Security-Policy', "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; sandbox")
+            self.end_headers()
+            self.wfile.write(r['data'])
+            return
+        self.send_json(404, {'error': 'not found'})
+
+    def key_ok(self, name, data=None):
+        """Ключ из заголовка Authorization: Bearer … или из поля key; без ключа подходит и вход в админку."""
+        if not allowed('key:' + self.ip(), 120, 600):
+            self.send_json(429, {'error': 'rate'})
+            return False
+        auth = self.headers.get('Authorization') or ''
+        key = auth[7:].strip() if auth.lower().startswith('bearer ') else (data or {}).get('key')
+        if key:
+            with db() as con:
+                if me.check_key(con, name, key):
+                    return True
+            self.send_json(401, {'error': 'key'})
+            return False
+        if self.authed():
+            return self.same_origin()
+        self.send_json(401, {'error': 'auth'})
+        return False
+
+    def me_post(self, path):
+        if path in ('/api/me/ping', '/api/me/import', '/api/me/brief'):
+            return self.me_keyed(path)
+        if not self.require_admin():
+            return
+        if path == '/api/me/files':
+            if not self.same_origin():
+                return
+            q = self.query()
+            body = self.read_body(me.MAX_FILE)
+            if body is None:
+                return
+            rec = int(q['rec']) if q.get('rec', '').isdigit() else None
+            ctype = (self.headers.get('Content-Type') or '').split(';')[0].strip().lower()
+            return self.crm_call(lambda con: me.add_file(con, rec, q.get('name'), ctype, body), 201)
+        m = re.fullmatch(r'/api/me/keys/([a-z]+)', path)
+        if m and m.group(1) in me.KEY_NAMES:
+            if self.read_json() is None:
+                return
+            with db() as con:
+                return self.send_json(200, {'key': me.new_key(con, m.group(1)), 'keys': me.keys_info(con)})
+        data = self.read_json(MAX_ME_BODY)
+        if data is None:
+            return
+        m = re.fullmatch(r'/api/me/r/([a-z]+)', path)
+        if m and m.group(1) in me.KINDS:
+            return self.crm_call(lambda con: me.create(con, m.group(1), data), 201)
+        if path == '/api/me/days':
+            return self.crm_call(lambda con: me.edit_days(con, data))
+        if path == '/api/me/geo':
+            pts = data.get('points')
+            if not isinstance(pts, list) or len(pts) > 5000:
+                return self.send_json(400, {'error': 'fields', 'fields': ['points']})
+            out = []
+            for p in pts:
+                try:
+                    out.append(me.country_at(me._coord(p[0], -90, 90), me._coord(p[1], -180, 180)))
+                except (ValueError, TypeError, IndexError, KeyError):
+                    out.append(None)
+            return self.send_json(200, {'countries': out})
+        if path == '/api/me/settings':
+            with db() as con:
+                bad = me.update_settings(con, data)
+                st = me.settings(con)
+            return self.send_json(400, {'error': 'fields', 'fields': bad}) if bad else self.send_json(200, {'settings': st})
+        self.send_json(404, {'error': 'not found'})
+
+    def me_keyed(self, path):
+        """Запросы от «Быстрых команд» и от задачи с брифом: JSON или (для импорта) строки текста."""
+        ctype = self.headers.get('Content-Type') or ''
+        raw = self.read_body(MAX_IMPORT_BODY if path == '/api/me/import' else MAX_ME_BODY)
+        if raw is None:
+            return
+        text = raw.decode('utf-8', 'replace')
+        data = None
+        if 'json' in ctype or text.lstrip()[:1] in ('{', '['):
+            try:
+                data = json.loads(text or '{}')
+            except ValueError:
+                return self.send_json(400, {'error': 'json'})
+            if isinstance(data, list):
+                data = {'points': data}
+        if data is None:
+            data = {'points': me.parse_lines(text)} if path == '/api/me/import' else {'text': text}
+        if not isinstance(data, dict):
+            return self.send_json(400, {'error': 'json'})
+        if not self.key_ok('brief' if path == '/api/me/brief' else 'track', data):
+            return
+        if path == '/api/me/ping':
+            return self.crm_call(lambda con: me.ping(con, data))
+        if path == '/api/me/import':
+            pts = data.get('points')
+            if isinstance(pts, str):
+                pts = me.parse_lines(pts)
+            return self.crm_call(lambda con: me.import_points(con, pts))
+        data.setdefault('kind', 'morning' if datetime.now(me.TZ).hour < 15 else 'evening')
+        try:
+            with db() as con:
+                res = me.add_brief(con, data)
+                want = me.settings(con)['brief_push']
+        except crm.Bad as e:
+            return self.send_json(400, e.payload)
+        self.send_json(201, res)
+        if want:
+            title = {'morning': 'Утренний бриф', 'evening': 'Вечерний бриф'}.get(data['kind'], 'Бриф')
+            first = next((l for l in str(data.get('text', '')).splitlines()[1:] if l.strip()), '')
+            msg = {'title': title, 'body': first[:120], 'url': '/me/#brief', 'tag': 'me-brief'}
+            threading.Thread(target=push.send_all, args=(db, msg), daemon=True).start()
 
     # ---------- действия ----------
     def create_order(self):
@@ -478,6 +665,7 @@ def main():
         return
     load_config(args.env_file)
     init_db()
+    push.HOOKS.append(me.due)
     push.start(db, crm)
     if not CFG['hash']:
         print('ADMIN_PASSWORD_HASH не задан — вход в админку закрыт.', file=sys.stderr)
