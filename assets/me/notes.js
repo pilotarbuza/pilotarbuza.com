@@ -1,6 +1,6 @@
 /* pilotarbuza.com/me — «Заметки», по образцу приложения «Заметки» на iPhone:
    папки и теги, закреплённые, группы по датам, свайпы, редактор с форматированием «Aa», чек-листы, фото,
-   «Недавно удалённые» на 30 дней. Адреса: #notes, #notes/f/<id|all|deleted|tag:слово>, #notes/n/<id>, #notes/new/<папка>. */
+   «Недавно удалённые» на 30 дней. Адреса: #notes (все заметки), #notes/folders, #notes/f/<id|all|deleted|tag:слово>, #notes/n/<id>, #notes/new/<папка>. */
 (() => {
   const { el, icon, state, screen, navBtn, group, row, sheet, closeSheet, menu, ask, toast, save, remove, go, plural, MON_G, MONTHS, WDL, dn, today, iso } = ME;
 
@@ -116,7 +116,7 @@
 
   // ---------- папки ----------
   function folders(box) {
-    const body = screen(box, { title: 'Папки', cls: 'notes', right: [navBtn('compose', () => newNote(), { 'aria-label': 'Новая заметка' })] });
+    const body = screen(box, { title: 'Папки', back: '#notes', backText: 'Заметки', cls: 'notes', right: [navBtn('compose', () => newNote(), { 'aria-label': 'Новая заметка' })] });
     const q = el('input', { type: 'search', placeholder: 'Поиск', value: state.ui.noteQ || '' });
     const res = el('div');
     const draw = () => {
@@ -129,9 +129,9 @@
       }
       const count = id => live().filter(n => n.folder === id).length;
       const tags = [...new Set(live().flatMap(tagsOf))].sort();
-      res.replaceChildren(
+      res.replaceChildren(...[
         group(null, [
-          row({ icon: 'folder', color: 'var(--notes)', title: 'Все заметки', value: String(live().length), href: '#notes/f/all' }),
+          row({ icon: 'folder', color: 'var(--notes)', title: 'Все заметки', value: String(live().length), href: '#notes' }),
           ...[...state.folders].sort((a, b) => (a.order || 0) - (b.order || 0) || a.id - b.id).map(f => swipe(
             row({ icon: 'folder', color: 'var(--notes)', title: f.name, value: String(count(f.id)), href: `#notes/f/${f.id}` }),
             [{ text: 'Имя', icon: 'compose', color: 'var(--gray)', fn: () => newFolder(null, f) }, { text: 'Удалить', icon: 'trash', color: 'var(--red)', fn: async () => {
@@ -142,7 +142,7 @@
           deleted().length ? row({ icon: 'trash', color: 'var(--notes)', title: 'Недавно удалённые', value: String(deleted().length), href: '#notes/f/deleted' }) : null,
         ]),
         tags.length ? el('section', { class: 'group' }, [el('h2', { class: 'group__h group__h--big', text: 'Теги' }), el('div', { class: 'list tags' }, tags.map(t => el('a', { href: `#notes/f/tag:${encodeURIComponent(t)}`, text: '#' + t })))]) : null,
-      );
+      ].filter(Boolean));
     };
     q.addEventListener('input', draw);
     body.append(el('div', { class: 'search' }, [icon('search'), q]), res);
@@ -158,15 +158,15 @@
     const right = [];
     if (folder) right.push(navBtn('more', () => menu(folder.name, [
       { icon: 'compose', text: 'Переименовать', fn: () => newFolder(null, folder) },
-      { icon: 'trash', text: 'Удалить папку', danger: true, fn: async () => { if (await ask(`Удалить папку «${folder.name}»?`, 'Удалить папку') && await remove('folders', folder.id)) go('notes'); } },
+      { icon: 'trash', text: 'Удалить папку', danger: true, fn: async () => { if (await ask(`Удалить папку «${folder.name}»?`, 'Удалить папку') && await remove('folders', folder.id)) go('notes/folders'); } },
     ]), { 'aria-label': 'Действия с папкой' }));
-    const body = screen(box, { title: folderName(id), back: '#notes', backText: 'Папки', cls: 'notes', right });
+    const body = screen(box, { title: folderName(id), back: '#notes/folders', backText: 'Папки', cls: 'notes', right });
     const q = el('input', { type: 'search', placeholder: 'Поиск' });
     const res = el('div');
     const draw = () => {
       const s = q.value.trim().toLowerCase();
       const items = sorted(all.filter(n => !s || (n.text || '').toLowerCase().includes(s)));
-      if (!items.length) { res.replaceChildren(ME.empty(s ? 'Нет результатов' : isDel ? 'Здесь пусто' : 'Нет заметок', isDel ? 'Удалённые заметки хранятся здесь 30 дней.' : null)); return; }
+      if (!items.length) { res.replaceChildren(...[ME.empty(s ? 'Нет результатов' : isDel ? 'Здесь пусто' : 'Нет заметок', isDel ? 'Удалённые заметки хранятся здесь 30 дней.' : null)].filter(Boolean)); return; }
       const out = [];
       const pinned = isDel || s ? [] : items.filter(n => n.pinned);
       if (pinned.length) out.push(group('Закреплённые', pinned.map(n => noteRow(n, id === 'all' || isTag))));
@@ -203,7 +203,7 @@
     const newFolderId = String(arg).startsWith('new') ? Number(String(arg).split('-')[1]) || null : null;
     if (!note && !String(arg).startsWith('new')) { go('notes'); return; }
     document.body.classList.add('no-tabs');
-    const backTo = note ? (note.deleted ? '#notes/f/deleted' : state.ui.noteBack || (note.folder ? `#notes/f/${note.folder}` : '#notes/f/all')) : (newFolderId ? `#notes/f/${newFolderId}` : '#notes');
+    const backTo = note ? (note.deleted ? '#notes/f/deleted' : state.ui.noteBack || (note.folder ? `#notes/f/${note.folder}` : '#notes')) : (newFolderId ? `#notes/f/${newFolderId}` : '#notes');
     const ed = el('div', { class: 'ed__body', contenteditable: note && note.deleted ? 'false' : 'true', spellcheck: 'true', 'data-ph': 'Новая заметка', autocapitalize: 'sentences' });
     ed.innerHTML = note ? ME.cleanHtml(note.body) : '';
     const dateLine = el('p', { class: 'ed__date' });
@@ -362,9 +362,11 @@
 
   ME.views.notes = (box, args) => {
     if (args[0] === 'n') return editor(box, args[1]);
-    if (args[0] === 'f') { state.ui.noteBack = '#notes/f/' + args[1]; return list(box, args[1]); }
-    state.ui.noteBack = null;
-    return folders(box);
+    if (args[0] === 'f' && args[1] !== 'all') { state.ui.noteBack = '#notes/f/' + args[1]; return list(box, args[1]); }
+    if (args[0] === 'folders') return folders(box);
+    // основной экран раздела — «Все заметки», как на iPhone; папки — по кнопке «‹ Папки»
+    state.ui.noteBack = '#notes';
+    return list(box, 'all');
   };
   ME.notes = { titleOf, preview, stamp, newNote, live };
 })();

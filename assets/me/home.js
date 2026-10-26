@@ -74,10 +74,10 @@
     const nowCard = el('div');
     const drawNow = () => {
       const n = nextUp();
-      nowCard.replaceChildren(n ? el('a', { class: 'hm-now dark dots', href: n.href }, [
+      nowCard.replaceChildren(...[n ? el('a', { class: 'hm-now dark dots', href: n.href }, [
         el('div', { class: 'hm-now__top' }, [el('span', { class: 'hm-now__k' }, [n.live ? el('i', { class: 'hm-live' }) : null, n.k]), el('b', { class: 'hm-now__big doto led', text: n.big })]),
         el('h2', { class: 'hm-now__t', text: n.t }), n.s ? el('p', { class: 'hm-now__s', text: n.s }) : null,
-      ]) : el('div', { class: 'hm-now dark dots' }, [el('span', { class: 'hm-now__k', text: 'Сегодня' }), el('h2', { class: 'hm-now__t', text: plan.lessons ? 'Пар на неделе нет' : 'Расписание загружается…' })]));
+      ]) : el('div', { class: 'hm-now dark dots' }, [el('span', { class: 'hm-now__k', text: 'Сегодня' }), el('h2', { class: 'hm-now__t', text: plan.lessons ? 'Пар на неделе нет' : 'Расписание загружается…' })])].filter(Boolean));
     };
     drawNow();
     body.append(el('div', { class: 'group' }, nowCard));
@@ -185,14 +185,14 @@
       const sel = Number(args[0]) || (s ? null : briefs[0].id);
       const list = briefs.filter(b => !s || b.text.toLowerCase().includes(s));
       const cur = briefs.find(b => b.id === sel);
-      out.replaceChildren(
+      out.replaceChildren(...[
         cur ? el('section', { class: 'group' }, [el('h2', { class: 'group__h', text: `${(KIND[cur.kind] || KIND.other)[0]} · ${fmt(cur.date, true)}, ${ME.hm(cur.created_at)}` }), el('div', { class: 'card' }, [briefText(cur.text), el('div', { style: 'display:flex;gap:8px;margin-top:12px' }, [
           el('button', { type: 'button', class: 'btn btn--sm btn--soft', onclick: () => ME.copy(cur.text) }, 'Копировать'),
           el('button', { type: 'button', class: 'btn btn--sm btn--soft', onclick: () => saveAsNote(cur) }, 'В заметки'),
         ])])]) : null,
         group(s ? `Найдено: ${list.length}` : 'Архив', list.map(b => row({ icon: (KIND[b.kind] || KIND.other)[1], color: b.kind === 'evening' ? 'var(--indigo)' : 'var(--orange)', title: `${(KIND[b.kind] || KIND.other)[0]}, ${fmt(b.date)}`, sub: b.text.split('\n').slice(1).find(x => x.trim()) || '', value: b.id === sel ? icon('check') : null, chev: false, onclick: () => { go(`brief/${b.id}`); } }))),
         more && !s ? el('div', { class: 'group' }, el('button', { type: 'button', class: 'btn btn--soft', onclick: async () => { briefs = briefs.concat(await loadBriefs(briefs[briefs.length - 1].id)); draw(); } }, 'Показать ещё')) : null,
-      );
+      ].filter(Boolean));
     };
     q.addEventListener('input', draw);
     body.append(el('div', { class: 'search' }, [icon('search'), q]), out);
@@ -258,7 +258,7 @@
     body.append(group('Уведомления', [
       perm === 'granted' ? row({ icon: 'bell', color: 'var(--red)', title: 'Включены на этом устройстве', sub: 'Документы, подписки, лимиты стран, пары, план' })
         : row({ icon: 'bell', color: 'var(--red)', title: 'Включить уведомления', sub: isIOS && !standalone() ? 'Сначала «Поделиться» → «На экран Домой»' : 'Документы, подписки, лимиты, пары, план', chev: false, onclick: enablePush }),
-      row({ icon: 'clock', color: 'var(--gray)', title: 'Время сводок и напоминаний о парах', href: '#notify' }),
+      row({ icon: 'clock', color: 'var(--gray)', title: 'Время напоминаний', href: '#notify' }),
     ], 'Старые иконки «План» и «Предзаказы» на экране «Домой» больше не нужны — удалите их, иначе уведомления будут приходить дважды.'));
     const name = el('input', { value: state.settings.name || '', maxLength: 40, onchange: async e => { const r = await post('settings', { name: e.target.value }); if (r) state.settings = r.settings; } });
     body.append(group('Настройки', [

@@ -475,6 +475,12 @@ select.nt-time { width: 150px !important; }
 .un-teach summary { display: flex; align-items: baseline; gap: 10px; cursor: pointer; list-style: none; }
 .un-teach summary::-webkit-details-marker { display: none; }
 .un-teach ul { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+.un-remind summary { display: flex; justify-content: space-between; align-items: center; gap: 12px; cursor: pointer; list-style: none; width: 100%; }
+.un-remind summary::-webkit-details-marker { display: none; }
+.un-remind summary > span { display: flex; flex-direction: column; gap: 4px; }
+.un-remind__chev { flex: none; width: 10px; height: 10px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg); transition: transform .25s; margin-right: 4px; }
+.un-remind[open] .un-remind__chev { transform: rotate(-135deg); }
+.un-remind:not([open]) { gap: 0; }
 .un-teach li { display: flex; flex-direction: column; gap: 2px; font-size: 14.5px; }
 
 /* ================= нижнее меню и шторка (телефон) ================= */

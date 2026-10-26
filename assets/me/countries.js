@@ -464,7 +464,7 @@
     const warn = el('input', { type: 'number', inputmode: 'numeric', value: d.warn || 0, min: 0, max: 365 });
     const since = el('input', { type: 'date', value: d.since || todayIso() });
     const box = el('div');
-    const draw = () => box.replaceChildren(
+    const draw = () => box.replaceChildren(...[
       group(null, [el('div', { class: 'row' }, name)]),
       group('Как считать', [
         ME.seg([['rolling', 'Окно'], ['year', 'Год'], ['since', 'С даты']], d.mode, v => { d.mode = v; draw(); }),
@@ -478,7 +478,7 @@
       ]),
       group(null, [ME.toggle('Показывать плиткой на главной', d.tile !== false, v => { d.tile = v; }), ME.toggle('Включено', d.on !== false, v => { d.on = v; })]),
       r ? group(null, [row({ title: 'Удалить правило', cls: 'row--danger', chev: false, onclick: async () => { if (await ask(`Удалить «${r.name}»?`) && await remove('rules', r.id)) { closeSheet(); go('countries/rules'); } } })]) : null,
-    );
+    ].filter(Boolean));
     const pickMany = () => {
       const all = Object.keys(WORLD.names).sort((a, b) => cname(a).localeCompare(cname(b), 'ru'));
       const picked = new Set(d.countries || []);
@@ -563,10 +563,10 @@
         const r = await post('days', { add, source: 'photo' });
         if (r) { state.days = r.days; toast(`Добавлено ${days(r.added)}`); go('countries'); }
       } }, `Добавить отмеченные`);
-      out.replaceChildren(head, el('div', { class: 'group' }, el('div', { class: 'list' }, items.map(x => {
+      out.replaceChildren(...[head, el('div', { class: 'group' }, el('div', { class: 'list' }, items.map(x => {
         const cb = el('input', { type: 'checkbox', checked: !x.have, disabled: x.have }); checks.set(x, cb);
         return el('label', { class: 'import-row' }, [cb, el('span', {}, [el('b', { text: `${flag(x.c)} ${cname(x.c)}` }), el('br'), el('span', { class: 'muted', style: 'font-size:15px', text: `${fmt(x.d, true)} · ${x.n} фото` })]), el('span', { class: x.have ? 'muted' : 'ok', style: 'font-size:13px', text: x.have ? 'уже есть' : 'новый' })]);
-      }))), fresh.length ? el('div', { class: 'group' }, addBtn) : null);
+      }))), fresh.length ? el('div', { class: 'group' }, addBtn) : null].filter(Boolean));
     }
   }
 
