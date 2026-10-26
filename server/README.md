@@ -100,6 +100,10 @@ curl -X POST https://pilotarbuza.com/api/me/ping  -H 'Authorization: Bearer me_�
 curl -X POST https://pilotarbuza.com/api/me/brief -H 'Authorization: Bearer me_…' --data-binary @brief.txt
 ```
 
+Города («Страны» → «Города» и точки на карте) сервис находит сам: каждая отметка и фото с геопозицией сводится
+к ближайшему городу из `server/geo/cities.json` (Natural Earth populated places, ~7300 городов с русскими названиями);
+дальше 40 км — «рядом с городом», точки в море и в полёте пропускаются. Город можно добавить и вручную (`/api/me/cities/search`).
+
 Курсы валют сервис берёт с open.er-api.com раз в 12 часов. Напоминания (срок документа, списание подписки,
 долг, лимит по стране, молчащее автоотслеживание) уходят через те же push-уведомления.
 

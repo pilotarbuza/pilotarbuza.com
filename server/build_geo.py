@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Границы стран для «Стран» в личном приложении. Запускается руками, когда нужно обновить данные:
 
-    python3 server/build_geo.py ne_50m_admin_0_countries.geojson ne_110m_admin_0_countries.geojson
+    python3 server/build_geo.py ne_50m_admin_0_countries.geojson ne_110m_admin_0_countries.geojson [ne_10m_populated_places.geojson]
 
 Исходники — Natural Earth (public domain): github.com/nvkelso/natural-earth-vector/tree/master/geojson.
 Пишет два файла:
   server/geo/countries.json — контуры 1:50m для определения страны по координатам (на сервере, в браузер не уходит);
-  assets/me/world.js        — контуры 1:110m в проекции Миллера для карты и названия стран по-русски.
+  assets/me/world.js        — контуры 1:110m в проекции Миллера для карты и названия стран по-русски;
+  server/geo/cities.json    — города (Natural Earth populated places 1:10m, ~7300): широта, долгота, имя по-русски и
+                              по-английски, страна, население — чтобы по координатам отметок находить ближайший город.
 """
 import json, math, os, sys
 
@@ -38,6 +40,18 @@ def build_lookup(src, dst):
     with open(dst, 'w', encoding='utf-8') as f:
         json.dump(out, f, separators=(',', ':'))
     print(dst, len(out), 'polygons', os.path.getsize(dst) // 1024, 'KB')
+
+
+def build_cities(src, dst):
+    out = []
+    for f in json.load(open(src, encoding='utf-8'))['features']:
+        p = f['properties']
+        lon, lat = f['geometry']['coordinates'][:2]
+        iso = p.get('ISO_A2') if p.get('ISO_A2') not in (None, '-99') else ''
+        out.append([round(lat, 4), round(lon, 4), p.get('NAME_RU') or p['NAME'], p.get('NAME_EN') or p['NAME'], iso, int(p.get('POP_MAX') or 0)])
+    with open(dst, 'w', encoding='utf-8') as f:
+        json.dump(out, f, ensure_ascii=False, separators=(',', ':'))
+    print(dst, len(out), 'cities', os.path.getsize(dst) // 1024, 'KB')
 
 
 def miller(lon, lat):
@@ -86,7 +100,9 @@ def build_map(src50, src110, dst):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 3:
+    if len(sys.argv) not in (3, 4):
         sys.exit(__doc__)
     build_lookup(sys.argv[1], os.path.join(HERE, 'geo', 'countries.json'))
     build_map(sys.argv[1], sys.argv[2], os.path.join(HERE, '..', 'assets', 'me', 'world.js'))
+    if len(sys.argv) == 4:
+        build_cities(sys.argv[3], os.path.join(HERE, 'geo', 'cities.json'))

@@ -2,7 +2,7 @@
    Всё, что пришло с сервера, попадает на страницу как текст; HTML заметок проходит через очистку (ME.cleanHtml). */
 window.ME = (() => {
   const $ = s => document.querySelector(s);
-  const KINDS = ['folders', 'notes', 'docs', 'tx', 'subs', 'debts', 'budgets', 'rules', 'trips'];
+  const KINDS = ['folders', 'notes', 'docs', 'tx', 'subs', 'debts', 'budgets', 'rules', 'trips', 'places'];
   const state = { days: [], settings: {}, keys: {}, files: [], brief: [], rates: null, last_ping: null, plan: null, ui: {} };
   KINDS.forEach(k => { state[k] = []; });
   try { state.ui = JSON.parse(localStorage.getItem('me-ui') || '{}') || {}; } catch (e) { state.ui = {}; }
@@ -176,6 +176,7 @@ window.ME = (() => {
     const d = await r.json();
     KINDS.forEach(k => { state[k] = d[k] || []; });
     ['days', 'settings', 'keys', 'files', 'brief', 'rates', 'last_ping', 'meta'].forEach(k => { state[k] = d[k]; });
+    state.cities = null; // города пересчитываются на сервере из новых отметок — загрузить заново при показе
     ME.loadPlan();
     if (!state.rates || !state.rates.at || Date.now() - new Date(state.rates.at) > 12 * 3600e3) api('me/rates').then(x => x.json()).then(x => { if (x.at) { state.rates = x; render(); } }).catch(() => {});
   };
@@ -251,7 +252,7 @@ window.ME = (() => {
     s.replaceChildren(el('div', { class: 'sheet__grip', 'aria-hidden': 'true' }), el('div', { class: 'sheet__bar' }, [
       el('button', { type: 'button', class: 'nb', text: done ? cancelText : 'Закрыть', onclick: closeSheet }),
       el('h2', { text: title || '' }), doneBtn,
-    ]), ...[].concat(body));
+    ]), ...[].concat(body).filter(Boolean));
     s.onclose = onclose || null;
     if (!s.open) s.showModal();
     return s;

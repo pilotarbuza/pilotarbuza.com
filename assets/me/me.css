@@ -732,3 +732,6 @@ body::before { content: ""; position: fixed; inset: -10vh -10vw; z-index: -1; po
 /* в строках форм значение прижато вправо, как в настройках iOS */
 .row > .row__lbl ~ :is(select, input[type=date], input[type=time], .row__v, button) { margin-left: auto; }
 .row > .row__lbl ~ select { max-width: 62%; text-align: right; text-align-last: right; }
+
+/* города на карте: тёмные точки с белой обводкой поверх закрашенных стран */
+.ct-map circle.city { fill: var(--ink); stroke: #fff; cursor: pointer; }

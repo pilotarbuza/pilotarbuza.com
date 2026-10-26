@@ -198,6 +198,17 @@
     setTimeout(() => w.print(), 300);
   }
 
+  // ---------- города ----------
+  // сервер сводит отметки и фото в города (server/me.py, cities); здесь — кэш и выборка за период
+  let citiesLoading = null;
+  const loadCities = () => citiesLoading || (citiesLoading = ME.api('me/cities').then(r => r.ok ? r.json() : { cities: [] }).then(d => { state.cities = d.cities; citiesLoading = null; return d.cities; }).catch(() => { citiesLoading = null; return []; }));
+  const citiesIn = ([a, b]) => (state.cities || []).map(c => {
+    const ds = c.dates.filter(d => dn(d) >= a && dn(d) <= b);
+    return ds.length || (!c.dates.length && c.sources.includes('manual')) ? { ...c, n: ds.length } : null;
+  }).filter(Boolean).sort((x, y) => y.n - x.n || (y.last || '').localeCompare(x.last || ''));
+  const millerXY = (lat, lon) => { const la = Math.max(-80, Math.min(84, lat)) * Math.PI / 180; return [(lon + 180) / 360 * 1000, 500 - 1.25 * Math.log(Math.tan(Math.PI / 4 + 0.4 * la)) * 1000 / (2 * Math.PI)]; };
+  const cityLabel = c => (c.near ? `рядом с ${c.name}, ${c.km} км` : c.name);
+
   // ---------- главный экран ----------
   let weekOffset = 0;
   function main(box) {
@@ -267,11 +278,21 @@
         : ME.empty('Пока пусто', 'Добавьте дни вручную, из фото или включите автоотслеживание.'),
     ]));
 
+    // города
+    const cs = state.cities ? citiesIn(rng) : null;
+    if (!state.cities) loadCities().then(() => { if (ME.cur.view === 'countries' && !ME.cur.args.length) ME.render(); });
+    root.append(el('section', { class: 'group ct-sum' }, [
+      el('div', { class: 'group__h group__h--big' }, [el('span', { text: 'Города' }), el('a', { href: '#countries/cities', text: 'Все' })]),
+      !cs ? el('p', { class: 'muted', style: 'margin:0 4px', text: 'Загружаю…' })
+        : cs.length ? el('div', {}, cs.slice(0, 6).map(x => row({ flag: flag(x.country), title: cityLabel(x), value: x.n ? `${x.n} ${plural(x.n, 'день', 'дня', 'дней')}` : 'вручную', onclick: () => citySheet(x) })))
+        : ME.empty('Городов пока нет', 'Они появятся из автоотслеживания и фото, или добавьте вручную.', el('a', { class: 'btn btn--sm', style: 'margin-top:10px', href: '#countries/cities' }, 'Добавить город')),
+    ]));
+
     // карта
-    root.append(el('section', { class: 'group' }, [el('h2', { class: 'group__h group__h--big', text: 'Карта' }), worldMap(new Set(Object.keys(c)), c),
+    root.append(el('section', { class: 'group' }, [el('h2', { class: 'group__h group__h--big', text: 'Карта' }), worldMap(new Set(Object.keys(c)), c, cs || []),
       el('div', { class: 'ct-stats' }, [
         el('div', {}, [el('b', { text: String(sum.length) }), el('span', { text: plural(sum.length, 'страна', 'страны', 'стран') })]),
-        el('div', {}, [el('b', { text: String(new Set(state.days.map(d => d[1])).size) }), el('span', { text: 'за всё время' })]),
+        el('div', {}, [el('b', { text: cs ? String(cs.length) : '…' }), el('span', { text: plural(cs ? cs.length : 5, 'город', 'города', 'городов') })]),
         el('div', {}, [el('b', { text: String(sum.filter(([cc]) => cc !== state.settings.home).reduce((s, x) => s + x[1], 0)) }), el('span', { text: `дней не в ${cname(state.settings.home || 'TR').replace(/я$/, 'и')}` })]),
       ])]));
     pingOnOpen();
@@ -290,25 +311,29 @@
   }
 
   // ---------- карта ----------
-  function worldMap(on, c) {
+  function worldMap(on, c, cities = []) {
     const [x0, y0, w0, h0] = WORLD.view;
     let vb = [x0, y0, w0, h0];
     const svg = el('svg', { viewBox: vb.join(' '), role: 'img', 'aria-label': `Карта: ${on.size} ${plural(on.size, 'страна', 'страны', 'стран')}` });
     const tip = el('div', { class: 'ct-map__tip', hidden: true });
     Object.entries(WORLD.shapes).forEach(([cc, d]) => svg.append(el('path', { d, class: on.has(cc) ? 'on' : null, 'data-c': cc })));
     Object.entries(WORLD.dots).forEach(([cc, [x, y]]) => { if (on.has(cc)) svg.append(el('circle', { cx: x, cy: y, r: 3, 'data-c': cc })); });
-    const set = () => svg.setAttribute('viewBox', vb.map(v => v.toFixed(1)).join(' '));
+    // города — точки поверх стран, размер на экране не меняется при приближении
+    const dots = cities.map((ct, i) => { const [x, y] = millerXY(ct.lat, ct.lon); const d = el('circle', { class: 'city', cx: x.toFixed(1), cy: y.toFixed(1), r: 2, 'data-city': i }); svg.append(d); return d; });
+    const sizeDots = () => { const k = vb[2] / w0; dots.forEach(d => { d.setAttribute('r', (5.5 * k).toFixed(2)); d.setAttribute('stroke-width', (1.6 * k).toFixed(2)); }); };
+    const set = () => { svg.setAttribute('viewBox', vb.map(v => v.toFixed(1)).join(' ')); sizeDots(); };
+    sizeDots();
     const zoom = (k, cx = vb[0] + vb[2] / 2, cy = vb[1] + vb[3] / 2) => {
       const w = Math.max(w0 / 12, Math.min(w0, vb[2] * k)), h = w * h0 / w0;
       vb = [Math.max(x0, Math.min(x0 + w0 - w, cx - w / 2)), Math.max(y0, Math.min(y0 + h0 - h, cy - h / 2)), w, h]; set();
     };
-    // по умолчанию — приблизить к посещённым странам
-    if (on.size) {
-      const boxes = [...on].map(cc => svg.querySelector(`[data-c="${cc}"]`)).filter(Boolean);
+    // по умолчанию — приблизить к городам, где был, а если их нет — к посещённым странам
+    if (dots.length || on.size) {
+      const boxes = dots.length ? dots : [...on].map(cc => svg.querySelector(`[data-c="${cc}"]`)).filter(Boolean);
       requestAnimationFrame(() => {
         try {
           const bb = boxes.map(b => b.getBBox()).reduce((a, b) => ({ x1: Math.min(a.x1, b.x), y1: Math.min(a.y1, b.y), x2: Math.max(a.x2, b.x + b.width), y2: Math.max(a.y2, b.y + b.height) }), { x1: 1e9, y1: 1e9, x2: -1e9, y2: -1e9 });
-          const k = Math.min(1, Math.max((bb.x2 - bb.x1) * 1.5 / w0, (bb.y2 - bb.y1) * 1.6 / h0, .18));
+          const k = Math.min(1, Math.max((bb.x2 - bb.x1) * 1.5 / w0, (bb.y2 - bb.y1) * 1.6 / h0, dots.length ? .06 : .18));
           zoom(k, (bb.x1 + bb.x2) / 2, (bb.y1 + bb.y2) / 2);
         } catch (e) { /* карта ещё не на странице */ }
       });
@@ -325,6 +350,7 @@
       drag = null;
       if (moved) return;
       const t = document.elementFromPoint(e.clientX, e.clientY), cc = t && t.dataset && t.dataset.c;
+      if (t && t.dataset && t.dataset.city) { const ct = cities[Number(t.dataset.city)]; tip.hidden = false; tip.textContent = `${flag(ct.country)} ${cityLabel(ct)}${ct.n ? ' — ' + days(ct.n) : ''}`; return; }
       if (!cc) { tip.hidden = true; return; }
       tip.hidden = false; tip.textContent = `${flag(cc)} ${cname(cc)}${c[cc] ? ' — ' + days(c[cc]) : ''}`;
     });
@@ -332,6 +358,60 @@
       el('button', { type: 'button', 'aria-label': 'Приблизить', text: '+', onclick: () => zoom(.6) }),
       el('button', { type: 'button', 'aria-label': 'Отдалить', text: '−', onclick: () => zoom(1.7) }),
     ])]);
+  }
+
+  // ---------- все города ----------
+  function citySheet(c) {
+    const ds = [...c.dates].reverse();
+    sheet({ title: `${flag(c.country)} ${c.name}`, body: [
+      group(null, [
+        row({ title: 'Страна', value: cname(c.country) }),
+        row({ title: 'Дней', value: String(c.dates.length) }),
+        c.first ? row({ title: 'Первый раз', value: fmt(c.first, true) }) : null,
+        c.last && c.last !== c.first ? row({ title: 'Последний раз', value: fmt(c.last, true) }) : null,
+        c.near ? row({ title: 'Точнее', sub: `Отметки в ${c.km} км от города — рядом есть место, которого нет в базе городов`, wrap: true }) : null,
+        row({ icon: 'location', color: 'var(--blue)', title: 'Открыть на карте', href: `https://maps.apple.com/?ll=${c.lat},${c.lon}&q=${encodeURIComponent(c.name)}`, target: '_blank' }),
+      ]),
+      ds.length ? group('Дни', ds.slice(0, 30).map(d => row({ title: fmt(d, true), sub: WD[wday(dn(d))], onclick: () => { closeSheet(); daySheet(dn(d)); } })), ds.length > 30 ? `И ещё ${ds.length - 30}.` : null) : null,
+      c.place_ids.length ? group(null, [row({ title: 'Убрать город, добавленный вручную', cls: 'row--danger', chev: false, onclick: async () => {
+        for (const id of c.place_ids) await remove('places', id);
+        closeSheet(); state.cities = null; ME.render(); toast('Убрано');
+      } })]) : null,
+    ] });
+  }
+  function addCity() {
+    const q = el('input', { type: 'search', placeholder: 'Город: Конья, Батуми, Kazan…', autocomplete: 'off' });
+    const list = el('div', { class: 'list pick-list' });
+    let t = null;
+    const draw = async () => {
+      const s = q.value.trim();
+      if (s.length < 2) { list.replaceChildren(row({ title: 'Начните вводить название', chev: false })); return; }
+      const r = await ME.api('me/cities/search?q=' + encodeURIComponent(s));
+      const { cities } = await r.json();
+      list.replaceChildren(...(cities.length ? cities.map(c => row({ flag: flag(c.country), title: c.name, sub: [c.en !== c.name ? c.en : null, cname(c.country)].filter(Boolean).join(' · '), onclick: () => pickDate(c) })) : [row({ title: 'Не нашлось', chev: false })]));
+    };
+    const pickDate = c => {
+      const date = el('input', { type: 'date', value: todayIso(), max: todayIso() });
+      sheet({ title: `${flag(c.country)} ${c.name}`, doneText: 'Добавить', body: group(null, [ME.inputRow('Когда был', date)], 'Дату можно оставить пустой — город просто появится на карте.'), done: async () => {
+        if (!await save('places', null, { city: c.id, date: date.value || null })) return false;
+        state.cities = null; ME.render(); toast(`${c.name} — на карте`); return true;
+      } });
+    };
+    q.addEventListener('input', () => { clearTimeout(t); t = setTimeout(draw, 200); });
+    sheet({ title: 'Добавить город', body: [el('div', { class: 'search' }, [icon('search'), q]), el('div', { class: 'group' }, list)] });
+    draw(); setTimeout(() => q.focus(), 250);
+  }
+  function citiesView(box) {
+    const body = screen(box, { title: 'Города', back: '#countries', backText: 'Страны', cls: 'ct', right: [navBtn('plus', addCity, { 'aria-label': 'Добавить город' })] });
+    if (!state.cities) { body.append(el('p', { class: 'muted', style: 'text-align:center', text: 'Загружаю…' })); loadCities().then(() => { if (ME.cur.args[0] === 'cities') ME.render(); }); return; }
+    const all = citiesIn([0, today()]);
+    if (!all.length) { body.append(ME.empty('Городов пока нет', 'Города появятся из автоотслеживания и фото с геопозицией. Можно добавить и вручную.', el('button', { type: 'button', class: 'btn btn--sm', style: 'margin-top:12px', onclick: addCity }, 'Добавить город'))); return; }
+    const byC = {};
+    all.forEach(c => { (byC[c.country] = byC[c.country] || []).push(c); });
+    body.append(el('p', { class: 'group__f', style: 'margin:0 20px 14px', text: `${all.length} ${plural(all.length, 'город', 'города', 'городов')} в ${Object.keys(byC).length} ${plural(Object.keys(byC).length, 'стране', 'странах', 'странах')}. Город — ближайший к отметке или фото.` }));
+    Object.entries(byC).sort((a, b) => b[1].length - a[1].length).forEach(([cc, list]) => body.append(group(`${flag(cc)} ${cname(cc)} · ${list.length}`, list.map(c => row({
+      title: cityLabel(c), sub: c.dates.length ? `${c.dates.length} ${plural(c.dates.length, 'день', 'дня', 'дней')} · ${c.first === c.last ? fmt(c.first, true) : `${fmt(c.first)} — ${fmt(c.last, true)}`}` : 'добавлен вручную', onclick: () => citySheet(c),
+    })))));
   }
 
   // ---------- календарь ----------
@@ -654,6 +734,7 @@
     if (v === 'import') return importView(box);
     if (v === 'setup') return setup(box);
     if (v === 'trips') return trips(box);
+    if (v === 'cities') return citiesView(box);
     return main(box);
   };
   ME.countries = { usage, counts, noData, yearRange, tracked, here, addMenu, dmap, pingOnOpen };

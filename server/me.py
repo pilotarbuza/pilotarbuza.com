@@ -32,6 +32,8 @@ import crm
 
 TZ = timezone(timedelta(hours=3))
 GEO_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'geo', 'countries.json')
+CITIES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'geo', 'cities.json')
+CITY_NEAR_KM = 40  # дальше — «рядом с городом, N км»
 CODE_RE = re.compile(r'[A-Z]{2}')
 CURRENCY_RE = re.compile(r'[A-Z]{3}')
 DOC_TYPES = ['passport', 'intpassport', 'id', 'visa', 'residence', 'license', 'medical', 'insurance', 'student', 'other']
@@ -73,6 +75,9 @@ SCHEMA = {
         'name': ('str', 80, True), 'countries': ('codes', 60), 'mode': ('enum', RULE_MODES), 'window': ('int', 1, 3660),
         'limit': ('int', 1, 3660), 'goal': ('enum', RULE_GOALS), 'warn': ('int', 0, 365), 'since': ('date',),
         'on': ('bool',), 'tile': ('bool',), 'order': ('int', 0, 10 ** 7), 'note': ('str', 300),
+    },
+    'places': {  # город, добавленный вручную (без отметок и фото)
+        'city': ('int', 0, 10 ** 6, True), 'date': ('date',), 'note': ('str', 200),
     },
     'trips': {  # запланированные поездки — для проверки правил наперёд
         'country': ('code', True), 'start': ('date', True), 'end': ('date', True), 'note': ('str', 200),
@@ -416,6 +421,103 @@ def parse_date(v):
         if mo:
             return date(int(m.group(3)), mo, int(m.group(1))).isoformat()
     raise ValueError
+
+
+# ---------------- города ----------------
+_CITIES = None
+
+
+def _cities():
+    """Города и сетка 1°×1° для быстрого поиска ближайшего."""
+    global _CITIES
+    with _GEO_LOCK:
+        if _CITIES is None:
+            with open(CITIES_PATH, encoding='utf-8') as f:
+                rows = json.load(f)
+            grid = {}
+            for i, r in enumerate(rows):
+                grid.setdefault((math.floor(r[0]), math.floor(r[1])), []).append(i)
+            _CITIES = (rows, grid)
+        return _CITIES
+
+
+def _km(lat1, lon1, lat2, lon2):
+    p = math.pi / 180
+    a = 0.5 - math.cos((lat2 - lat1) * p) / 2 + math.cos(lat1 * p) * math.cos(lat2 * p) * (1 - math.cos((lon2 - lon1) * p)) / 2
+    return 12742 * math.asin(math.sqrt(max(0, a)))
+
+
+def city_at(lat, lon):
+    """Ближайший город: (номер в cities.json, км). Ищет в соседних клетках сетки, расширяя круг до ~3°."""
+    rows, grid = _cities()
+    cy, cx = math.floor(lat), math.floor(lon)
+    best = (None, 1e9)
+    for ring in range(4):
+        for dy in range(-ring, ring + 1):
+            for dx in range(-ring, ring + 1):
+                if max(abs(dy), abs(dx)) != ring:
+                    continue
+                for i in grid.get((cy + dy, (cx + dx + 180) % 360 - 180), []):
+                    r = rows[i]
+                    d = _km(lat, lon, r[0], r[1])
+                    if d < best[1]:
+                        best = (i, d)
+        if best[0] is not None and best[1] < ring * 80:
+            break
+    return best
+
+
+def city_info(i):
+    r = _cities()[0][i]
+    return {'id': i, 'name': r[2], 'en': r[3], 'country': r[4], 'lat': r[0], 'lon': r[1], 'pop': r[5]}
+
+
+def search_cities(q, limit=20):
+    q = (q or '').strip().lower()
+    if len(q) < 2:
+        return []
+    rows = _cities()[0]
+    pop = lambda i: -rows[i][5]
+    first = sorted((i for i, r in enumerate(rows) if r[2].lower().startswith(q) or r[3].lower().startswith(q)), key=pop)
+    seen = set(first)
+    rest = sorted((i for i, r in enumerate(rows) if i not in seen and (q in r[2].lower() or q in r[3].lower())), key=pop)
+    return [city_info(i) for i in (first + rest)[:limit]]
+
+
+def cities(con):
+    """Где я был: отметки и фото → ближайший город; плюс города, добавленные вручную.
+    Для каждого города — дни (даты), первая и последняя, сколько отметок; далёкие точки — «рядом с», с расстоянием."""
+    cache, out = {}, {}
+    for r in con.execute('SELECT date, lat, lon, country, source FROM me_points'):
+        key = (round(r['lat'], 2), round(r['lon'], 2))
+        if key not in cache:
+            cache[key] = city_at(r['lat'], r['lon'])
+        i, km = cache[key]
+        if i is None or not r['country'] or km > 100:  # море, полёт или глушь — не город
+            continue
+        c = out.setdefault(i, {'dates': set(), 'n': 0, 'km': km, 'country': r['country'], 'sources': set()})
+        c['dates'].add(r['date'])
+        c['n'] += 1
+        c['km'] = min(c['km'], km)
+        c['sources'].add(r['source'])
+        if r['country']:
+            c['country'] = r['country']
+    for p in records(con, 'places'):
+        if 0 <= p['city'] < len(_cities()[0]):
+            c = out.setdefault(p['city'], {'dates': set(), 'n': 0, 'km': 0, 'country': None, 'sources': set()})
+            c['km'] = 0
+            if p.get('date'):
+                c['dates'].add(p['date'])
+            c['sources'].add('manual')
+            c.setdefault('place_ids', []).append(p['id'])
+    res = []
+    for i, c in out.items():
+        info = city_info(i)
+        ds = sorted(c['dates'])
+        res.append(dict(info, country=c['country'] or info['country'], days=len(ds), dates=ds, first=ds[0] if ds else None, last=ds[-1] if ds else None,
+                        points=c['n'], near=c['km'] > CITY_NEAR_KM, km=round(c['km']), sources=sorted(c['sources']), place_ids=c.get('place_ids', [])))
+    res.sort(key=lambda x: (x['last'] or '', x['days']), reverse=True)
+    return res
 
 
 # ---------------- дни ----------------

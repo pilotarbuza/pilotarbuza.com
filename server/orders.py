@@ -452,6 +452,11 @@ class Handler(SimpleHTTPRequestHandler):
                 return self.send_json(200, {'points': me.points_on(con, d)})
         if path == '/api/me/rates':
             return self.send_json(200, me.rates(db))
+        if path == '/api/me/cities':
+            with db() as con:
+                return self.send_json(200, {'cities': me.cities(con)})
+        if path == '/api/me/cities/search':
+            return self.send_json(200, {'cities': me.search_cities(q.get('q'))})
         m = re.fullmatch(r'/api/me/files/(\d+)', path)
         if m:
             with db() as con:
