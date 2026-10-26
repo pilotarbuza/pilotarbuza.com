@@ -1763,5 +1763,110 @@
    "optional": false,
    "note": ""
   }
+ ],
+ "patches": [
+  {
+   "id": "vize-2026-fall",
+   "kind": "calendar",
+   "items": [
+    {
+     "title": "Неделя экзаменов (vize)",
+     "kind": "session",
+     "start": "2026-11-02",
+     "end": "2026-11-08",
+     "notes": "Ara sınav haftası: занятий нет."
+    },
+    {
+     "title": "Vize · Bilgisayar Destekli Teknik Resim",
+     "kind": "exam",
+     "start": "2026-11-02",
+     "end": "2026-11-02",
+     "time": "15:00",
+     "room": "BİLMER Lab 2-3-4",
+     "notes": "Ara sınav (vize), осень 2026–2027."
+    },
+    {
+     "title": "Vize · İşçi Sağlığı ve İş Güvenliği-1",
+     "kind": "exam",
+     "start": "2026-11-03",
+     "end": "2026-11-03",
+     "time": "11:00",
+     "room": "310-311-312",
+     "notes": "Ara sınav (vize), осень 2026–2027."
+    },
+    {
+     "title": "Vize · Makina Mühendisliğine Giriş",
+     "kind": "exam",
+     "start": "2026-11-04",
+     "end": "2026-11-04",
+     "time": "09:00",
+     "room": "310-311-312",
+     "notes": "Ara sınav (vize), осень 2026–2027. хвост с 1 курса"
+    },
+    {
+     "title": "Vize · Termodinamik-1",
+     "kind": "exam",
+     "start": "2026-11-04",
+     "end": "2026-11-04",
+     "time": "11:00",
+     "room": "310-311-312-313-110-111-212",
+     "notes": "Ara sınav (vize), осень 2026–2027."
+    },
+    {
+     "title": "Vize · Alternatif Enerji Kaynakları",
+     "kind": "exam",
+     "start": "2026-11-05",
+     "end": "2026-11-05",
+     "time": "11:00",
+     "room": "310-311",
+     "notes": "Ara sınav (vize), осень 2026–2027. в то же время, что Temel Motor Teknolojileri — уточнить у деканата"
+    },
+    {
+     "title": "Vize · Temel Motor Teknolojileri",
+     "kind": "exam",
+     "start": "2026-11-05",
+     "end": "2026-11-05",
+     "time": "11:00",
+     "room": "312-313",
+     "notes": "Ara sınav (vize), осень 2026–2027. в то же время, что Alternatif Enerji Kaynakları — уточнить у деканата"
+    },
+    {
+     "title": "Vize · Mukavemet-1",
+     "kind": "exam",
+     "start": "2026-11-06",
+     "end": "2026-11-06",
+     "time": "11:00",
+     "room": "310-311-312-313-111-211",
+     "notes": "Ara sınav (vize), осень 2026–2027."
+    },
+    {
+     "title": "Vize · Diferansiyel Denklemler",
+     "kind": "exam",
+     "start": "2026-11-06",
+     "end": "2026-11-06",
+     "time": "17:00",
+     "room": "310-311-312-313",
+     "notes": "Ara sınav (vize), осень 2026–2027."
+    },
+    {
+     "title": "Vize · Statik",
+     "kind": "exam",
+     "start": "2026-11-07",
+     "end": "2026-11-07",
+     "time": "11:00",
+     "room": "310-311-312-313-111, 1-12-14-15-17",
+     "notes": "Ara sınav (vize), осень 2026–2027."
+    },
+    {
+     "title": "Vize · Bilgisayar Programlama",
+     "kind": "exam",
+     "start": "2026-11-08",
+     "end": "2026-11-08",
+     "time": "11:00",
+     "room": "310-311-312-313",
+     "notes": "Ara sınav (vize), осень 2026–2027."
+    }
+   ]
+  }
  ]
 }

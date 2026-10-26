@@ -155,23 +155,27 @@ def build(records, today, kind):
     lines = []
     if kind == 'evening':
         due = [t for t in tasks if _d(t['end']) == tomorrow]
-        dl = [c for c in records['calendar'] if c.get('kind') == 'deadline' and _d(c['start']) == tomorrow]
+        dl = [c for c in records['calendar'] if c.get('kind') in ('deadline', 'exam') and _d(c['start']) == tomorrow]
         steps = [c for c in records['contacts'] if c.get('next_date') and c.get('status') != 'closed' and _d(c['next_date']) == tomorrow]
-        lines += ['• %s' % _name(t) for t in due] + ['• %s' % c['title'] for c in dl] + ['• %s: %s' % (c['name'], _short(c.get('next_step') or 'следующий шаг', 48)) for c in steps]
+        lines += ['• %s' % _name(t) for t in due] + ['• %s%s%s' % (c['title'], ' в ' + c['time'] if c.get('time') else '', ', ауд. ' + c['room'] if c.get('room') else '') for c in dl] + ['• %s: %s' % (c['name'], _short(c.get('next_step') or 'следующий шаг', 48)) for c in steps]
         if not lines:
             return None
-        n = len(lines)
-        return {'title': 'Завтра срок: %d %s' % (n, _plural(n, 'пункт', 'пункта', 'пунктов')), 'body': _cut(lines), 'url': APP_URL, 'tag': 'evening-%s' % today}
+        n, ex = len(lines), sum(1 for c in dl if c.get('kind') == 'exam')
+        if ex == n:
+            title = 'Завтра экзамен' if n == 1 else 'Завтра экзамены: %d' % n
+        else:
+            title = 'Завтра срок: %d %s' % (n, _plural(n, 'пункт', 'пункта', 'пунктов'))
+        return {'title': title, 'body': _cut(lines), 'url': '/me/#calendar' if ex else APP_URL, 'tag': 'evening-%s' % today}
     late = sorted([t for t in tasks if _d(t['end']) < today], key=lambda t: t['end'])
     due = [t for t in tasks if _d(t['end']) == today]
     start = [t for t in tasks if t.get('start') and _d(t['start']) == today and _d(t['end']) != today]
     gates = [t for t in tasks if t.get('kind') == 'milestone' and (_d(t['end']) - today).days in (1, 3, 7)]
-    dls = [c for c in records['calendar'] if c.get('kind') == 'deadline' and (_d(c['start']) - today).days in (0, 1, 3, 7)]
+    dls = [c for c in records['calendar'] if c.get('kind') in ('deadline', 'exam') and (_d(c['start']) - today).days in (0, 1, 3, 7)]
     steps = [c for c in records['contacts'] if c.get('next_date') and c.get('status') != 'closed' and _d(c['next_date']) <= today]
     lines += ['• Срок сегодня: %s' % _name(t) for t in due]
     lines += ['• Начать: %s' % _name(t) for t in start]
     lines += ['• %s — через %d %s, %s' % (t.get('code') or t['title'], (_d(t['end']) - today).days, _plural((_d(t['end']) - today).days, 'день', 'дня', 'дней'), _human(_d(t['end']))) for t in gates]
-    lines += ['• %s — %s' % (c['title'], 'сегодня' if _d(c['start']) == today else _human(_d(c['start']))) for c in dls]
+    lines += ['• %s — %s%s' % (c['title'], 'сегодня' if _d(c['start']) == today else _human(_d(c['start'])), ' в ' + c['time'] if c.get('time') else '') for c in dls]
     lines += ['• %s: %s' % (c['name'], _short(c.get('next_step') or 'следующий шаг', 48)) for c in steps]
     if late:
         lines.insert(0, '• Просрочено: %s' % (_name(late[0]) if len(late) == 1 else '%d %s, первая — %s' % (len(late), _plural(len(late), 'задача', 'задачи', 'задач'), _name(late[0]))))
@@ -200,7 +204,8 @@ def lessons_on(records, day, with_optional=True):
 
 def is_holiday(records, day):
     d = day.isoformat()
-    return any(c.get('kind') == 'holiday' and c['start'] <= d <= c['end'] for c in records.get('calendar', []))
+    # пар нет в праздники и в сессию (неделю экзаменов)
+    return any(c.get('kind') in ('holiday', 'session') and c['start'] <= d <= c['end'] for c in records.get('calendar', []))
 
 
 def _lesson_line(l):

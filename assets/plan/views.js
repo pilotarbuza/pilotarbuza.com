@@ -124,7 +124,7 @@
         cells.push(el('button', { type: 'button', class: `cl-day${out ? ' cl-day--out' : ''}${d === today() ? ' cl-day--today' : ''}${d === sel ? ' cl-day--sel' : ''}${wday(d) > 4 || hol.has(d) ? ' cl-day--off' : ''}${blocks.some(c => c.kind === 'session') ? ' cl-day--session' : ''}${blocks.some(c => c.kind === 'vacation') ? ' cl-day--vac' : ''}`,
           'aria-label': `${p.d} ${MONTHS[p.m]}`, onclick: () => { u.calDay = iso(d); PA.saveUi(); PA.render(); } }, [
           el('span', { class: 'cl-num', text: String(p.d) }),
-          blocks.filter(c => c.kind === 'holiday' || c.kind === 'deadline').slice(0, 1).map(c => el('span', { class: `cl-tag cl-tag--${c.kind}`, text: c.title }))[0] || null,
+          blocks.filter(c => c.kind === 'holiday' || c.kind === 'deadline' || c.kind === 'exam').sort((a, b) => (a.time || '').localeCompare(b.time || '')).slice(0, 1).map(c => el('span', { class: `cl-tag cl-tag--${c.kind}`, text: c.kind === 'exam' ? `${c.time || ''} ${c.title.replace(/^Vize · /, '')}`.trim() : c.title }))[0] || null,
           hidden ? el('span', { class: 'cl-more', text: `+${hidden}` }) : null,
         ]));
       }
@@ -150,8 +150,9 @@
     const agenda = el('aside', { class: 'cl-agenda card' }, [
       el('h2', { text: `${sp.d} ${PA.MON_G[sp.m]}, ${WD[wday(sel)]}` }),
       el('p', { class: 'pl-hint', text: wday(sel) > 4 || hol.has(sel) ? 'Выходной' : 'Рабочий день' }),
-      dayCal.length ? el('ul', { class: 'cl-list' }, dayCal.map(c => el('li', { class: `cl-ev cl-ev--${c.kind}` }, [
-        el('span', {}, [el('b', { text: c.title }), el('span', { class: 'pl-hint', text: ` ${L.cal[c.kind]}, ${PA.range(c)}` })]),
+      dayCal.length ? el('ul', { class: 'cl-list' }, [...dayCal].sort((a, b) => (a.time || '').localeCompare(b.time || '')).map(c => el('li', { class: `cl-ev cl-ev--${c.kind}` }, [
+        el('span', {}, [el('b', { text: c.title }), el('span', { class: 'pl-hint', text: ` ${L.cal[c.kind]}, ${c.time ? c.time + ', ' : ''}${PA.range(c)}` })]),
+        c.room ? el('span', { class: 'pl-hint', text: `Аудитории: ${c.room}` }) : null,
         c.notes ? el('span', { class: 'pl-hint', text: c.notes }) : null,
         el('button', { type: 'button', class: 'pl-del', text: 'Удалить', onclick: async () => { if (confirm(`Удалить «${c.title}» из календаря?`) && await PA.remove('calendar', c.id)) { PA.toast('Удалено'); PA.render(); } } }),
       ]))) : null,
@@ -177,7 +178,7 @@
         el('div', { class: 'cl-grid' }, weeks),
         el('div', { class: 'cl-legend' }, [
           el('span', { class: 'cl-lg cl-lg--session', text: 'Сессия' }), el('span', { class: 'cl-lg cl-lg--vac', text: 'Каникулы' }),
-          el('span', { class: 'cl-lg cl-lg--off', text: 'Выходной или праздник' }), el('span', { class: 'cl-lg cl-lg--test', text: 'Испытание' }), el('span', { class: 'cl-lg cl-lg--late', text: 'Просрочено' }),
+          el('span', { class: 'cl-lg cl-lg--off', text: 'Выходной или праздник' }), el('span', { class: 'cl-lg cl-lg--test', text: 'Испытание' }), el('span', { class: 'cl-lg cl-lg--late', text: 'Просрочено' }), el('span', { class: 'cl-lg cl-lg--exam', text: 'Экзамен' }),
         ]),
       ]),
       agenda,

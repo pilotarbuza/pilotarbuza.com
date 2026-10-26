@@ -44,3 +44,7 @@
 /* ящик задачи — плотное стекло, чтобы страница под ним не мешала читать */
 .pl-drawer { background: rgba(238,242,244,.94); -webkit-backdrop-filter: blur(30px) saturate(180%); backdrop-filter: blur(30px) saturate(180%); }
 .pl-drawer::backdrop { background: rgba(14,26,43,.35); }
+/* на телефоне подписи дней в календаре скрыты — экзамен отмечается жёлтой точкой у числа, подробности — в карточке дня */
+@media (max-width: 860px) {
+  .pl .cl-tag--exam { display: block; position: absolute; top: 12px; right: 8px; left: auto; width: 9px; height: 9px; max-width: none; padding: 0; border-radius: 50%; font-size: 0; box-shadow: 0 0 0 3px rgba(201,162,39,.25); }
+}
