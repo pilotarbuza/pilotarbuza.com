@@ -10,27 +10,18 @@
   async function start() {
     try { await ME.load(); } catch (e) {
       if (e.message === 'auth') return;
-      $('#view').replaceChildren(ME.empty('Данные не загрузились', `${e.message}. Если сайт только что обновился, перезапустите службу: sudo systemctl restart pilotarbuza-orders`));
+      $('#me-view').replaceChildren(ME.empty('Данные не загрузились', `${e.message}. Если сайт только что обновился, перезапустите службу: sudo systemctl restart pilotarbuza-orders`));
       return;
     }
     ME.route();
   }
   window.addEventListener('hashchange', ME.route);
-  // «+» в нижнем меню — быстро добавить что угодно
-  $('#tabs-add').addEventListener('click', () => ME.menu('Добавить', [
-    { icon: 'compose', text: 'Заметку', fn: () => ME.notes.newNote() },
-    { icon: 'money', text: 'Расход или доход', fn: () => { ME.go('money'); setTimeout(() => ME.fin.txSheet(), 50); } },
-    { icon: 'location', text: 'Где я сейчас', fn: () => ME.countries.here() },
-    { icon: 'calendar', text: 'Дни в стране', fn: () => { ME.go('countries'); setTimeout(() => ME.countries.addMenu(), 50); } },
-    { icon: 'doc', text: 'Документ', fn: () => { ME.go('docs'); setTimeout(() => ME.docs.edit(), 50); } },
-    { icon: 'repeat', text: 'Подписку', fn: () => { ME.go('money/subs'); setTimeout(() => ME.fin.subSheet(), 50); } },
-  ]));
 
   // данные могли поменяться на другом устройстве или прийти из «Быстрых команд» — обновить при возвращении
   let hiddenAt = 0;
   document.addEventListener('visibilitychange', async () => {
     if (document.hidden) { hiddenAt = Date.now(); return; }
-    if (app.hidden || $('#sheet').open || ME.cur.view === 'notes' && ME.cur.args[0] === 'n' || Date.now() - hiddenAt < 60000) return;
+    if (app.hidden || $('#me-sheet').open || ME.cur.view === 'notes' && ME.cur.args[0] === 'n' || Date.now() - hiddenAt < 60000) return;
     try { await ME.load(); ME.render(); } catch (e) { /* сессия кончилась — покажет вход */ }
   });
 

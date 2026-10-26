@@ -16,69 +16,152 @@
   const MON_P = ['январе', 'феврале', 'марте', 'апреле', 'мае', 'июне', 'июле', 'августе', 'сентябре', 'октябре', 'ноябре', 'декабре'];
   const KIND = { morning: ['Утренний бриф', 'sun'], evening: ['Вечерний бриф', 'moon'], other: ['Бриф', 'note'] };
 
+  // цвета разделов — как иконки контактов на основном сайте (assets/style.css, .ic-*)
+  const SEC = {
+    uni: ['#2C4C8F', 'UNI'], calendar: ['#FF5C73', 'CAL'], notes: ['#C9A227', 'TXT'], docs: ['#3C8FD6', 'DOC'], countries: ['#2EA36A', 'GEO'],
+    money: ['#00707A', 'FIN'], anemos: ['#7A1830', 'ANY'], merch: ['linear-gradient(135deg, #F4A24A, #E1476B 55%, #8D4BC9)', 'MRC'], brief: ['#8D4BC9', 'BRF'],
+  };
+  const hm2 = m => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`;
+  const inText = m => (m < 60 ? `через ${m} мин` : `через ${Math.floor(m / 60)} ч${m % 60 ? ' ' + (m % 60) + ' мин' : ''}`);
+  let ticker = null;
+
+  // что сейчас и что дальше: идущая или следующая пара, иначе — дела на сегодня
+  function nextUp() {
+    const { day, min } = trNow();
+    if (!holiday(day)) {
+      const ls = lessonsOn(day);
+      const cur = ls.find(l => mins(SLOTS[l.first][0]) <= min && min < mins(SLOTS[l.last][1]));
+      if (cur) { const left = mins(SLOTS[cur.last][1]) - min; return { k: `Сейчас идёт · до ${SLOTS[cur.last][1]}`, big: hm2(left), t: cur.course, s: [cur.room ? 'ауд. ' + cur.room : null, cur.teacher, `осталось ${inText(left).replace('через ', '')}`].filter(Boolean).join(' · '), href: '#uni', live: true }; }
+      const nx = ls.find(l => mins(SLOTS[l.first][0]) > min);
+      if (nx) { const w = mins(SLOTS[nx.first][0]) - min; return { k: `Следующая пара в ${SLOTS[nx.first][0]}`, big: hm2(w), t: nx.course, s: [nx.room ? 'ауд. ' + nx.room : null, nx.teacher, inText(w)].filter(Boolean).join(' · '), href: '#uni' }; }
+    }
+    for (let i = 1; i < 8; i++) {
+      if (holiday(day + i)) continue;
+      const l = lessonsOn(day + i)[0];
+      if (!l) continue;
+      const w = i * 1440 + mins(SLOTS[l.first][0]) - min;
+      return { k: `${i === 1 ? 'Завтра' : WDL[wday(day + i)].replace(/^./, c => c.toUpperCase())} первая пара в ${SLOTS[l.first][0]}`, big: w < 1440 ? hm2(w) : `${Math.floor(w / 1440)}д`, t: l.course, s: [l.room ? 'ауд. ' + l.room : null, l.teacher, w < 1440 ? inText(w) : null].filter(Boolean).join(' · '), href: '#uni' };
+    }
+    return null;
+  }
+
+  // расписание на сегодня: пары по времени, события календаря, сроки и платежи
+  function agenda() {
+    const { day, min } = trNow(), t0 = today(), d = todayIso(), plan = state.plan || {}, out = [];
+    const hol = holiday(day);
+    if (!hol) ((plan.lessons || []).filter(l => l.weekday === wday(day)).sort((a, b) => a.first - b.first)).forEach(l => {
+      const s = SLOTS[l.first][0], e = SLOTS[l.last][1];
+      out.push({ t: s, e, title: l.course, sub: [l.optional ? 'можно не ходить' : null, l.room ? 'ауд. ' + l.room : null].filter(Boolean).join(' · '), c: SEC.uni[0], href: '#uni',
+        state: min >= mins(e) ? 'past' : min >= mins(s) ? 'now' : '' });
+    });
+    (plan.calendar || []).filter(c => c.start <= d && c.end >= d).forEach(c => out.push({ title: c.title, sub: { holiday: 'праздник', session: 'сессия', vacation: 'каникулы', deadline: 'дедлайн', event: 'событие' }[c.kind] || '', c: c.kind === 'deadline' ? SEC.anemos[0] : SEC.calendar[0], href: '#calendar' }));
+    const open = (plan.tasks || []).filter(x => x.kind !== 'phase' && x.status !== 'done' && x.end);
+    open.filter(x => dn(x.end) === t0).forEach(x => out.push({ title: x.title.replace(/^T-\d+\w?\s/, ''), sub: 'срок сегодня · Анемос', c: SEC.anemos[0], href: '#today' }));
+    const late = open.filter(x => dn(x.end) < t0).length;
+    if (late) out.push({ title: `Просрочено задач: ${late}`, sub: 'Анемос', c: 'var(--red)', href: '#today' });
+    state.subs.filter(x => x.active && x.next === d).forEach(x => out.push({ title: `Списание: ${x.name}`, sub: money(x.amount, x.currency), c: SEC.money[0], href: '#money/subs' }));
+    state.debts.filter(x => !x.settled && x.due === d).forEach(x => out.push({ title: `${x.dir === 'they_owe' ? 'Вернуть мне' : 'Вернуть'}: ${x.person}`, sub: money(x.amount, x.currency), c: SEC.money[0], href: '#money/debts' }));
+    state.docs.filter(x => x.expires === d).forEach(x => out.push({ title: `Истекает: ${x.title}`, sub: 'документ', c: SEC.docs[0], href: `#docs/${x.id}` }));
+    return { items: out, hol };
+  }
+
   function home(box) {
     const t0 = today(), p = parts(t0), name = state.settings.name || 'Максим';
-    const body = screen(box, { title: `${p.d} ${MON_G[p.m]}`, kick: WDL[wday(t0)].replace(/^./, c => c.toUpperCase()), sub: `${greet()}, ${name}`, right: [navBtn('sun', () => go('brief'), { 'aria-label': 'Бриф' })] });
-    body.append(el('div', { class: 'hm-quick' }, [
-      el('button', { type: 'button', style: '--c:var(--notes)', onclick: () => ME.notes.newNote() }, [icon('compose'), 'Заметка']),
-      el('button', { type: 'button', style: '--c:var(--green)', onclick: () => ME.fin.txSheet() }, [icon('money'), 'Расход']),
-      el('button', { type: 'button', style: '--c:var(--orange)', onclick: () => ME.countries.here() }, [icon('location'), 'Где я']),
-      el('a', { href: '#brief', style: '--c:var(--indigo)' }, [icon('sun'), 'Бриф']),
+    const body = screen(box, { title: `${p.d} ${MON_G[p.m]}`, kick: WDL[wday(t0)].replace(/^./, c => c.toUpperCase()), sub: `${greet()}, ${name}`, right: [navBtn('sun', () => go('brief'), { 'aria-label': 'Бриф' }), navBtn('gear', () => go('more'), { 'aria-label': 'Ещё' })] });
+    const plan = state.plan || {};
+
+    // следующее по времени — как карточка «Следующая пара» в «Университете»
+    const nowCard = el('div');
+    const drawNow = () => {
+      const n = nextUp();
+      nowCard.replaceChildren(n ? el('a', { class: 'hm-now dark dots', href: n.href }, [
+        el('div', { class: 'hm-now__top' }, [el('span', { class: 'hm-now__k' }, [n.live ? el('i', { class: 'hm-live' }) : null, n.k]), el('b', { class: 'hm-now__big doto led', text: n.big })]),
+        el('h2', { class: 'hm-now__t', text: n.t }), n.s ? el('p', { class: 'hm-now__s', text: n.s }) : null,
+      ]) : el('div', { class: 'hm-now dark dots' }, [el('span', { class: 'hm-now__k', text: 'Сегодня' }), el('h2', { class: 'hm-now__t', text: plan.lessons ? 'Пар на неделе нет' : 'Расписание загружается…' })]));
+    };
+    drawNow();
+    body.append(el('div', { class: 'group' }, nowCard));
+    clearInterval(ticker);
+    ticker = setInterval(() => { if (ME.cur.view !== 'home') { clearInterval(ticker); return; } drawNow(); }, 30000);
+
+    // расписание на сегодня
+    const { items, hol } = agenda();
+    body.append(el('section', { class: 'group' }, [
+      el('h2', { class: 'group__h' }, [el('span', { text: hol ? `Сегодня — ${hol.title}` : 'Расписание на сегодня' }), el('a', { href: '#calendar', text: 'Календарь' })]),
+      items.length ? el('ol', { class: 'list hm-day' }, items.map(x => el('li', { class: `hm-day__i${x.state ? ' is-' + x.state : ''}`, style: `--c:${x.c}` }, el('a', { href: x.href }, [
+        el('span', { class: 'hm-day__t' }, x.t ? [x.t, el('small', { text: x.e })] : [el('small', { text: 'весь день' })]),
+        el('i', { class: 'hm-day__dot' }),
+        el('span', { class: 'row__main' }, [el('span', { class: 'row__t', text: x.title }), x.sub || x.state === 'now' ? el('span', { class: 'row__s', text: [x.state === 'now' ? 'идёт сейчас' : null, x.sub].filter(Boolean).join(' · ') }) : null]),
+      ])))) : el('div', { class: 'card muted', style: 'text-align:center', text: 'Свободный день: ни пар, ни сроков.' }),
     ]));
 
-    // плитки
-    const m = ME.countries.dmap(), now = m.get(todayIso()) || [], lastDay = state.days[state.days.length - 1];
-    const cc = now.length ? now[now.length - 1].c : lastDay && lastDay[1];
-    const yc = cc ? ME.countries.counts(m, ME.countries.yearRange(p.y))[cc] || 0 : 0;
-    body.prepend(el('a', { class: 'hm-gate dark dots', href: '#countries' }, [
-      el('span', { class: 'hm-gate__n doto led', text: String(yc) }),
-      el('span', {}, [el('b', { text: cc ? `${plural(yc, 'день', 'дня', 'дней')} · ${flag(cc)} ${cname(cc)}` : 'Где вы сейчас?' }),
-        el('span', { text: cc ? `в ${p.y} году${now.length ? '' : ' · сегодня ещё не отмечено'}` : 'Отметьте страну — начнётся отсчёт' })]),
-    ]));
-    const tiles = [];
-    const sch = state.rules.find(r => r.on && r.tile && r.goal === 'max');
-    if (sch) { const u = ME.countries.usage(sch, m); tiles.push(el('a', { class: 'tile', href: `#countries/rule/${sch.id}`, style: '--c:var(--blue)' }, [el('span', { class: 'tile__k' }, [icon('plane'), sch.name]), el('span', { class: 'tile__v' }, [String(u.used), el('small', { text: ` / ${sch.limit}` })]), el('span', { class: 'tile__s', text: u.left >= 0 ? `можно ещё ${days(u.left)}` : `превышение ${days(-u.left)}` })])); }
+    // разделы — разноцветные, как контакты на сайте
+    const m = ME.countries.dmap();
+    const { day, min } = trNow();
+    let nextLesson = null;
+    for (let i = 0; i < 8 && !nextLesson; i++) {
+      if (holiday(day + i)) continue;
+      const l = lessonsOn(day + i).find(x => i > 0 || mins(SLOTS[x.last][1]) > min);
+      if (l) nextLesson = { l, i };
+    }
+    const ev = (plan.calendar || []).filter(c => c.end >= todayIso()).sort((a, b) => a.start.localeCompare(b.start))[0];
     const doc = [...state.docs].filter(d => d.expires && dn(d.expires) >= t0).sort((a, b) => a.expires.localeCompare(b.expires))[0];
-    if (doc) { const n = dn(doc.expires) - t0; tiles.push(el('a', { class: 'tile', href: `#docs/${doc.id}`, style: `--c:${n <= 30 ? 'var(--red)' : n <= 90 ? 'var(--orange)' : 'var(--teal)'}` }, [el('span', { class: 'tile__k' }, [icon('doc'), 'Документы']), el('span', { class: 'tile__v', text: n > 999 ? `${Math.round(n / 365)} г.` : days(n), style: 'font-size:22px' }), el('span', { class: 'tile__s', text: `до конца: ${doc.title}` })])); }
+    const sch = state.rules.find(r => r.on && r.tile && r.goal === 'max');
     const mt = ME.fin.monthTx(todayIso().slice(0, 7)).filter(t => t.kind === 'expense'), spent = mt.reduce((s, t) => s + (ME.fin.inBase(t.amount, t.currency) ?? 0), 0);
-    tiles.push(el('a', { class: 'tile', href: '#money', style: '--c:var(--green)' }, [el('span', { class: 'tile__k' }, [icon('money'), 'Деньги']), el('span', { class: 'tile__v', text: money(spent, ME.fin.base(), 0), style: 'font-size:22px' }), el('span', { class: 'tile__s', text: `потрачено в ${MON_P[p.m]}` })]));
-    body.append(el('div', { class: 'hm-tiles' }, tiles));
+    const open = (plan.tasks || []).filter(t => t.kind !== 'phase' && t.status !== 'done' && t.end);
+    const late = open.filter(t => dn(t.end) < t0).length, doing = open.filter(t => t.status === 'doing').length;
+    const notesN = ME.notes.live().length, newOrders = state.orders ? state.orders.filter(o => o.status === 'new').length : null;
+    const b0 = (state.brief || [])[0];
+    const S = [
+      ['#uni', 'uni', 'Университет', SEC.uni, nextLesson ? `${nextLesson.i === 0 ? '' : nextLesson.i === 1 ? 'завтра ' : WDL[wday(day + nextLesson.i)].slice(0, 2) + ' '}${SLOTS[nextLesson.l.first][0]} · ${nextLesson.l.course}` : 'пар нет'],
+      ['#calendar', 'calendar', 'Календарь', SEC.calendar, ev ? `${ev.start <= todayIso() ? 'сейчас' : fmt(ev.start)} · ${ev.title}` : 'событий нет'],
+      ['#notes', 'note', 'Заметки', SEC.notes, `${notesN} ${plural(notesN, 'заметка', 'заметки', 'заметок')}`],
+      ['#docs', 'doc', 'Документы', SEC.docs, doc ? `${days(dn(doc.expires) - t0)} · ${doc.title}` : `${state.docs.length} шт.`, doc && dn(doc.expires) - t0 <= 30],
+      ['#countries', 'globe', 'Страны', SEC.countries, sch ? `${sch.name.replace(/ \d+\/\d+$/, '')}: ${ME.countries.usage(sch, m).used} из ${sch.limit}` : 'дни по странам'],
+      ['#money', 'money', 'Деньги', SEC.money, `${money(spent, ME.fin.base(), 0)} в ${MON_P[p.m]}`],
+      ['#today', 'plane', 'Анемос', SEC.anemos, late ? `просрочено ${late}` : doing ? `в работе ${doing}` : 'план ANY1', !!late],
+      ['#merch', 'briefcase', 'Мерч', SEC.merch, newOrders === null ? 'предзаказы' : newOrders ? `${newOrders} ${plural(newOrders, 'новый', 'новых', 'новых')}` : 'новых нет', !!newOrders],
+      ['#brief', 'sun', 'Бриф', SEC.brief, b0 ? `${b0.kind === 'evening' ? 'вечерний' : 'утренний'}, ${ME.hm(b0.created_at)}` : 'ещё не было'],
+    ];
+    body.append(el('section', { class: 'group' }, [el('h2', { class: 'group__h', text: 'Разделы' }), el('div', { class: 'hm-apps' }, S.map(([href, ic, title, [c, code], sub, hot]) =>
+      el('a', { class: `hm-app${hot ? ' hm-app--hot' : ''}`, href, style: `--ic:${c}` }, [
+        el('span', { class: 'hm-app__head' }, [el('span', { class: 'hm-app__i' }, icon(ic)), el('span', { class: 'hm-app__code doto', text: code })]),
+        el('b', { text: title }), el('span', { class: 'hm-app__s', text: sub })])))]));
+    if (state.orders === undefined && ME.merch) { state.orders = null; ME.merch.load().then(() => { if (ME.cur.view === 'home') ME.render(); }).catch(() => {}); }
 
     // бриф
     const b = (state.brief || [])[0];
     body.append(el('section', { class: 'group' }, [el('h2', { class: 'group__h' }, [el('span', { text: b ? `${KIND[b.kind] ? KIND[b.kind][0] : 'Бриф'} · ${fmt(b.date)}, ${ME.hm(b.created_at)}` : 'Бриф' }), el('a', { href: '#brief', text: 'Все' })]),
       el('a', { class: 'card', href: '#brief', style: 'display:block;color:inherit' }, b ? el('div', { class: 'brief-prev', text: b.text.split('\n').slice(1).join('\n').trim() || b.text }) : el('p', { class: 'muted', style: 'margin:0', text: 'Утренний и вечерний бриф появятся здесь, когда задача их пришлёт. Настройка — в «Ещё» → «Бриф».' }))]));
 
-    // пары
-    if (state.plan && state.plan.lessons && state.plan.lessons.length) {
-      const { day, min } = trNow(), hol = holiday(day);
-      let n = day, ls = hol ? [] : lessonsOn(day).filter(l => mins(SLOTS[l.last][1]) > min), label = 'Пары сегодня';
-      if (!ls.length) { for (let i = 1; i < 8; i++) { if (!holiday(day + i) && lessonsOn(day + i).length) { n = day + i; ls = lessonsOn(n); label = i === 1 ? 'Пары завтра' : `Пары: ${WDL[wday(n)]}`; break; } } }
-      if (ls.length) body.append(group(el('h2', { class: 'group__h' }, [el('span', { text: hol && n === day ? `${hol.title}` : label }), el('a', { href: '/admin/plan/#uni', text: 'Расписание' })]), ls.map(l => {
-        const s = SLOTS[l.first][0], e = SLOTS[l.last][1], live = n === day && mins(s) <= min && min < mins(e);
-        return el('a', { class: 'row', href: '/admin/plan/#uni' }, el('div', { class: 'lesson' + (live ? ' is-now' : ''), style: 'flex:1' }, [el('span', { class: 'lesson__t' }, [s, el('small', { text: e })]), el('span', { class: 'row__main' }, [el('span', { class: 'row__t', text: l.course }), el('span', { class: 'row__s', text: [live ? 'идёт сейчас' : null, l.room ? 'ауд. ' + l.room : null, l.teacher].filter(Boolean).join(' · ') })])]));
-      })));
-    }
-
-    // Анемос
-    if (state.plan && state.plan.tasks) {
-      const open = state.plan.tasks.filter(t => t.kind !== 'phase' && t.status !== 'done' && t.end);
-      const late = open.filter(t => dn(t.end) < t0), due = open.filter(t => dn(t.end) === t0), soon = open.filter(t => dn(t.end) > t0 && dn(t.end) <= t0 + 7);
-      const top = [...late, ...due, ...soon].slice(0, 4);
-      body.append(group(el('h2', { class: 'group__h' }, [el('span', { text: 'Анемос' }), el('a', { href: '/admin/plan/#today', text: 'План' })]), top.length ? top.map(t => row({ icon: 'plane', color: dn(t.end) < t0 ? 'var(--red)' : dn(t.end) === t0 ? 'var(--orange)' : 'var(--teal)', title: t.title.replace(/^T-\d+\w?\s/, ''), sub: dn(t.end) < t0 ? `просрочено с ${fmt(t.end)}` : dn(t.end) === t0 ? 'срок сегодня' : `до ${fmt(t.end)}`, href: '/admin/plan/#today' }))
-        : [row({ icon: 'okcircle', color: 'var(--green)', title: 'На неделю срочного нет', href: '/admin/plan/#today' })], late.length ? `Просрочено: ${late.length}, сегодня: ${due.length}, на неделе: ${soon.length}.` : null));
+    // Анемос на неделю
+    if (plan.tasks) {
+      const lateT = open.filter(t => dn(t.end) < t0), due = open.filter(t => dn(t.end) === t0), soon = open.filter(t => dn(t.end) > t0 && dn(t.end) <= t0 + 7);
+      const top = [...lateT, ...due, ...soon].slice(0, 4);
+      body.append(group(el('h2', { class: 'group__h' }, [el('span', { text: 'Анемос на неделю' }), el('a', { href: '#today', text: 'План' })]), top.length ? top.map(t => row({ icon: 'plane', color: dn(t.end) < t0 ? 'var(--red)' : dn(t.end) === t0 ? '#C9A227' : SEC.anemos[0], title: t.title.replace(/^T-\d+\w?\s/, ''), sub: dn(t.end) < t0 ? `просрочено с ${fmt(t.end)}` : dn(t.end) === t0 ? 'срок сегодня' : `до ${fmt(t.end)}`, href: '#today' }))
+        : [row({ icon: 'okcircle', color: 'var(--green)', title: 'На неделю срочного нет', href: '#today' })], lateT.length ? `Просрочено: ${lateT.length}, сегодня: ${due.length}, на неделе: ${soon.length}.` : null));
     }
 
     // скоро: подписки, долги, документы
     const soonRows = [];
-    state.subs.filter(s => s.active && s.next && dn(s.next) - t0 <= 7).sort((a, b) => a.next.localeCompare(b.next)).forEach(s => soonRows.push(row({ icon: 'repeat', color: 'var(--gray)', title: s.name, sub: `${money(s.amount, s.currency)} · ${dn(s.next) === t0 ? 'сегодня' : dn(s.next) === t0 + 1 ? 'завтра' : fmt(s.next)}`, href: '#money/subs' })));
-    state.debts.filter(d => !d.settled && d.due && dn(d.due) - t0 <= 7).forEach(d => soonRows.push(row({ icon: 'people', color: d.dir === 'they_owe' ? 'var(--green)' : 'var(--red)', title: `${d.dir === 'they_owe' ? 'Вернуть мне' : 'Вернуть'}: ${d.person}`, sub: `${money(d.amount, d.currency)} · до ${fmt(d.due)}`, href: '#money/debts' })));
-    state.docs.filter(d => d.expires && dn(d.expires) - t0 <= 30).forEach(d => soonRows.push(row({ icon: 'doc', color: 'var(--red)', title: d.title, sub: dn(d.expires) < t0 ? `истёк ${fmt(d.expires)}` : `действует до ${fmt(d.expires)}`, href: `#docs/${d.id}` })));
+    state.subs.filter(s => s.active && s.next && dn(s.next) - t0 <= 7 && dn(s.next) > t0).sort((a, b) => a.next.localeCompare(b.next)).forEach(s => soonRows.push(row({ icon: 'repeat', color: SEC.money[0], title: s.name, sub: `${money(s.amount, s.currency)} · ${dn(s.next) === t0 + 1 ? 'завтра' : fmt(s.next)}`, href: '#money/subs' })));
+    state.debts.filter(d => !d.settled && d.due && dn(d.due) - t0 <= 7 && dn(d.due) > t0).forEach(d => soonRows.push(row({ icon: 'people', color: d.dir === 'they_owe' ? 'var(--green)' : 'var(--red)', title: `${d.dir === 'they_owe' ? 'Вернуть мне' : 'Вернуть'}: ${d.person}`, sub: `${money(d.amount, d.currency)} · до ${fmt(d.due)}`, href: '#money/debts' })));
+    state.docs.filter(d => d.expires && dn(d.expires) - t0 <= 30 && d.expires !== todayIso()).forEach(d => soonRows.push(row({ icon: 'doc', color: dn(d.expires) < t0 ? 'var(--red)' : SEC.docs[0], title: d.title, sub: dn(d.expires) < t0 ? `истёк ${fmt(d.expires)}` : `действует до ${fmt(d.expires)}`, href: `#docs/${d.id}` })));
     if (soonRows.length) body.append(group('Скоро', soonRows));
 
     // закреплённые заметки
     const pinned = ME.notes.live().filter(n => n.pinned).sort((a, b) => ME.notes.stamp(b).localeCompare(ME.notes.stamp(a))).slice(0, 4);
-    if (pinned.length) body.append(group(el('h2', { class: 'group__h' }, [el('span', { text: 'Закреплённые заметки' }), el('a', { href: '#notes', text: 'Все' })]), pinned.map(n => row({ icon: 'pin', color: 'var(--notes)', title: ME.notes.titleOf(n), sub: ME.notes.preview(n), href: `#notes/n/${n.id}` }))));
+    if (pinned.length) body.append(group(el('h2', { class: 'group__h' }, [el('span', { text: 'Закреплённые заметки' }), el('a', { href: '#notes', text: 'Все' })]), pinned.map(n => row({ icon: 'pin', color: SEC.notes[0], title: ME.notes.titleOf(n), sub: ME.notes.preview(n), href: `#notes/n/${n.id}` }))));
+
+    // дни в стране — внизу
+    const now = m.get(todayIso()) || [], lastDay = state.days[state.days.length - 1];
+    const cc = now.length ? now[now.length - 1].c : lastDay && lastDay[1];
+    const yc = cc ? ME.countries.counts(m, ME.countries.yearRange(p.y))[cc] || 0 : 0;
+    body.append(el('section', { class: 'group' }, [el('h2', { class: 'group__h' }, [el('span', { text: 'Где я' }), el('a', { href: '#countries', text: 'Страны' })]), el('a', { class: 'hm-gate dark dots', href: '#countries', style: 'margin:0' }, [
+      el('span', { class: 'hm-gate__n doto led', text: String(yc) }),
+      el('span', {}, [el('b', { text: cc ? `${plural(yc, 'день', 'дня', 'дней')} · ${flag(cc)} ${cname(cc)}` : 'Где вы сейчас?' }),
+        el('span', { text: cc ? `в ${p.y} году${now.length ? '' : ' · сегодня ещё не отмечено'}` : 'Отметьте страну — начнётся отсчёт' })]),
+    ])]));
     ME.countries.pingOnOpen();
   }
 
@@ -157,21 +240,26 @@
   function moreView(box) {
     const body = screen(box, { title: 'Ещё' });
     body.append(group(null, [
-      row({ icon: 'doc', color: 'var(--ink)', title: 'Документы', sub: 'Сроки, номера, сканы', href: '#docs' }),
+      row({ icon: 'globe', color: 'var(--ink)', title: 'Страны', sub: 'Дни по странам, Шенген, автоотслеживание', href: '#countries' }),
       row({ icon: 'money', color: 'var(--green)', title: 'Деньги', sub: 'Расходы, подписки, долги, бюджет', href: '#money' }),
+      row({ icon: 'sun', color: 'var(--indigo)', title: 'Бриф', sub: 'Утренний и вечерний, архив', href: '#brief' }),
+      row({ icon: 'briefcase', color: 'var(--red)', title: 'Мерч', sub: 'Предзаказы и спрос', href: '#merch' }),
     ]));
-    body.append(group(null, [
-      row({ icon: 'uni', color: 'var(--blue)', title: 'Университет', sub: 'Расписание пар и напоминания', href: '/admin/plan/#uni' }),
-      row({ icon: 'plane', color: 'var(--teal)', title: 'Анемос', sub: 'План ANY1, Гант, CRM', href: '/admin/plan/' }),
-      row({ icon: 'briefcase', color: 'var(--purple)', title: 'Предзаказы мерча', href: '/admin/' }),
-      row({ icon: 'sun', color: 'var(--indigo)', title: 'Бриф', href: '#brief' }),
+    body.append(group('Анемос', [
+      row({ icon: 'check', color: 'var(--teal)', title: 'Сегодня', sub: 'Задачи на сегодня и неделю', href: '#today' }),
+      row({ icon: 'chart', color: 'var(--teal)', title: 'Обзор и этапы', href: '#overview' }),
+      row({ icon: 'calendar', color: 'var(--teal)', title: 'Диаграмма Ганта', href: '#gantt' }),
+      row({ icon: 'list', color: 'var(--teal)', title: 'Доска', href: '#board' }),
+      row({ icon: 'people', color: 'var(--teal)', title: 'Контакты', href: '#crm' }),
+      row({ icon: 'people', color: 'var(--teal)', title: 'Команда', href: '#team' }),
+      row({ icon: 'import', color: 'var(--gray)', title: 'Резервная копия плана', href: '/api/admin/crm/export.json' }),
     ]));
     const perm = pushOk() ? Notification.permission : 'none';
     body.append(group('Уведомления', [
       perm === 'granted' ? row({ icon: 'bell', color: 'var(--red)', title: 'Включены на этом устройстве', sub: 'Документы, подписки, лимиты стран, пары, план' })
         : row({ icon: 'bell', color: 'var(--red)', title: 'Включить уведомления', sub: isIOS && !standalone() ? 'Сначала «Поделиться» → «На экран Домой»' : 'Документы, подписки, лимиты, пары, план', chev: false, onclick: enablePush }),
-      row({ icon: 'clock', color: 'var(--gray)', title: 'Время сводок и пар', href: '/admin/plan/#notify' }),
-    ], 'Если на экране «Домой» есть и старое приложение «План», оставьте одно — иначе уведомления будут приходить дважды.'));
+      row({ icon: 'clock', color: 'var(--gray)', title: 'Время сводок и напоминаний о парах', href: '#notify' }),
+    ], 'Старые иконки «План» и «Предзаказы» на экране «Домой» больше не нужны — удалите их, иначе уведомления будут приходить дважды.'));
     const name = el('input', { value: state.settings.name || '', maxLength: 40, onchange: async e => { const r = await post('settings', { name: e.target.value }); if (r) state.settings = r.settings; } });
     body.append(group('Настройки', [
       ME.inputRow('Как обращаться', name),

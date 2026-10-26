@@ -94,7 +94,7 @@
   }
   async function currentSub() {
     if (!supported()) return null;
-    const reg = await navigator.serviceWorker.getRegistration('/admin/plan/');
+    const reg = await navigator.serviceWorker.getRegistration(); // своя страница: /me/ или старый /admin/plan/
     return reg ? reg.pushManager.getSubscription() : null;
   }
   async function enable() {
@@ -144,19 +144,19 @@
     let status;
     if (isIOS && !standalone()) {
       status = el('section', { class: 'nt-card card' }, [
-        el('h2', { text: 'Сначала добавьте план на экран «Домой»' }),
+        el('h2', { text: 'Сначала добавьте приложение на экран «Домой»' }),
         el('p', { class: 'pl-hint', text: 'На iPhone уведомления работают только у веб-приложения на экране «Домой», iOS 16.4 и новее.' }),
         el('ol', { class: 'nt-steps' }, [
           el('li', { text: 'Откройте эту страницу в Safari.' }),
           el('li', { text: 'Нажмите «Поделиться» — квадрат со стрелкой вверх.' }),
           el('li', { text: 'Выберите «На экран „Домой“» и нажмите «Добавить».' }),
-          el('li', { text: 'Откройте «План» с экрана «Домой», войдите и вернитесь сюда.' }),
+          el('li', { text: 'Откройте «Личное» с экрана «Домой», войдите и вернитесь сюда.' }),
         ]),
       ]);
     } else if (!supported()) {
       status = el('section', { class: 'nt-card card' }, [el('h2', { text: 'Этот браузер не умеет получать уведомления' }), el('p', { class: 'pl-hint', text: 'Подойдут Safari на iPhone (через экран «Домой»), Chrome, Edge или Firefox.' })]);
     } else if (perm === 'denied') {
-      status = el('section', { class: 'nt-card card' }, [el('h2', { text: 'Уведомления запрещены' }), el('p', { class: 'pl-hint', text: isIOS ? 'Включите их в «Настройки» → «Уведомления» → «План», затем вернитесь сюда.' : 'Разрешите уведомления для pilotarbuza.com в настройках сайта в браузере.' })]);
+      status = el('section', { class: 'nt-card card' }, [el('h2', { text: 'Уведомления запрещены' }), el('p', { class: 'pl-hint', text: isIOS ? 'Включите их в «Настройки» → «Уведомления» → «Личное», затем вернитесь сюда.' : 'Разрешите уведомления для pilotarbuza.com в настройках сайта в браузере.' })]);
     } else if (sub && perm === 'granted') {
       status = el('section', { class: 'nt-card nt-card--on card' }, [
         el('div', { class: 'nt-on' }, [el('span', { class: 'pulse', 'aria-hidden': 'true' }), el('h2', { text: `Включены на этом устройстве (${device()})` })]),

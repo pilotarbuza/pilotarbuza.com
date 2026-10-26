@@ -1,6 +1,6 @@
 /* pilotarbuza.com/admin/plan — service worker: уведомления и работа без сети.
    Страницы и скрипты берутся из сети, при обрыве — из кэша. Данные (/api/) не кэшируются. */
-const CACHE = 'pa-plan-v2';
+const CACHE = 'pa-plan-v3';
 const SHELL = [
   '/admin/plan/', '/assets/style.css', '/assets/plan/plan.css', '/assets/plan/core.js', '/assets/plan/gantt.js',
   '/assets/plan/views.js', '/assets/plan/mobile.js', '/assets/plan/uni.js', '/assets/plan/app.js', '/assets/plan/icons/icon-192.png', '/assets/favicon.svg',
