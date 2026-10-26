@@ -626,6 +626,10 @@ section { position: relative; }
 .cchips button:hover { border-color: var(--ink); transform: translateY(-1px); }
 .cchips button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 .cchips b { font-family: var(--f-doto); font-weight: 900; font-size: 15px; }
+.glegend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; color: var(--muted); }
+.glegend li { display: inline-flex; align-items: center; gap: 6px; }
+.glegend i { width: 9px; height: 9px; border-radius: 50%; box-shadow: 0 0 0 1.5px var(--paper), 0 1px 3px rgba(8,16,30,.35); }
+.glegend b { font-family: var(--f-doto); font-weight: 900; font-size: 14px; color: var(--ink); }
 
 /* иконки на талонах */
 .tkt__ico { flex: 0 0 auto; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--ic, var(--night)); color: #fff; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); transition: transform .4s var(--spring); overflow: hidden; }
