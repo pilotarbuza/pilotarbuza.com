@@ -21,7 +21,8 @@
   setCount('stat-countries', Object.keys(byC).length);
   setCount('stat-cities', places.length);
   const CN = { RU: ['Russia', 'Россия', 'Rusya'], TR: ['Türkiye', 'Турция', 'Türkiye'], CR: ['Crimea', 'Крым', 'Kırım'], IR: ['Iran', 'Иран', 'İran'], GE: ['Georgia', 'Грузия', 'Gürcistan'], TN: ['Tunisia', 'Тунис', 'Tunus'], UA: ['Ukraine', 'Украина', 'Ukrayna'], AZ: ['Azerbaijan', 'Азербайджан', 'Azerbaycan'] };
-  const cname = c => (CN[c] || [c, c, c])[Math.max(0, ['en', 'ru', 'tr'].indexOf(L()))];
+  // в личном приложении есть полный справочник стран (assets/me/world.js: ru, en, tr)
+  const cname = c => (CN[c] || (window.WORLD && WORLD.names[c] ? [WORLD.names[c][1], WORLD.names[c][0], WORLD.names[c][2]] : [c, c, c]))[Math.max(0, ['en', 'ru', 'tr'].indexOf(L()))];
   const chips = document.getElementById('cchips');
   let activeC = null;
   const drawChips = () => {

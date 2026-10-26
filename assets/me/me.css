@@ -735,3 +735,18 @@ body::before { content: ""; position: fixed; inset: -10vh -10vw; z-index: -1; po
 
 /* города на карте: тёмные точки с белой обводкой поверх закрашенных стран */
 .ct-map circle.city { fill: var(--ink); stroke: #fff; cursor: pointer; }
+
+/* глобус в «Странах» — тот же, что на сайте (assets/globe.js) */
+.seg--mini { margin: 0; width: auto; padding: 3px; }
+.seg--mini button { height: 30px; padding: 0 14px; font-size: 13px; }
+.me-globe { padding: 8px 0 4px; }
+.me-globe .globe-wrap { position: relative; width: min(100%, 520px); aspect-ratio: 1; margin: 0 auto; }
+.me-globe #globe { width: 100%; height: 100%; display: block; border-radius: 50%; cursor: grab; touch-action: pan-y; }
+.me-globe #globe.grabbing { cursor: grabbing; }
+.me-globe .globe__tip { position: absolute; pointer-events: none; transform: translate(-50%, calc(-100% - 16px)); background: var(--night); color: var(--cream); padding: 7px 12px; border-radius: 10px; z-index: 2; display: flex; flex-direction: column; gap: 1px; text-align: center; white-space: nowrap; box-shadow: 0 10px 24px -10px rgba(0,0,0,.6); }
+.me-globe .globe__tip[hidden] { display: none; }
+.me-globe .globe__tip::after { content: ""; position: absolute; left: 50%; bottom: -5px; width: 8px; height: 8px; background: var(--night); transform: translateX(-50%) rotate(45deg); }
+.me-globe .globe__tip b { font-size: 14px; font-weight: 600; }
+.me-globe .globe__tip span { font-size: 11px; color: var(--muted-d2); }
+.me-globe .globe__ctl { position: absolute; right: 0; bottom: 4%; display: flex; flex-direction: column; gap: 6px; z-index: 2; }
+.me-globe .globe__ctl button { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font: 500 20px/1 var(--font); color: var(--cream); background: rgba(14,26,43,.72); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 6px 16px -6px rgba(14,26,43,.5); }

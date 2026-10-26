@@ -42,13 +42,35 @@ def build_lookup(src, dst):
     print(dst, len(out), 'polygons', os.path.getsize(dst) // 1024, 'KB')
 
 
+# местное название города: поле Natural Earth на языке страны; где его нет — NAME (местная латиница) и правки ниже
+NATIVE_FIELD = {'TR': 'NAME_TR', 'RU': 'NAME_RU', 'BY': 'NAME_RU', 'KZ': 'NAME_RU', 'KG': 'NAME_RU', 'UA': 'NAME_UK',
+                'DE': 'NAME_DE', 'AT': 'NAME_DE', 'CH': 'NAME_DE', 'LI': 'NAME_DE', 'FR': 'NAME_FR', 'MC': 'NAME_FR', 'LU': 'NAME_FR',
+                'ES': 'NAME_ES', 'MX': 'NAME_ES', 'AR': 'NAME_ES', 'CL': 'NAME_ES', 'CO': 'NAME_ES', 'PE': 'NAME_ES', 'VE': 'NAME_ES',
+                'EC': 'NAME_ES', 'BO': 'NAME_ES', 'UY': 'NAME_ES', 'PY': 'NAME_ES', 'CU': 'NAME_ES', 'IT': 'NAME_IT', 'SM': 'NAME_IT',
+                'PT': 'NAME_PT', 'BR': 'NAME_PT', 'NL': 'NAME_NL', 'PL': 'NAME_PL', 'SE': 'NAME_SV', 'HU': 'NAME_HU', 'GR': 'NAME_EL',
+                'CY': 'NAME_EL', 'IL': 'NAME_HE', 'IR': 'NAME_FA', 'AF': 'NAME_FA', 'IN': 'NAME_HI', 'PK': 'NAME_UR', 'BD': 'NAME_BN',
+                'ID': 'NAME_ID', 'JP': 'NAME_JA', 'KR': 'NAME_KO', 'CN': 'NAME_ZH', 'TW': 'NAME_ZHT', 'VN': 'NAME_VI',
+                **{c: 'NAME_AR' for c in ['SA', 'AE', 'EG', 'IQ', 'SY', 'JO', 'LB', 'KW', 'QA', 'BH', 'OM', 'YE', 'LY', 'TN', 'DZ', 'MA', 'SD']}}
+NATIVE_FIX = {
+    'Tbilisi': 'თბილისი', 'Batumi': 'ბათუმი', 'Kutaisi': 'ქუთაისი', 'Rustavi': 'რუსთავი', 'Poti': 'ფოთი', 'Sukhumi': 'სოხუმი',
+    'Tskhinvali': 'ცხინვალი', 'Baku': 'Bakı', 'Ganja': 'Gəncə', 'Sumqayit': 'Sumqayıt', 'Lankaran': 'Lənkəran', 'Shaki': 'Şəki',
+    'Yevlakh': 'Yevlax', 'Goychay': 'Göyçay', 'Nakhchivan': 'Naxçıvan', 'Yerevan': 'Երևան', 'Gyumri': 'Գյումրի',
+    'Vanadzor': 'Վանաձոր', 'Prague': 'Praha', 'Belgrade': 'Београд', 'Sofia': 'София', 'Plovdiv': 'Пловдив', 'Varna': 'Варна',
+    'Burgas': 'Бургас', 'Bucharest': 'București', 'Vienna': 'Wien', 'Copenhagen': 'København', 'Helsinki': 'Helsinki',
+    'Oslo': 'Oslo', 'Tallinn': 'Tallinn', 'Riga': 'Rīga', 'Vilnius': 'Vilnius', 'Kyiv': 'Київ', 'Minsk': 'Мінск',
+}
+
+
 def build_cities(src, dst):
     out = []
     for f in json.load(open(src, encoding='utf-8'))['features']:
         p = f['properties']
         lon, lat = f['geometry']['coordinates'][:2]
         iso = p.get('ISO_A2') if p.get('ISO_A2') not in (None, '-99') else ''
-        out.append([round(lat, 4), round(lon, 4), p.get('NAME_RU') or p['NAME'], p.get('NAME_EN') or p['NAME'], iso, int(p.get('POP_MAX') or 0)])
+        en = p.get('NAME_EN') or p['NAME']
+        field = NATIVE_FIELD.get(iso)
+        native = NATIVE_FIX.get(en) or (p.get(field) if field else None) or p['NAME']
+        out.append([round(lat, 4), round(lon, 4), p.get('NAME_RU') or p['NAME'], en, iso, int(p.get('POP_MAX') or 0), native if native != en else ''])
     with open(dst, 'w', encoding='utf-8') as f:
         json.dump(out, f, ensure_ascii=False, separators=(',', ':'))
     print(dst, len(out), 'cities', os.path.getsize(dst) // 1024, 'KB')

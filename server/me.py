@@ -25,7 +25,7 @@ API после входа в админку (cookie):
   POST   /api/me/import    ключ track: {"points": [{"lat", "lon", "date"}]} или строки «lat;lon;дата» — фото из галереи
   POST   /api/me/brief     ключ brief: {"kind": "morning|evening", "text": "..."}
 """
-import bisect, hashlib, json, math, os, re, secrets, sys, threading, urllib.request
+import bisect, hashlib, json, math, os, re, secrets, sys, threading, unicodedata, urllib.request
 from datetime import date, datetime, timedelta, timezone
 
 import crm
@@ -469,18 +469,25 @@ def city_at(lat, lon):
 
 def city_info(i):
     r = _cities()[0][i]
-    return {'id': i, 'name': r[2], 'en': r[3], 'country': r[4], 'lat': r[0], 'lon': r[1], 'pop': r[5]}
+    # название — английское, native — местное написание (İstanbul, Москва, თბილისი), ru — для поиска
+    return {'id': i, 'name': r[3], 'native': r[6], 'ru': r[2], 'country': r[4], 'lat': r[0], 'lon': r[1], 'pop': r[5]}
+
+
+def _fold(text):
+    """Для поиска: без регистра и диакритики (İstanbul, Muğla, Şəki находятся по istanbul, mugla, seki)."""
+    return ''.join(ch for ch in unicodedata.normalize('NFKD', text.casefold()) if not unicodedata.combining(ch)).replace('ı', 'i')
 
 
 def search_cities(q, limit=20):
-    q = (q or '').strip().lower()
+    q = _fold((q or '').strip())
     if len(q) < 2:
         return []
     rows = _cities()[0]
     pop = lambda i: -rows[i][5]
-    first = sorted((i for i, r in enumerate(rows) if r[2].lower().startswith(q) or r[3].lower().startswith(q)), key=pop)
+    names = lambda r: (_fold(r[2]), _fold(r[3]), _fold(r[6]))
+    first = sorted((i for i, r in enumerate(rows) if any(n.startswith(q) for n in names(r))), key=pop)
     seen = set(first)
-    rest = sorted((i for i, r in enumerate(rows) if i not in seen and (q in r[2].lower() or q in r[3].lower())), key=pop)
+    rest = sorted((i for i, r in enumerate(rows) if i not in seen and any(q in n for n in names(r))), key=pop)
     return [city_info(i) for i in (first + rest)[:limit]]
 
 

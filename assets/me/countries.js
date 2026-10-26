@@ -207,7 +207,50 @@
     return ds.length || (!c.dates.length && c.sources.includes('manual')) ? { ...c, n: ds.length } : null;
   }).filter(Boolean).sort((x, y) => y.n - x.n || (y.last || '').localeCompare(x.last || ''));
   const millerXY = (lat, lon) => { const la = Math.max(-80, Math.min(84, lat)) * Math.PI / 180; return [(lon + 180) / 360 * 1000, 500 - 1.25 * Math.log(Math.tan(Math.PI / 4 + 0.4 * la)) * 1000 / (2 * Math.PI)]; };
-  const cityLabel = c => (c.near ? `рядом с ${c.name}, ${c.km} км` : c.name);
+  // города — по-английски и в оригинале: «Istanbul · İstanbul», «Tbilisi · თბილისი»
+  const cityName = c => (c.native ? `${c.name} · ${c.native}` : c.name);
+  const cityLabel = c => (c.near ? `рядом с ${cityName(c)}, ${c.km} км` : cityName(c));
+
+  // ---------- глобус ----------
+  // тот же глобус, что на главной сайта (assets/globe.js): места с сайта (assets/places.js, Pin Traveler)
+  // плюс города из отметок и фото; глобус перечитывает список мест при каждой отрисовке
+  let globeEl = null, globeLoading = null, sitePlaces = null;
+  const script = src => new Promise((res, rej) => document.head.append(el('script', { src, onload: res, onerror: rej })));
+  const near = (a, b) => { const p = Math.PI / 180, x = (b.lon - a.lon) * p * Math.cos((a.lat + b.lat) / 2 * p), y = (b.lat - a.lat) * p; return Math.hypot(x, y) * 6371; };
+  function syncPlaces() {
+    if (!sitePlaces || !window.PLACES) return;
+    const list = window.PLACES;
+    list.length = 0;
+    sitePlaces.forEach(p => list.push(p));
+    (state.cities || []).filter(c => !c.near).forEach(c => { if (!sitePlaces.some(p => near(p, c) < 15)) list.push({ en: cityName(c), ru: c.ru, c: c.country, lat: c.lat, lon: c.lon }); });
+    dispatchEvent(new Event('resize'));
+  }
+  function globe() {
+    if (!globeEl) {
+      globeEl = el('div', { class: 'me-globe' }, el('div', { class: 'globe-wrap' }, [
+        el('canvas', { id: 'globe', 'aria-label': 'Глобус: где я был' }),
+        el('div', { class: 'globe__tip', id: 'globe-tip', hidden: true }),
+        el('div', { class: 'globe__ctl', role: 'group', 'aria-label': 'Масштаб' }, [
+          el('button', { type: 'button', 'data-g': 'in', 'aria-label': 'Приблизить', text: '+' }),
+          el('button', { type: 'button', 'data-g': 'out', 'aria-label': 'Отдалить', text: '−' }),
+          el('button', { type: 'button', 'data-g': 'reset', 'aria-label': 'Сбросить вид', text: '⟲' }),
+        ]),
+      ]));
+    }
+    // скрипты глобуса ищут холст по id, поэтому грузятся, когда он уже на странице
+    requestAnimationFrame(() => {
+      if (!globeLoading) globeLoading = (async () => {
+        window.LANG = 'en';
+        if (!window.PLACES) await script('/assets/places.js');
+        sitePlaces = window.PLACES.slice();
+        syncPlaces();
+        if (!window.GEO) await script('/assets/geo.js');
+        await script('/assets/globe.js');
+      })().catch(() => { globeLoading = null; toast('Глобус не загрузился', true); });
+      else globeLoading.then(syncPlaces);
+    });
+    return globeEl;
+  }
 
   // ---------- главный экран ----------
   let weekOffset = 0;
@@ -289,7 +332,11 @@
     ]));
 
     // карта
-    root.append(el('section', { class: 'group' }, [el('h2', { class: 'group__h group__h--big', text: 'Карта' }), worldMap(new Set(Object.keys(c)), c, cs || []),
+    const asGlobe = state.ui.ctGlobe === true;
+    root.append(el('section', { class: 'group' }, [
+      el('div', { class: 'group__h group__h--big', style: 'align-items:center' }, [el('span', { text: asGlobe ? 'Глобус' : 'Карта' }),
+        el('div', { class: 'seg seg--mini', role: 'group', 'aria-label': 'Вид' }, [['map', 'Карта'], ['globe', 'Глобус']].map(([k, t]) => el('button', { type: 'button', text: t, 'aria-pressed': String((k === 'globe') === asGlobe), onclick: () => { state.ui.ctGlobe = k === 'globe'; ME.saveUi(); ME.render(); } })))]),
+      asGlobe ? globe() : worldMap(new Set(Object.keys(c)), c, cs || []),
       el('div', { class: 'ct-stats' }, [
         el('div', {}, [el('b', { text: String(sum.length) }), el('span', { text: plural(sum.length, 'страна', 'страны', 'стран') })]),
         el('div', {}, [el('b', { text: cs ? String(cs.length) : '…' }), el('span', { text: plural(cs ? cs.length : 5, 'город', 'города', 'городов') })]),
@@ -363,7 +410,7 @@
   // ---------- все города ----------
   function citySheet(c) {
     const ds = [...c.dates].reverse();
-    sheet({ title: `${flag(c.country)} ${c.name}`, body: [
+    sheet({ title: `${flag(c.country)} ${cityName(c)}`, body: [
       group(null, [
         row({ title: 'Страна', value: cname(c.country) }),
         row({ title: 'Дней', value: String(c.dates.length) }),
@@ -388,11 +435,11 @@
       if (s.length < 2) { list.replaceChildren(row({ title: 'Начните вводить название', chev: false })); return; }
       const r = await ME.api('me/cities/search?q=' + encodeURIComponent(s));
       const { cities } = await r.json();
-      list.replaceChildren(...(cities.length ? cities.map(c => row({ flag: flag(c.country), title: c.name, sub: [c.en !== c.name ? c.en : null, cname(c.country)].filter(Boolean).join(' · '), onclick: () => pickDate(c) })) : [row({ title: 'Не нашлось', chev: false })]));
+      list.replaceChildren(...(cities.length ? cities.map(c => row({ flag: flag(c.country), title: cityName(c), sub: cname(c.country), onclick: () => pickDate(c) })) : [row({ title: 'Не нашлось', chev: false })]));
     };
     const pickDate = c => {
       const date = el('input', { type: 'date', value: todayIso(), max: todayIso() });
-      sheet({ title: `${flag(c.country)} ${c.name}`, doneText: 'Добавить', body: group(null, [ME.inputRow('Когда был', date)], 'Дату можно оставить пустой — город просто появится на карте.'), done: async () => {
+      sheet({ title: `${flag(c.country)} ${cityName(c)}`, doneText: 'Добавить', body: group(null, [ME.inputRow('Когда был', date)], 'Дату можно оставить пустой — город просто появится на карте.'), done: async () => {
         if (!await save('places', null, { city: c.id, date: date.value || null })) return false;
         state.cities = null; ME.render(); toast(`${c.name} — на карте`); return true;
       } });

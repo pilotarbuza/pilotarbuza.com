@@ -1,6 +1,6 @@
 /* pilotarbuza.com/me — service worker: уведомления и работа без сети.
    Страницы и скрипты берутся из сети, при обрыве — из кэша. Данные (/api/) не кэшируются. */
-const CACHE = 'pa-me-v9';
+const CACHE = 'pa-me-v10';
 const SHELL = [
   '/me/', '/assets/me/me.css', '/assets/me/world.js', '/assets/me/exif.js', '/assets/me/core.js', '/assets/me/notes.js',
   '/assets/me/countries.js', '/assets/me/docs.js', '/assets/me/money.js', '/assets/me/home.js', '/assets/me/plan.js', '/assets/me/merch.js', '/assets/me/plan-base.css', '/assets/plan/plan.css',
@@ -19,7 +19,7 @@ self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET' || url.origin !== location.origin || url.pathname.startsWith('/api/')) return;
   e.respondWith(fetch(e.request).then(r => {
-    if (r.ok && (url.pathname.startsWith('/me/') || url.pathname.startsWith('/assets/me/') || url.pathname.startsWith('/assets/plan/'))) {
+    if (r.ok && (url.pathname.startsWith('/me/') || url.pathname.startsWith('/assets/me/') || url.pathname.startsWith('/assets/plan/') || /^\/assets\/(globe|geo|places)\.js$/.test(url.pathname))) {
       const copy = r.clone();
       caches.open(CACHE).then(c => c.put(e.request, copy));
     }
