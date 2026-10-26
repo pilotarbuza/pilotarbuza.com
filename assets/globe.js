@@ -29,7 +29,6 @@
   const CN = { RU: ['Russia', 'Россия', 'Rusya'], TR: ['Türkiye', 'Турция', 'Türkiye'], CR: ['Crimea', 'Крым', 'Kırım'], IR: ['Iran', 'Иран', 'İran'], GE: ['Georgia', 'Грузия', 'Gürcistan'], TN: ['Tunisia', 'Тунис', 'Tunus'], UA: ['Ukraine', 'Украина', 'Ukrayna'], AZ: ['Azerbaijan', 'Азербайджан', 'Azerbaycan'] };
   const region = c => { try { return new Intl.DisplayNames([L()], { type: 'region' }).of(c); } catch (e) { return c; } };
   const cname = c => (CN[c] ? CN[c][Math.max(0, ['en', 'ru', 'tr'].indexOf(L()))] : region(c));
-  const full = p => (p.native && p.native !== name(p) ? `${name(p)} · ${p.native}` : name(p));
 
   /* ---------- цвет пина — год последнего визита ---------- */
   const NOW_Y = new Date().getFullYear();
@@ -380,7 +379,7 @@
     if (!pn) { tip.hidden = true; return; }
     const cur = pins.find(q => q.p === pn.p);
     if (!cur) { tip.hidden = true; return; }
-    tip.innerHTML = `<b>${full(cur.p)}</b><span>${cname(cur.p.c)}${cur.p.y ? ' · ' + cur.p.y : ''}</span>`;
+    tip.innerHTML = `<b>${name(cur.p)}</b><span>${cname(cur.p.c)}${cur.p.y ? ' · ' + cur.p.y : ''}</span>`;
     tip.style.left = cur.X / W * 100 + '%'; tip.style.top = cur.Y / W * 100 + '%'; tip.hidden = false;
   }
 
@@ -411,7 +410,6 @@
       const hit = places.find(p => km(p, q) < 15);
       if (!hit) return places.push(q);
       if (q.y && (!hit.y || q.y > hit.y)) hit.y = q.y;
-      if (q.native && !hit.native) hit.native = q.native;
     });
     selected = hover = null; recount(); drawChips(); drawLegend(); dirty = true; kick();
   };

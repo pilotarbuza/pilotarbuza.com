@@ -469,8 +469,8 @@ def city_at(lat, lon):
 
 def city_info(i):
     r = _cities()[0][i]
-    # название — английское, native — местное написание (İstanbul, Москва, თბილისი), ru — для поиска
-    return {'id': i, 'name': r[3], 'native': r[6], 'ru': r[2], 'country': r[4], 'lat': r[0], 'lon': r[1], 'pop': r[5]}
+    # название — английское, ru — для поиска
+    return {'id': i, 'name': r[3], 'ru': r[2], 'country': r[4], 'lat': r[0], 'lon': r[1], 'pop': r[5]}
 
 
 def _fold(text):
@@ -484,7 +484,7 @@ def search_cities(q, limit=20):
         return []
     rows = _cities()[0]
     pop = lambda i: -rows[i][5]
-    names = lambda r: (_fold(r[2]), _fold(r[3]), _fold(r[6]))
+    names = lambda r: (_fold(r[2]), _fold(r[3]))
     first = sorted((i for i, r in enumerate(rows) if any(n.startswith(q) for n in names(r))), key=pop)
     seen = set(first)
     rest = sorted((i for i, r in enumerate(rows) if i not in seen and any(q in n for n in names(r))), key=pop)
@@ -535,7 +535,7 @@ def public_places(con, ttl=600):
     без дат, отметок и «рядом с». Пересчитывается не чаще раза в ttl секунд."""
     now = time.time()
     if _public['data'] is None or now - _public['t'] > ttl:
-        _public['data'] = [{'en': c['name'], 'native': c['native'] or None, 'ru': c['ru'], 'c': c['country'], 'lat': c['lat'], 'lon': c['lon'],
+        _public['data'] = [{'en': c['name'], 'ru': c['ru'], 'c': c['country'], 'lat': c['lat'], 'lon': c['lon'],
                             'y': int(c['last'][:4]) if c['last'] else None} for c in cities(con) if not c['near']]
         _public['t'] = now
     return _public['data']

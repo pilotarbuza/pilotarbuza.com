@@ -207,8 +207,8 @@
     return ds.length || (!c.dates.length && c.sources.includes('manual')) ? { ...c, n: ds.length } : null;
   }).filter(Boolean).sort((x, y) => y.n - x.n || (y.last || '').localeCompare(x.last || ''));
   const millerXY = (lat, lon) => { const la = Math.max(-80, Math.min(84, lat)) * Math.PI / 180; return [(lon + 180) / 360 * 1000, 500 - 1.25 * Math.log(Math.tan(Math.PI / 4 + 0.4 * la)) * 1000 / (2 * Math.PI)]; };
-  // города — по-английски и в оригинале: «Istanbul · İstanbul», «Tbilisi · თბილისი»
-  const cityName = c => (c.native ? `${c.name} · ${c.native}` : c.name);
+  // города — по-английски
+  const cityName = c => c.name;
   const cityLabel = c => (c.near ? `рядом с ${cityName(c)}, ${c.km} км` : cityName(c));
 
   // ---------- глобус ----------
@@ -217,7 +217,7 @@
   let globeEl = null, globeLoading = null;
   const script = src => new Promise((res, rej) => document.head.append(el('script', { src, onload: res, onerror: rej })));
   const syncPlaces = () => window.globeAdd && window.globeAdd((state.cities || []).filter(c => !c.near)
-    .map(c => ({ en: c.name, native: c.native, ru: c.ru, c: c.country, lat: c.lat, lon: c.lon, y: c.last ? Number(c.last.slice(0, 4)) : null })), true);
+    .map(c => ({ en: c.name, ru: c.ru, c: c.country, lat: c.lat, lon: c.lon, y: c.last ? Number(c.last.slice(0, 4)) : null })), true);
   function globe() {
     if (!globeEl) {
       globeEl = el('div', { class: 'me-globe' }, [el('div', { class: 'globe-wrap' }, [
