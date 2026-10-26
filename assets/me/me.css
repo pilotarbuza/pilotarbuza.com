@@ -531,3 +531,70 @@ h1, h2, h3 { letter-spacing: -0.03em; }
 .login .app-ico { display: none; }
 .login h1 { font-size: 34px; font-weight: 600; letter-spacing: -0.03em; }
 .login input[type=password] { border-radius: 14px; border: 1px solid var(--sep); }
+
+/* ================= жидкое стекло (как в iOS 26 и Telegram) ================= */
+.glass {
+  position: relative; isolation: isolate;
+  background: rgba(246,248,250,.62);
+  backdrop-filter: blur(22px) saturate(190%) brightness(1.06); -webkit-backdrop-filter: blur(22px) saturate(190%) brightness(1.06);
+  border: 0; border-radius: 999px;
+  box-shadow: 0 12px 34px rgba(14,26,43,.16), 0 2px 6px rgba(14,26,43,.08),
+    inset 0 1px 0 rgba(255,255,255,.85), inset 0 -1px 0 rgba(255,255,255,.35), inset 0 0 0 .5px rgba(19,34,58,.10);
+}
+/* блик: светлый край сверху и мягкая линза по диагонали */
+.glass::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: -1;
+  background: linear-gradient(180deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,.08) 42%, rgba(255,255,255,0) 60%, rgba(255,255,255,.18) 100%); }
+.glass::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; padding: 1px;
+  background: linear-gradient(135deg, rgba(255,255,255,.95), rgba(255,255,255,.15) 35%, rgba(255,255,255,0) 55%, rgba(255,255,255,.6));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+.glass--ink { background: rgba(19,34,58,.82); color: #fff; box-shadow: 0 12px 30px rgba(14,26,43,.32), inset 0 1px 0 rgba(255,255,255,.35), inset 0 -1px 0 rgba(255,255,255,.08); }
+.glass--ink::before { background: linear-gradient(180deg, rgba(255,255,255,.28) 0%, rgba(255,255,255,0) 50%); }
+.glass--ink::after { background: linear-gradient(135deg, rgba(255,255,255,.6), rgba(255,255,255,0) 40%, rgba(255,255,255,.25)); }
+
+/* нижний бар: парящая капсула + круглая кнопка «+» */
+.tabs { left: 0; right: 0; bottom: 0; background: none; backdrop-filter: none; -webkit-backdrop-filter: none; border: 0; box-shadow: none;
+  padding: 0 14px calc(10px + var(--bot)); display: flex; gap: 10px; justify-content: center; align-items: center; pointer-events: none; }
+.tabs::before { content: ""; position: absolute; inset: -24px 0 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(rgba(230,235,238,0), rgba(230,235,238,.75) 60%); }
+.tabs > * { pointer-events: auto; }
+.tabs__pill { flex: 1; max-width: 420px; height: 64px; display: grid; grid-template-columns: repeat(4, 1fr); align-items: center; padding: 4px; }
+.tabs .tabs__pill a { position: relative; z-index: 1; height: 56px; border-radius: 999px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  color: var(--ink2); font: 500 10.5px var(--font); transition: color .25s, transform .3s cubic-bezier(.34,1.56,.64,1); }
+.tabs .tabs__pill a svg.i { width: 24px; height: 24px; stroke-width: 1.8; }
+.tabs .tabs__pill a[aria-current=page] { color: var(--ink); }
+.tabs .tabs__pill a[aria-current=page] svg.i { stroke-width: 2.3; }
+.tabs .tabs__pill a:active { transform: scale(.92); }
+/* линза под выбранной вкладкой: переезжает с пружиной, при нажатии раздувается */
+.tabs__lens { position: absolute; z-index: 0; top: 4px; left: 0; height: 56px; width: 25%; border-radius: 999px; pointer-events: none;
+  background: rgba(19,34,58,.075);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9), inset 0 -1px 1px rgba(255,255,255,.4), inset 0 0 0 .5px rgba(19,34,58,.06), 0 1px 3px rgba(14,26,43,.06);
+  transform: translateX(var(--x, 4px)) scale(var(--k, 1)); transition: transform .5s cubic-bezier(.34,1.45,.5,1), width .3s; opacity: 0; }
+.tabs__lens.on { opacity: 1; }
+.tabs__lens.press { --k: 1.12; background: rgba(255,255,255,.55); box-shadow: inset 0 1px 0 #fff, 0 6px 18px rgba(14,26,43,.14), inset 0 0 0 .5px rgba(19,34,58,.08); transition: transform .18s ease-out; }
+.tabs .tabs__add { flex: none; width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; color: #fff; transition: transform .3s cubic-bezier(.34,1.56,.64,1); }
+.tabs .tabs__add:active { transform: scale(.9); }
+.tabs .tabs__add svg.i { width: 26px; height: 26px; stroke-width: 2.4; }
+
+/* остальное стекло: панель заметок, клавиатура, подсказки, листы */
+.toolbar { left: 50%; right: auto; transform: translateX(-50%); width: min(420px, calc(100% - 28px)); bottom: calc(84px + var(--bot)); border-radius: 999px;
+  background: rgba(246,248,250,.62); backdrop-filter: blur(22px) saturate(190%); -webkit-backdrop-filter: blur(22px) saturate(190%);
+  box-shadow: 0 10px 28px rgba(14,26,43,.14), inset 0 1px 0 rgba(255,255,255,.85), inset 0 0 0 .5px rgba(19,34,58,.10); }
+.toolbar__row { height: 48px; }
+body.no-tabs .toolbar { bottom: calc(10px + var(--bot)); padding-bottom: 0; }
+.screen { padding-bottom: calc(110px + var(--bot)); }
+.screen:has(~ .toolbar) { padding-bottom: calc(170px + var(--bot)); }
+.kb { left: 50%; right: auto; width: min(460px, calc(100% - 20px)); transform: translateX(-50%); bottom: calc(8px + var(--bot)); padding-bottom: 0; border-radius: 999px;
+  background: rgba(246,248,250,.55); backdrop-filter: blur(22px) saturate(190%); -webkit-backdrop-filter: blur(22px) saturate(190%);
+  box-shadow: 0 10px 28px rgba(14,26,43,.16), inset 0 1px 0 rgba(255,255,255,.85), inset 0 0 0 .5px rgba(19,34,58,.10); }
+.toast { bottom: calc(92px + var(--bot)); background: rgba(14,26,43,.78); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: 0 10px 26px rgba(14,26,43,.25), inset 0 1px 0 rgba(255,255,255,.22); }
+body.no-tabs .toast { bottom: calc(70px + var(--bot)); }
+.sheet { background: rgba(238,242,244,.86); backdrop-filter: blur(30px) saturate(180%); -webkit-backdrop-filter: blur(30px) saturate(180%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9); }
+.sheet__bar { background: transparent; }
+.fmt { background: rgba(238,242,244,.82); backdrop-filter: blur(30px) saturate(180%); -webkit-backdrop-filter: blur(30px) saturate(180%); box-shadow: 0 -6px 30px rgba(14,26,43,.14), inset 0 1px 0 rgba(255,255,255,.9); }
+.nav { background: rgba(230,235,238,.6); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass, .toolbar, .kb { background: rgba(246,248,250,.96); }
+  .glass--ink { background: var(--ink); }
+}

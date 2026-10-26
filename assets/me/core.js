@@ -277,6 +277,7 @@ window.ME = (() => {
     v(box, cur.args);
     const tab = TABS[cur.view] || 'home';
     document.querySelectorAll('#tabs a').forEach(a => a.setAttribute('aria-current', a.dataset.tab === tab ? 'page' : 'false'));
+    moveLens();
     onScroll();
   }
   function route() {
@@ -288,6 +289,33 @@ window.ME = (() => {
     closeSheet();
     render();
     if (!same) window.scrollTo(0, scrolls[h] || 0);
+  }
+  // линза нижнего бара: встаёт под выбранную вкладку, при нажатии раздувается и едет за пальцем
+  const lens = () => $('#tabs-lens');
+  function moveLens(target) {
+    const l = lens(), a = target || document.querySelector('#tabs a[aria-current=page]');
+    if (!l) return;
+    if (!a) { l.classList.remove('on'); return; }
+    l.style.width = a.offsetWidth + 'px';
+    l.style.setProperty('--x', a.offsetLeft + 'px');
+    l.classList.add('on');
+  }
+  window.addEventListener('resize', () => moveLens());
+  const pill = $('#tabs-pill');
+  if (pill) {
+    const under = x => [...pill.querySelectorAll('a')].find(a => { const r = a.getBoundingClientRect(); return x >= r.left && x <= r.right; });
+    let dragging = false;
+    pill.addEventListener('pointerdown', e => { dragging = true; lens().classList.add('press'); const a = under(e.clientX); if (a) moveLens(a); });
+    pill.addEventListener('pointermove', e => { if (!dragging) return; const a = under(e.clientX); if (a) moveLens(a); });
+    const up = e => {
+      if (!dragging) return; dragging = false; lens().classList.remove('press');
+      const a = e && e.clientX !== undefined ? under(e.clientX) : null;
+      if (a && e.type === 'pointerup' && a.dataset.tab !== (document.querySelector('#tabs a[aria-current=page]') || {}).dataset?.tab) { e.preventDefault(); location.hash = a.getAttribute('href'); }
+      else moveLens();
+    };
+    pill.addEventListener('pointerup', up);
+    pill.addEventListener('pointercancel', up);
+    pill.addEventListener('pointerleave', () => { if (dragging) { dragging = false; lens().classList.remove('press'); moveLens(); } });
   }
   const go = h => { if (location.hash === '#' + h) route(); else location.hash = h; };
   const onScroll = () => { const n = document.querySelector('.nav'); if (n) n.classList.toggle('is-stuck', window.scrollY > 28); };

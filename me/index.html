@@ -31,13 +31,16 @@
 
   <div class="app" id="app" hidden>
     <main id="view" tabindex="-1"></main>
-    <nav class="tabs" id="tabs" aria-label="Разделы"><div class="tabs__row">
-      <a href="#home" data-tab="home"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11L12 4l8.5 7M5.5 9.5V20h5v-6h3v6h5V9.5"/></svg>Главная</a>
-      <a href="#notes" data-tab="notes"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h9l4 4V20a.5.5 0 0 1-.5.5h-12a.5.5 0 0 1-.5-.5zM15 3.5V8h4M8.5 12h7M8.5 15.5h7M8.5 9h3"/></svg>Заметки</a>
-      <button type="button" class="tabs__add" id="tabs-add" aria-label="Добавить"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
-      <a href="#countries" data-tab="countries"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM3 12h18M12 3c2.5 2.6 3.7 5.6 3.7 9s-1.2 6.4-3.7 9c-2.5-2.6-3.7-5.6-3.7-9S9.5 5.6 12 3z"/></svg>Страны</a>
-      <a href="#more" data-tab="more"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Ещё</a>
-    </div></nav>
+    <nav class="tabs" id="tabs" aria-label="Разделы">
+      <div class="tabs__pill glass" id="tabs-pill">
+        <i class="tabs__lens" id="tabs-lens" aria-hidden="true"></i>
+        <a href="#home" data-tab="home"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11L12 4l8.5 7M5.5 9.5V20h5v-6h3v6h5V9.5"/></svg><span>Главная</span></a>
+        <a href="#notes" data-tab="notes"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h9l4 4V20a.5.5 0 0 1-.5.5h-12a.5.5 0 0 1-.5-.5zM15 3.5V8h4M8.5 12h7M8.5 15.5h7M8.5 9h3"/></svg><span>Заметки</span></a>
+        <a href="#countries" data-tab="countries"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM3 12h18M12 3c2.5 2.6 3.7 5.6 3.7 9s-1.2 6.4-3.7 9c-2.5-2.6-3.7-5.6-3.7-9S9.5 5.6 12 3z"/></svg><span>Страны</span></a>
+        <a href="#more" data-tab="more"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>Ещё</span></a>
+      </div>
+      <button type="button" class="tabs__add glass glass--ink" id="tabs-add" aria-label="Добавить"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+    </nav>
     <p class="toast" id="toast" role="status" aria-live="polite"><span id="toast-text"></span><button type="button" id="toast-act" hidden></button></p>
   </div>
   <dialog class="sheet" id="sheet"></dialog>
