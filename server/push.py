@@ -25,6 +25,7 @@ SLOTS = {
     13: ('19:30', '20:15'), 14: ('20:20', '21:05'), 15: ('21:10', '21:55'),
 }
 APP_URL = '/admin/plan/#today'
+HOOKS = []  # другие разделы со своими напоминаниями: fn(con, now, settings) -> [(ключ журнала, сообщение)]
 
 
 def init(con):
@@ -284,7 +285,11 @@ def tick(db, crm, now=None):
         if not con.execute('SELECT 1 FROM push_subs LIMIT 1').fetchone():
             return
         records = crm.all_records(con)
-    for key, msg in uni_due(records, st, now):
+    due = uni_due(records, st, now)
+    for hook in HOOKS:
+        with db() as con:
+            due += hook(con, now, st)
+    for key, msg in due:
         with db() as con:
             if con.execute('SELECT 1 FROM push_log WHERE key=?', [key]).fetchone():
                 continue
