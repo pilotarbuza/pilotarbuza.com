@@ -437,6 +437,7 @@ select.nt-time { width: 150px !important; }
 .un-l { width: 100%; display: flex; gap: 16px; align-items: stretch; padding: 14px 16px; border: 1.5px solid transparent; border-radius: 20px; background: var(--paper); text-align: left; cursor: pointer; font-size: 15px; }
 .un-l:hover { border-color: var(--line); }
 .un-l--opt { background: transparent; border: 1.5px dashed var(--muted-d2); }
+.un-l--exam { cursor: default; box-shadow: inset 4px 0 0 #C9A227; }
 .un-l--now { border-color: var(--accent); box-shadow: inset 4px 0 0 var(--accent); }
 .un-l__time { flex: none; width: 58px; display: flex; flex-direction: column; justify-content: space-between; font-variant-numeric: tabular-nums; }
 .un-l__time b { font-size: 17px; }

@@ -18,7 +18,9 @@
   const trNow = () => { const d = new Date(Date.now() + 3 * 3600e3); return { day: Math.floor(d.getTime() / 864e5), min: d.getUTCHours() * 60 + d.getUTCMinutes() }; };
   const wd = day => (new Date(day * 864e5).getUTCDay() + 6) % 7;
   const dateOf = day => { const d = new Date(day * 864e5); return `${d.getUTCDate()} ${MON_G[d.getUTCMonth()]}`; };
-  const holiday = day => { const iso = PA.iso(day); return state.calendar.find(c => c.kind === 'holiday' && c.start <= iso && c.end >= iso); };
+  // дни без пар: праздники и сессия (неделя экзаменов)
+  const holiday = day => { const iso = PA.iso(day); return state.calendar.find(c => (c.kind === 'holiday' || c.kind === 'session') && c.start <= iso && c.end >= iso); };
+  const examsOn = day => { const iso = PA.iso(day); return state.calendar.filter(c => c.kind === 'exam' && c.start === iso).sort((a, b) => (a.time || '').localeCompare(b.time || '')); };
   const on = (w, withOpt = true) => state.lessons.filter(l => l.weekday === w && (withOpt || !l.optional)).sort((a, b) => a.optional - b.optional || a.first - b.first);
 
   let settings = null, subs = 0;
@@ -55,7 +57,7 @@
     while (d < day + 15 && (holiday(d) || !on(wd(d), false).length)) d++;
     const nd = on(wd(d), false);
     const later = nd.length ? `${d === day + 1 ? 'Завтра' : `${DAYS[wd(d)]}, ${dateOf(d)}`} — с ${start(nd[0])}: ${nd[0].course}` : 'Ближайших пар нет';
-    return card(hol ? `Сегодня праздник: ${hol.title}` : must.length ? 'На сегодня пары закончились' : 'Сегодня пар нет', null, later, nd[0]?.room ? `ауд. ${nd[0].room}` : null);
+    return card(hol ? (hol.kind === 'session' ? `Сегодня занятий нет: ${hol.title}` : `Сегодня праздник: ${hol.title}`) : must.length ? 'На сегодня пары закончились' : 'Сегодня пар нет', null, later, nd[0]?.room ? `ауд. ${nd[0].room}` : null);
   }
 
   // ---------- пара ----------
@@ -77,6 +79,16 @@
     const live = l => day === today && mins(start(l)) <= min && min < mins(end(l));
     const head = el('div', { class: 'un-dh' }, [el('h2', { text: `${DAYS[w]}, ${dateOf(day)}` }),
       must.length ? el('span', { class: 'pl-hint', text: `пары с ${start(must[0])} до ${must.map(end).sort().pop()}` }) : null]);
+    if (hol && hol.kind === 'session') {
+      const ex = examsOn(day);
+      return el('div', { class: 'un-day' }, [el('div', { class: 'un-dh' }, [el('h2', { text: `${DAYS[w]}, ${dateOf(day)}` })]),
+        el('p', { class: 'un-hol', text: `${hol.title}: занятий нет.` }),
+        ex.length ? el('ul', { class: 'un-list' }, ex.map(c => el('li', {}, el('div', { class: 'un-l un-l--exam' }, [
+          el('span', { class: 'un-l__time' }, [el('b', { text: c.time || '' })]),
+          el('span', { class: 'un-l__main' }, [el('span', { class: 'un-l__c', text: c.title.replace(/^Vize · /, '') }), el('span', { class: 'un-l__m', text: ['экзамен', c.room ? 'ауд. ' + c.room : null].filter(Boolean).join(' · ') }),
+            c.notes && /хвост|уточнить/.test(c.notes) ? el('span', { class: 'un-l__n', text: c.notes.replace(/^Ara sınav \(vize\), осень 2026–2027\.\s*/, '') }) : null]),
+        ])))) : el('p', { class: 'pl-hint', text: 'Экзаменов в этот день нет.' })]);
+    }
     if (!must.length && !opt.length) return el('div', { class: 'un-day' }, [head, el('p', { class: 'un-empty', text: 'Пар нет' })]);
     return el('div', { class: 'un-day' }, [
       head,
@@ -177,7 +189,7 @@
       opt('uni_morning_on', 'Утром — пары на сегодня', 'Только в дни, когда есть обязательные пары', time('uni_morning_time')),
       opt('uni_before_on', 'Перед первой парой', 'Предмет, аудитория и преподаватель', before),
       opt('uni_evening_on', 'Вечером — пары на завтра', 'Во сколько первая пара и до скольки', time('uni_evening_time')),
-      el('p', { class: 'pl-hint', text: subs ? `Приходят на ${subs} ${plural(subs, 'устройство', 'устройства', 'устройств')}. В праздники из календаря не приходят.` : 'Пока ни одно устройство не подписано.' }),
+      el('p', { class: 'pl-hint', text: subs ? `Приходят на ${subs} ${plural(subs, 'устройство', 'устройства', 'устройств')}. В праздники и сессию из календаря не приходят.` : 'Пока ни одно устройство не подписано.' }),
       subs ? null : el('a', { class: 'btn btn--ghost btn--sm', href: '#notify', text: 'Включить уведомления' }),
     ]);
     box.addEventListener('toggle', () => { state.ui.uniRemindOpen = box.open; PA.saveUi(); });

@@ -160,8 +160,12 @@ def build(records, today, kind):
         lines += ['• %s' % _name(t) for t in due] + ['• %s%s%s' % (c['title'], ' в ' + c['time'] if c.get('time') else '', ', ауд. ' + c['room'] if c.get('room') else '') for c in dl] + ['• %s: %s' % (c['name'], _short(c.get('next_step') or 'следующий шаг', 48)) for c in steps]
         if not lines:
             return None
-        n = len(lines)
-        return {'title': 'Завтра срок: %d %s' % (n, _plural(n, 'пункт', 'пункта', 'пунктов')), 'body': _cut(lines), 'url': APP_URL, 'tag': 'evening-%s' % today}
+        n, ex = len(lines), sum(1 for c in dl if c.get('kind') == 'exam')
+        if ex == n:
+            title = 'Завтра экзамен' if n == 1 else 'Завтра экзамены: %d' % n
+        else:
+            title = 'Завтра срок: %d %s' % (n, _plural(n, 'пункт', 'пункта', 'пунктов'))
+        return {'title': title, 'body': _cut(lines), 'url': '/me/#calendar' if ex else APP_URL, 'tag': 'evening-%s' % today}
     late = sorted([t for t in tasks if _d(t['end']) < today], key=lambda t: t['end'])
     due = [t for t in tasks if _d(t['end']) == today]
     start = [t for t in tasks if t.get('start') and _d(t['start']) == today and _d(t['end']) != today]
@@ -200,7 +204,8 @@ def lessons_on(records, day, with_optional=True):
 
 def is_holiday(records, day):
     d = day.isoformat()
-    return any(c.get('kind') == 'holiday' and c['start'] <= d <= c['end'] for c in records.get('calendar', []))
+    # пар нет в праздники и в сессию (неделю экзаменов)
+    return any(c.get('kind') in ('holiday', 'session') and c['start'] <= d <= c['end'] for c in records.get('calendar', []))
 
 
 def _lesson_line(l):

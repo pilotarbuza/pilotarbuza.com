@@ -1,6 +1,6 @@
 /* pilotarbuza.com/me — service worker: уведомления и работа без сети.
    Страницы и скрипты берутся из сети, при обрыве — из кэша. Данные (/api/) не кэшируются. */
-const CACHE = 'pa-me-v7';
+const CACHE = 'pa-me-v8';
 const SHELL = [
   '/me/', '/assets/me/me.css', '/assets/me/world.js', '/assets/me/exif.js', '/assets/me/core.js', '/assets/me/notes.js',
   '/assets/me/countries.js', '/assets/me/docs.js', '/assets/me/money.js', '/assets/me/home.js', '/assets/me/plan.js', '/assets/me/merch.js', '/assets/me/plan-base.css', '/assets/plan/plan.css',
