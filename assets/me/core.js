@@ -131,8 +131,8 @@ window.ME = (() => {
     return r;
   };
   const toast = (text, bad = false, action = null) => {
-    const t = $('#toast'), btn = $('#toast-act');
-    $('#toast-text').textContent = text; t.classList.toggle('toast--bad', bad); t.classList.add('on');
+    const t = $('#me-toast'), btn = $('#me-toast-act');
+    $('#me-toast-text').textContent = text; t.classList.toggle('toast--bad', bad); t.classList.add('on');
     btn.hidden = !action;
     btn.onclick = action ? () => { t.classList.remove('on'); action.fn(); } : null;
     if (action) btn.textContent = action.label;
@@ -176,7 +176,7 @@ window.ME = (() => {
     const d = await r.json();
     KINDS.forEach(k => { state[k] = d[k] || []; });
     ['days', 'settings', 'keys', 'files', 'brief', 'rates', 'last_ping', 'meta'].forEach(k => { state[k] = d[k]; });
-    loadPlan();
+    ME.loadPlan();
     if (!state.rates || !state.rates.at || Date.now() - new Date(state.rates.at) > 12 * 3600e3) api('me/rates').then(x => x.json()).then(x => { if (x.at) { state.rates = x; render(); } }).catch(() => {});
   };
   // расписание пар и задачи Анемоса — из того же входа, из /admin/plan
@@ -193,7 +193,7 @@ window.ME = (() => {
   const views = {};
   const cur = { view: 'home', args: [], hash: '' };
   const scrolls = {};
-  const TABS = { home: 'home', notes: 'notes', countries: 'countries', docs: 'more', money: 'more', brief: 'home', more: 'more' };
+  const TABS = { home: 'home', uni: 'uni', notes: 'notes', docs: 'docs', calendar: 'calendar', more: 'more' };
 
   // экран: строка навигации (назад, заголовок, кнопки), крупный заголовок, содержимое
   function screen(box, { title, back, backText, right = [], left, large = true, cls = '', full = false, sub, kick }) {
@@ -241,7 +241,7 @@ window.ME = (() => {
   const empty = (title, text, action) => el('div', { class: 'empty' }, [el('b', { text: title }), text ? el('p', { text }) : null, action || null]);
 
   // ---------- листы снизу ----------
-  const sheetEl = () => $('#sheet');
+  const sheetEl = () => $('#me-sheet');
   const closeSheet = () => { const s = sheetEl(); if (s.open) s.close(); };
   // sheet({title, body, done: fn → true/Promise<true> закрывает, doneText, cancelText})
   function sheet({ title, body, done, doneText = 'Готово', cancelText = 'Отменить', onclose }) {
@@ -270,13 +270,16 @@ window.ME = (() => {
 
   // ---------- маршрутизация ----------
   function render() {
-    const box = $('#view');
+    const box = $('#me-view');
     const v = views[cur.view] || views.home;
+    // контейнер разделов «Плана» не должен пропасть вместе с экраном: коду PA он нужен всегда
+    const plan = document.getElementById('view');
+    if (plan && box.contains(plan)) { plan.hidden = true; document.body.append(plan); }
     document.body.classList.remove('no-tabs');
     box.replaceChildren();
     v(box, cur.args);
-    const tab = TABS[cur.view] || 'home';
-    document.querySelectorAll('#tabs a').forEach(a => a.setAttribute('aria-current', a.dataset.tab === tab ? 'page' : 'false'));
+    const tab = TABS[cur.view] || (cur.view === 'home' ? 'home' : 'more');
+    document.querySelectorAll('#me-tabs a').forEach(a => a.setAttribute('aria-current', a.dataset.tab === tab ? 'page' : 'false'));
     moveLens();
     onScroll();
   }
@@ -293,7 +296,7 @@ window.ME = (() => {
   // линза нижнего бара: встаёт под выбранную вкладку, при нажатии раздувается и едет за пальцем
   const lens = () => $('#tabs-lens');
   function moveLens(target) {
-    const l = lens(), a = target || document.querySelector('#tabs a[aria-current=page]');
+    const l = lens(), a = target || document.querySelector('#me-tabs a[aria-current=page]');
     if (!l) return;
     if (!a) { l.classList.remove('on'); return; }
     l.style.width = a.offsetWidth + 'px';
@@ -310,7 +313,7 @@ window.ME = (() => {
     const up = e => {
       if (!dragging) return; dragging = false; lens().classList.remove('press');
       const a = e && e.clientX !== undefined ? under(e.clientX) : null;
-      if (a && e.type === 'pointerup' && a.dataset.tab !== (document.querySelector('#tabs a[aria-current=page]') || {}).dataset?.tab) { e.preventDefault(); location.hash = a.getAttribute('href'); }
+      if (a && e.type === 'pointerup' && a.dataset.tab !== (document.querySelector('#me-tabs a[aria-current=page]') || {}).dataset?.tab) { e.preventDefault(); location.hash = a.getAttribute('href'); }
       else moveLens();
     };
     pill.addEventListener('pointerup', up);

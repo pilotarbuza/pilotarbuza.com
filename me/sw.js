@@ -1,9 +1,10 @@
 /* pilotarbuza.com/me — service worker: уведомления и работа без сети.
    Страницы и скрипты берутся из сети, при обрыве — из кэша. Данные (/api/) не кэшируются. */
-const CACHE = 'pa-me-v3';
+const CACHE = 'pa-me-v4';
 const SHELL = [
   '/me/', '/assets/me/me.css', '/assets/me/world.js', '/assets/me/exif.js', '/assets/me/core.js', '/assets/me/notes.js',
-  '/assets/me/countries.js', '/assets/me/docs.js', '/assets/me/money.js', '/assets/me/home.js', '/assets/me/app.js', '/assets/me/icons/icon-192.png',
+  '/assets/me/countries.js', '/assets/me/docs.js', '/assets/me/money.js', '/assets/me/home.js', '/assets/me/plan.js', '/assets/me/merch.js', '/assets/me/plan-base.css', '/assets/plan/plan.css',
+  '/assets/plan/core.js', '/assets/plan/gantt.js', '/assets/plan/views.js', '/assets/plan/mobile.js', '/assets/plan/uni.js', '/assets/me/app.js', '/assets/me/icons/icon-192.png',
 ];
 
 self.addEventListener('install', e => {
@@ -18,7 +19,7 @@ self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET' || url.origin !== location.origin || url.pathname.startsWith('/api/')) return;
   e.respondWith(fetch(e.request).then(r => {
-    if (r.ok && (url.pathname.startsWith('/me/') || url.pathname.startsWith('/assets/me/'))) {
+    if (r.ok && (url.pathname.startsWith('/me/') || url.pathname.startsWith('/assets/me/') || url.pathname.startsWith('/assets/plan/'))) {
       const copy = r.clone();
       caches.open(CACHE).then(c => c.put(e.request, copy));
     }
