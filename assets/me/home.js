@@ -26,8 +26,24 @@
   let ticker = null;
 
   // что сейчас и что дальше: идущая или следующая пара, иначе — дела на сегодня
+  // экзамены из календаря: дата, время, аудитории
+  const exams = () => ((state.plan && state.plan.calendar) || []).filter(c => c.kind === 'exam' && c.time);
+  function nextExam(day, min) {
+    let best = null;
+    exams().forEach(c => {
+      const w = (dn(c.start) - day) * 1440 + mins(c.time) - min;
+      if (w > -120 && w < 7 * 1440 && (!best || w < best.w)) best = { c, w };
+    });
+    return best;
+  }
   function nextUp() {
     const { day, min } = trNow();
+    const ex = nextExam(day, min);
+    if (ex) {
+      const { c, w } = ex, name = c.title.replace(/^Vize · /, ''), d = dn(c.start) - day;
+      if (w <= 0) return { k: `Экзамен идёт · начался в ${c.time}`, big: 'VIZE', t: name, s: c.room ? 'ауд. ' + c.room : '', href: '#calendar', live: true };
+      if (d === 0 || w < 1440) return { k: `Экзамен ${d === 0 ? 'сегодня' : 'завтра'} в ${c.time}`, big: hm2(w), t: name, s: [c.room ? 'ауд. ' + c.room : null, inText(w)].filter(Boolean).join(' · '), href: '#calendar' };
+    }
     if (!holiday(day)) {
       const ls = lessonsOn(day);
       const cur = ls.find(l => mins(SLOTS[l.first][0]) <= min && min < mins(SLOTS[l.last][1]));
@@ -54,7 +70,10 @@
       out.push({ t: s, e, title: l.course, sub: [l.optional ? 'можно не ходить' : null, l.room ? 'ауд. ' + l.room : null].filter(Boolean).join(' · '), c: SEC.uni[0], href: '#uni',
         state: min >= mins(e) ? 'past' : min >= mins(s) ? 'now' : '' });
     });
-    (plan.calendar || []).filter(c => c.start <= d && c.end >= d).forEach(c => out.push({ title: c.title, sub: { holiday: 'праздник', session: 'сессия', vacation: 'каникулы', deadline: 'дедлайн', event: 'событие' }[c.kind] || '', c: c.kind === 'deadline' ? SEC.anemos[0] : SEC.calendar[0], href: '#calendar' }));
+    (plan.calendar || []).filter(c => c.kind === 'exam' && c.time && c.start === d).forEach(c => out.push({ t: c.time, title: c.title, sub: c.room ? 'ауд. ' + c.room : 'экзамен', c: '#C9A227', href: '#calendar',
+      state: min >= mins(c.time) + 90 ? 'past' : min >= mins(c.time) ? 'now' : '' }));
+    out.sort((a, b) => (a.t || '99').localeCompare(b.t || '99'));
+    (plan.calendar || []).filter(c => c.start <= d && c.end >= d && !(c.kind === 'exam' && c.time)).forEach(c => out.push({ title: c.title, sub: { holiday: 'праздник', session: 'сессия', vacation: 'каникулы', deadline: 'дедлайн', event: 'событие', exam: 'экзамен' }[c.kind] || '', c: c.kind === 'deadline' ? SEC.anemos[0] : SEC.calendar[0], href: '#calendar' }));
     const open = (plan.tasks || []).filter(x => x.kind !== 'phase' && x.status !== 'done' && x.end);
     open.filter(x => dn(x.end) === t0).forEach(x => out.push({ title: x.title.replace(/^T-\d+\w?\s/, ''), sub: 'срок сегодня · Анемос', c: SEC.anemos[0], href: '#today' }));
     const late = open.filter(x => dn(x.end) < t0).length;
