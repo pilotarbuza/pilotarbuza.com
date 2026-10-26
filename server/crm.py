@@ -21,7 +21,7 @@ TASK_KINDS = ['phase', 'task', 'milestone', 'test']
 CONTACT_KINDS = ['regulator', 'university', 'competition', 'supplier', 'sponsor', 'team', 'other']
 CONTACT_STATUSES = ['new', 'contacted', 'waiting', 'active', 'closed']
 ACTIVITY_TYPES = ['email', 'call', 'meeting', 'message', 'note']
-CAL_KINDS = ['session', 'holiday', 'vacation', 'event', 'deadline']
+CAL_KINDS = ['session', 'holiday', 'vacation', 'event', 'deadline', 'exam']
 
 # поле: (тип, параметры..., обязательное)
 SCHEMA = {
@@ -55,7 +55,7 @@ SCHEMA = {
     },
     'calendar': {
         'title': ('str', 160, True), 'kind': ('enum', CAL_KINDS), 'start': ('date', True), 'end': ('date', True),
-        'notes': ('text', 1000),
+        'time': ('str', 5), 'room': ('str', 120), 'notes': ('text', 1000),  # время и аудитория — для экзаменов
     },
 }
 DEFAULTS = {
@@ -163,6 +163,8 @@ def validate(kind, data, current=None):
         bad.append('end')
     if kind == 'lessons' and out['last'] < out['first']:
         bad.append('last')
+    if kind == 'calendar' and out.get('time') and not re.fullmatch(r'([01]\d|2[0-3]):[0-5]\d', out['time']):
+        bad.append('time')
     if bad:
         raise Bad('fields', fields=sorted(set(bad)))
     return out
@@ -187,6 +189,13 @@ def init(con, seed_path=None):
     if todo:
         load_seed(con, seed, todo)
     con.executemany('INSERT OR IGNORE INTO crm_seeded (kind) VALUES (?)', [[k] for k in SEED_ORDER if k in seed])
+    # добавки к уже загруженной базе (например, расписание экзаменов): каждая применяется один раз, по своему id
+    for patch in seed.get('patches', []):
+        mark = 'patch:' + patch['id']
+        if mark in seeded:
+            continue
+        load_seed(con, {patch['kind']: patch['items']}, [patch['kind']])
+        con.execute('INSERT OR IGNORE INTO crm_seeded (kind) VALUES (?)', [mark])
 
 
 SEED_ORDER = ['people', 'projects', 'calendar', 'tasks', 'contacts', 'activities', 'lessons']

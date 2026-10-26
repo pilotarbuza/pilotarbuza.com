@@ -279,7 +279,8 @@
 .cl-agenda > .btn { align-self: stretch; }
 .cl-list { width: 100%; display: flex; flex-direction: column; gap: 2px; }
 .cl-ev { display: flex; flex-direction: column; gap: 2px; align-items: flex-start; padding: 10px 12px; border-radius: 12px; background: var(--bg-2); border-left: 4px solid var(--muted-d); margin-bottom: 6px; }
-.cl-ev--holiday { border-left-color: var(--accent); } .cl-ev--session { border-left-color: var(--wine); } .cl-ev--vacation { border-left-color: var(--s-done); } .cl-ev--deadline { border-left-color: var(--ink); }
+.cl-ev--holiday { border-left-color: var(--accent); } .cl-ev--session { border-left-color: var(--wine); } .cl-ev--vacation { border-left-color: var(--s-done); } .cl-ev--deadline { border-left-color: var(--ink); } .cl-ev--exam { border-left-color: #C9A227; }
+.cl-tag--exam { background: #C9A227; color: #fff; }
 .cl-details { width: 100%; }
 .cl-details summary { font-size: 14px; font-weight: 500; padding: 8px 0; color: var(--ink-2); }
 .cl-add { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-top: 6px; }
@@ -436,6 +437,7 @@ select.nt-time { width: 150px !important; }
 .un-l { width: 100%; display: flex; gap: 16px; align-items: stretch; padding: 14px 16px; border: 1.5px solid transparent; border-radius: 20px; background: var(--paper); text-align: left; cursor: pointer; font-size: 15px; }
 .un-l:hover { border-color: var(--line); }
 .un-l--opt { background: transparent; border: 1.5px dashed var(--muted-d2); }
+.un-l--exam { cursor: default; box-shadow: inset 4px 0 0 #C9A227; }
 .un-l--now { border-color: var(--accent); box-shadow: inset 4px 0 0 var(--accent); }
 .un-l__time { flex: none; width: 58px; display: flex; flex-direction: column; justify-content: space-between; font-variant-numeric: tabular-nums; }
 .un-l__time b { font-size: 17px; }
@@ -565,3 +567,4 @@ select.nt-time { width: 150px !important; }
   .pl-drawer[open] { animation: none; }
   .pl-toast, .gt-caret::before { transition: none; }
 }
+.cl-lg--exam::before { background: #C9A227; border-color: #C9A227; width: 12px; border-radius: 50%; }
