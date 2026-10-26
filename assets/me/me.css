@@ -639,3 +639,76 @@ body.no-tabs .toast { bottom: calc(70px + var(--bot)); }
 .hm-app--hot span:last-child { color: var(--t-blocked, #B01E3A); font-weight: 500; }
 @media (min-width: 600px) { .hm-apps { grid-template-columns: repeat(5, 1fr); } }
 .hm-gate { margin-bottom: 18px; }
+
+/* ================= главная v3 ================= */
+.hm-now { display: flex; flex-direction: column; gap: 6px; padding: 20px 22px 22px; border-radius: 28px; color: var(--cream); }
+.hm-now__top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.hm-now__k { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted-d2); padding-top: 6px; }
+.hm-now__big { font-size: clamp(40px, 12vw, 60px); line-height: .9; color: var(--cream); }
+.hm-now__t { font-size: clamp(24px, 6.5vw, 32px); color: var(--cream); letter-spacing: -0.03em; margin: 6px 0 0; line-height: 1.1; }
+.hm-now__s { margin: 0; color: var(--muted-d2); font-size: 15px; }
+.hm-live { width: 9px; height: 9px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 0 rgba(79,184,114,.6); animation: hm-live 2s infinite; }
+@keyframes hm-live { 70% { box-shadow: 0 0 0 9px rgba(79,184,114,0); } 100% { box-shadow: 0 0 0 0 rgba(79,184,114,0); } }
+.hm-day { list-style: none; margin: 0; padding: 0; }
+.hm-day__i { position: relative; }
+.hm-day__i + .hm-day__i::before { content: ""; position: absolute; top: 0; left: 86px; right: 0; border-top: 1px solid var(--sep); }
+.hm-day__i a { display: grid; grid-template-columns: 52px 14px 1fr; gap: 10px; align-items: center; padding: 12px 16px; color: var(--ink); }
+.hm-day__t { font-weight: 600; font-size: 15px; font-variant-numeric: tabular-nums; line-height: 1.15; }
+.hm-day__t small { display: block; font-weight: 400; font-size: 12px; color: var(--label2); }
+.hm-day__dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); justify-self: center; box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 22%, transparent); }
+.hm-day__i.is-past { opacity: .45; }
+.hm-day__i.is-now a { background: color-mix(in srgb, var(--c) 12%, transparent); }
+.hm-day__i.is-now .hm-day__dot { animation: hm-live 2s infinite; }
+/* плитки разделов как билеты-контакты на сайте: цветная иконка и код */
+.hm-app { gap: 2px; padding: 12px 12px 14px; }
+.hm-app__head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.hm-app .hm-app__i { width: 38px; height: 38px; border-radius: 12px; background: var(--ic); color: #fff; margin: 0; box-shadow: inset 0 1px 0 rgba(255,255,255,.3), 0 4px 10px -4px var(--ic, rgba(0,0,0,.3)); }
+.hm-app__code { font-size: 12px; color: var(--label3); letter-spacing: .06em; padding-top: 2px; }
+.hm-app .hm-app__s { font-size: 12px; line-height: 1.3; color: var(--label2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.hm-app--hot .hm-app__s { color: #B01E3A; font-weight: 500; }
+.hm-app--hot .hm-app__i { background: var(--ic); }
+
+/* ================= жидкое стекло везде ================= */
+:root {
+  --glass: rgba(255,255,255,.5); --glass-2: rgba(255,255,255,.66);
+  --glass-fx: blur(20px) saturate(185%);
+  --glass-sh: 0 10px 28px -12px rgba(14,26,43,.16), inset 0 1px 0 rgba(255,255,255,.9), inset 0 -1px 0 rgba(255,255,255,.35), inset 0 0 0 .5px rgba(255,255,255,.55), 0 0 0 .5px rgba(19,34,58,.07);
+  --glass-dark: rgba(14,26,43,.86);
+  --glass-dark-sh: 0 14px 34px -14px rgba(14,26,43,.5), inset 0 1px 0 rgba(255,255,255,.16), inset 0 0 0 .5px rgba(255,255,255,.08);
+}
+/* мягкий цветной фон под стеклом — чтобы было что преломлять */
+body { background: #E6EBEE; }
+body::before { content: ""; position: fixed; inset: -10vh -10vw; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(38vmax 30vmax at 92% 6%, rgba(255,92,115,.22), transparent 70%),
+    radial-gradient(42vmax 34vmax at -6% 34%, rgba(74,90,214,.18), transparent 70%),
+    radial-gradient(40vmax 30vmax at 100% 70%, rgba(46,163,106,.16), transparent 70%),
+    radial-gradient(36vmax 28vmax at 10% 100%, rgba(201,162,39,.16), transparent 70%),
+    #E6EBEE; }
+:is(.list, .card, .tile, .hm-app, .ct-week, .ct-tile, .ct-map, .cal__grid, .cat-grid, .seg, .chip, .pl .card, .pl .td-list, .pl-sw a, .pl .pl-seg, .pl .pl-tabs) {
+  background-color: var(--glass); -webkit-backdrop-filter: var(--glass-fx); backdrop-filter: var(--glass-fx); box-shadow: var(--glass-sh); border-color: transparent;
+}
+.ct-sum .row { background: var(--glass); -webkit-backdrop-filter: var(--glass-fx); backdrop-filter: var(--glass-fx); box-shadow: var(--glass-sh); }
+.search input, .ct-year { background-color: var(--glass-2); -webkit-backdrop-filter: var(--glass-fx); backdrop-filter: var(--glass-fx); box-shadow: var(--glass-sh); border-color: transparent; }
+.list .row, .list .doc-card, .list .import-row, .list .nt-row, .steps li, .thumbs, .tags { background: transparent; }
+.swipe__body { background: transparent; }
+.swipe.opened .swipe__body, .swipe.dragging .swipe__body { background: rgba(246,248,250,.94); }
+.seg button[aria-pressed=true], .chip[aria-pressed=true], .pl-sw a[aria-current=page] { background: var(--ink); color: var(--bg2); box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 4px 12px -4px rgba(19,34,58,.45); }
+:is(.dark, .hm-now, .hm-gate, .doc-hero, .mn-hero .card, .ct-tile:first-child, .pl .un-now, .pl .td-gate, .pl .dark) {
+  background-color: var(--glass-dark); -webkit-backdrop-filter: blur(24px) saturate(160%); backdrop-filter: blur(24px) saturate(160%); box-shadow: var(--glass-dark-sh);
+}
+.ct-tile:first-child { background-image: radial-gradient(rgba(243,238,230,.07) 1.2px, transparent 1.7px); }
+.hm-now, .hm-gate { background-image: radial-gradient(rgba(243,238,230,.07) 1.2px, transparent 1.7px); background-size: 7px 7px; }
+.row:active, button.row:active, a.row:active { background: rgba(255,255,255,.45); }
+.ct-day__pill { background: rgba(255,255,255,.4); border-color: rgba(255,255,255,.7); box-shadow: inset 0 1px 0 rgba(255,255,255,.9); }
+.ct-day.is-today .ct-day__pill { background: var(--ink); box-shadow: 0 6px 14px -6px rgba(19,34,58,.6), inset 0 1px 0 rgba(255,255,255,.2); }
+.ct-status, .ct-week__head > span:first-child { background: rgba(255,255,255,.45); box-shadow: inset 0 1px 0 rgba(255,255,255,.9); }
+.btn { box-shadow: 0 8px 20px -10px rgba(19,34,58,.6), inset 0 1px 0 rgba(255,255,255,.2); }
+.btn--soft { background: var(--glass); -webkit-backdrop-filter: var(--glass-fx); backdrop-filter: var(--glass-fx); box-shadow: var(--glass-sh), inset 0 0 0 1.5px var(--ink); }
+.nav { background: rgba(230,235,238,.45); -webkit-backdrop-filter: blur(24px) saturate(190%); backdrop-filter: blur(24px) saturate(190%); border-bottom-color: rgba(255,255,255,.55); box-shadow: 0 1px 0 rgba(19,34,58,.06); }
+.pl .td-list > li + li, .list .row::before { border-color: rgba(19,34,58,.08) !important; }
+.pl .card, .pl .td-list { border-radius: 24px; }
+.pl :is(.fld input, .fld select, .fld textarea, .fld-in) { background: rgba(255,255,255,.72); border-color: rgba(255,255,255,.8); box-shadow: inset 0 1px 2px rgba(19,34,58,.05); }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :is(.list, .card, .tile, .hm-app, .ct-week, .ct-tile, .ct-map, .cal__grid, .seg, .chip) { background-color: rgba(246,248,250,.97); }
+}
