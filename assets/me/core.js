@@ -193,18 +193,19 @@ window.ME = (() => {
   const views = {};
   const cur = { view: 'home', args: [], hash: '' };
   const scrolls = {};
-  const TABS = { home: 'home', notes: 'notes', countries: 'countries', docs: 'docs', money: 'money', brief: 'home', more: 'home' };
+  const TABS = { home: 'home', notes: 'notes', countries: 'countries', docs: 'more', money: 'more', brief: 'home', more: 'more' };
 
   // экран: строка навигации (назад, заголовок, кнопки), крупный заголовок, содержимое
-  function screen(box, { title, back, backText, right = [], left, large = true, cls = '', full = false, sub }) {
+  function screen(box, { title, back, backText, right = [], left, large = true, cls = '', full = false, sub, kick }) {
     const navTitle = el('span', { class: 'nav__title', text: title || '' });
     const nav = el('header', { class: 'nav' + (large ? '' : ' nav--plain') }, el('div', { class: 'nav__row' }, [
-      el('div', { class: 'nav__l' }, left || (back ? el('a', { class: 'nb nb--back', href: back }, [icon('back'), el('span', { text: backText || 'Назад' })]) : null)),
+      el('div', { class: 'nav__l' }, left || (back ? el('a', { class: 'nb nb--back', href: back }, [icon('back'), el('span', { text: backText || 'Назад' })]) : el('a', { class: 'nav__brand hand', href: '#home', text: 'pilot_arbuza' }))),
       navTitle,
       el('div', { class: 'nav__r' }, right),
     ]));
     const body = el('div', { class: 'screen__body' });
     const root = el('div', { class: `screen ${cls}${full ? ' screen--full' : ''}` }, [nav,
+      kick ? el('p', { class: 'lt__kick', text: kick }) : null,
       large && title ? el('div', { class: 'lt' }, [el('h1', { text: title })]) : null,
       sub ? el('p', { class: 'lt__sub', text: sub }) : null, body]);
     box.append(root);
@@ -276,6 +277,7 @@ window.ME = (() => {
     v(box, cur.args);
     const tab = TABS[cur.view] || 'home';
     document.querySelectorAll('#tabs a').forEach(a => a.setAttribute('aria-current', a.dataset.tab === tab ? 'page' : 'false'));
+    moveLens();
     onScroll();
   }
   function route() {
@@ -287,6 +289,33 @@ window.ME = (() => {
     closeSheet();
     render();
     if (!same) window.scrollTo(0, scrolls[h] || 0);
+  }
+  // линза нижнего бара: встаёт под выбранную вкладку, при нажатии раздувается и едет за пальцем
+  const lens = () => $('#tabs-lens');
+  function moveLens(target) {
+    const l = lens(), a = target || document.querySelector('#tabs a[aria-current=page]');
+    if (!l) return;
+    if (!a) { l.classList.remove('on'); return; }
+    l.style.width = a.offsetWidth + 'px';
+    l.style.setProperty('--x', a.offsetLeft + 'px');
+    l.classList.add('on');
+  }
+  window.addEventListener('resize', () => moveLens());
+  const pill = $('#tabs-pill');
+  if (pill) {
+    const under = x => [...pill.querySelectorAll('a')].find(a => { const r = a.getBoundingClientRect(); return x >= r.left && x <= r.right; });
+    let dragging = false;
+    pill.addEventListener('pointerdown', e => { dragging = true; lens().classList.add('press'); const a = under(e.clientX); if (a) moveLens(a); });
+    pill.addEventListener('pointermove', e => { if (!dragging) return; const a = under(e.clientX); if (a) moveLens(a); });
+    const up = e => {
+      if (!dragging) return; dragging = false; lens().classList.remove('press');
+      const a = e && e.clientX !== undefined ? under(e.clientX) : null;
+      if (a && e.type === 'pointerup' && a.dataset.tab !== (document.querySelector('#tabs a[aria-current=page]') || {}).dataset?.tab) { e.preventDefault(); location.hash = a.getAttribute('href'); }
+      else moveLens();
+    };
+    pill.addEventListener('pointerup', up);
+    pill.addEventListener('pointercancel', up);
+    pill.addEventListener('pointerleave', () => { if (dragging) { dragging = false; lens().classList.remove('press'); moveLens(); } });
   }
   const go = h => { if (location.hash === '#' + h) route(); else location.hash = h; };
   const onScroll = () => { const n = document.querySelector('.nav'); if (n) n.classList.toggle('is-stuck', window.scrollY > 28); };

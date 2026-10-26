@@ -16,6 +16,15 @@
     ME.route();
   }
   window.addEventListener('hashchange', ME.route);
+  // «+» в нижнем меню — быстро добавить что угодно
+  $('#tabs-add').addEventListener('click', () => ME.menu('Добавить', [
+    { icon: 'compose', text: 'Заметку', fn: () => ME.notes.newNote() },
+    { icon: 'money', text: 'Расход или доход', fn: () => { ME.go('money'); setTimeout(() => ME.fin.txSheet(), 50); } },
+    { icon: 'location', text: 'Где я сейчас', fn: () => ME.countries.here() },
+    { icon: 'calendar', text: 'Дни в стране', fn: () => { ME.go('countries'); setTimeout(() => ME.countries.addMenu(), 50); } },
+    { icon: 'doc', text: 'Документ', fn: () => { ME.go('docs'); setTimeout(() => ME.docs.edit(), 50); } },
+    { icon: 'repeat', text: 'Подписку', fn: () => { ME.go('money/subs'); setTimeout(() => ME.fin.subSheet(), 50); } },
+  ]));
 
   // данные могли поменяться на другом устройстве или прийти из «Быстрых команд» — обновить при возвращении
   let hiddenAt = 0;

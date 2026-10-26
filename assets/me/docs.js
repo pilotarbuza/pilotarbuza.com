@@ -22,7 +22,7 @@
   const files = d => state.files.filter(f => f.rec === d.id);
 
   function list(box) {
-    const body = screen(box, { title: 'Документы', cls: 'docs', right: [navBtn('plus', () => edit(), { 'aria-label': 'Новый документ' })] });
+    const body = screen(box, { title: 'Документы', back: '#more', backText: 'Ещё', cls: 'docs', right: [navBtn('plus', () => edit(), { 'aria-label': 'Новый документ' })] });
     if (!state.docs.length) { body.append(ME.empty('Документов пока нет', 'Добавьте паспорт, визу, икамет или медкомиссию — приложение напомнит, когда пора продлевать.', el('button', { type: 'button', class: 'btn btn--sm', style: 'margin-top:12px', onclick: () => edit() }, 'Добавить документ'))); return; }
     const card = d => {
       const [w, cls] = when(d), [name, color, ic] = T(d);
@@ -44,7 +44,7 @@
     const d = state.docs.find(x => x.id === Number(id));
     if (!d) { go('docs'); return; }
     const [name, color] = T(d), [w, cls] = when(d);
-    const body = screen(box, { title: d.title, back: '#docs', backText: 'Документы', cls: 'docs', large: false, right: [navBtn(el('span', { text: 'Изменить' }), () => edit(d))] });
+    const body = screen(box, { title: '', back: '#docs', backText: 'Документы', cls: 'docs', large: false, right: [navBtn(el('span', { text: 'Изменить' }), () => edit(d))] });
     let shown = false;
     const num = el('span', { text: mask(d.number) || '—' });
     body.append(el('div', { class: 'doc-hero', style: `--c:${color}`, 'aria-label': name }, [
@@ -124,5 +124,5 @@
   }
 
   ME.views.docs = (box, args) => (args[0] ? view(box, args[0]) : list(box));
-  ME.docs = { left, when, T };
+  ME.docs = { left, when, T, edit };
 })();
