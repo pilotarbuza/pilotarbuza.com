@@ -70,13 +70,13 @@
     const date = el('input', { type: 'date', value: x.date });
     const accList = el('datalist', { id: 'me-accounts' }, [...new Set(state.tx.map(t => t.account).filter(Boolean))].map(a => el('option', { value: a })));
     const box = el('div');
-    const draw = () => box.replaceChildren(
+    const draw = () => box.replaceChildren(...[
       ME.seg([['expense', 'Расход'], ['income', 'Доход']], x.kind, v => { x.kind = v; x.category = ''; draw(); }),
       el('div', { class: 'keypad-amt' }, [amount, el('div', { class: 'chips' }, [...new Set([...CURS, base(), x.currency])].map(c => el('button', { type: 'button', class: 'chip', 'aria-pressed': String(c === x.currency), text: `${CUR[c] || ''} ${c}`.trim(), onclick: () => { x.currency = c; draw(); } })))]),
       el('div', { class: 'group' }, el('div', { class: 'cat-grid' }, cats(x.kind).map(([n, e, c]) => el('button', { type: 'button', style: `--c:${c}`, 'aria-pressed': String(x.category === n), onclick: () => { x.category = n; draw(); } }, [el('span', { class: 'cat-ico', style: `--c:${c}`, text: e }), n])))),
       group(null, [el('div', { class: 'row' }, note), ME.inputRow('Дата', date), ME.inputRow('Счёт', account), accList]),
       t ? group(null, [row({ title: 'Удалить операцию', cls: 'row--danger', chev: false, onclick: async () => { if (await remove('tx', t.id)) { closeSheet(); ME.render(); toast('Удалено'); } } })]) : null,
-    );
+    ].filter(Boolean));
     draw();
     sheet({ title: t ? 'Операция' : 'Новая операция', doneText: t ? 'Готово' : 'Добавить', body: box, done: async () => {
       const v = Number(amount.value.replace(/\s/g, '').replace(',', '.'));
@@ -176,12 +176,12 @@
     const due = el('input', { type: 'date', value: x.due || '' });
     const note = el('input', { value: x.note || '', placeholder: 'За что', maxLength: 300 });
     const box = el('div');
-    const draw = () => box.replaceChildren(
+    const draw = () => box.replaceChildren(...[
       ME.seg([['they_owe', 'Мне должны'], ['i_owe', 'Я должен']], x.dir, v => { x.dir = v; draw(); }),
       group(null, [el('div', { class: 'row' }, person), ME.inputRow('Сумма', amount), ME.inputRow('Валюта', cur), ME.inputRow('За что', note), ME.inputRow('Вернуть до', due)]),
       d ? group(null, [ME.toggle('Вернули', !!x.settled, v => { x.settled = v; })]) : null,
       d ? group(null, [row({ title: 'Удалить', cls: 'row--danger', chev: false, onclick: async () => { if (await remove('debts', d.id)) { closeSheet(); ME.render(); } } })]) : null,
-    );
+    ].filter(Boolean));
     draw();
     sheet({ title: d ? 'Долг' : 'Новый долг', body: box, done: async () => {
       if (!person.value.trim()) { person.focus(); return false; }

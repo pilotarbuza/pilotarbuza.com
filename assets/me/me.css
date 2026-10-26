@@ -124,7 +124,7 @@ button.row:active, a.row:active, .row--tap:active { background: var(--fill2); }
 .late { color: var(--red); }
 .soon { color: var(--orange); }
 .ok { color: var(--green); }
-.card { background: var(--bg2); border-radius: 16px; padding: 16px; }
+.card:not(.pl .card, .pl-drawer .card) { background: var(--bg2); border-radius: 16px; padding: 16px; }
 
 /* тост */
 .toast { position: fixed; left: 50%; bottom: calc(66px + var(--bot)); transform: translate(-50%, 20px); opacity: 0; pointer-events: none; transition: .25s; z-index: 60; background: rgba(40,40,40,.94); color: #fff; padding: 10px 16px; border-radius: 22px; font-size: 15px; display: flex; gap: 12px; align-items: center; max-width: calc(100vw - 32px); }
@@ -432,7 +432,7 @@ h1, h2, h3 { letter-spacing: -0.03em; }
 .group__h a { font-size: 14px; font-weight: 500; color: var(--label2); }
 .group__h--big { font-size: 22px; }
 .group__f { font-size: 13px; }
-.card { border-radius: var(--r); background: var(--bg2); }
+.card:not(.pl .card, .pl-drawer .card) { border-radius: var(--r); background: var(--bg2); }
 .empty b { font-weight: 600; }
 
 /* кнопки, переключатели, сегменты как у сайта */
@@ -712,3 +712,23 @@ body::before { content: ""; position: fixed; inset: -10vh -10vw; z-index: -1; po
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   :is(.list, .card, .tile, .hm-app, .ct-week, .ct-tile, .ct-map, .cal__grid, .seg, .chip) { background-color: rgba(246,248,250,.97); }
 }
+
+/* ================= правки после дизайн-ревью ================= */
+/* ссылки в заголовках блоков — цель касания не меньше 44px */
+.group__h a { padding: 12px 0 12px 16px; margin: -12px 0; }
+/* подписи строк переносятся на вторую строку, а не обрезаются */
+.row__s { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.nt-row .row__s, .ct-sum .row__s { -webkit-line-clamp: 1; }
+/* переключатель разделов Анемоса: отступ справа, чтобы последний чип не прилипал к краю */
+.pl-sw { scroll-padding-inline: 16px; }
+.pl-sw::after { content: ""; flex: 0 0 4px; }
+/* карточки «Плана» обрезают содержимое по скруглению (выделенный день календаря, полосы) */
+.pl .card { overflow: hidden; }
+.pl .cl-agenda { position: static; }
+/* тёмное стекло не перебивается правилами светлых карточек */
+:is(.hm-now, .hm-gate, .doc-hero, .mn-hero .card, .ct-tile:first-child, .hm-app--dark) { background-color: var(--glass-dark) !important; color: var(--cream); }
+/* первый блок не прилипает к крупному заголовку */
+.screen__body > :is(.group, .seg, .search, .hm-tiles, .mn-hero):first-child { margin-top: 8px; }
+/* в строках форм значение прижато вправо, как в настройках iOS */
+.row > .row__lbl ~ :is(select, input[type=date], input[type=time], .row__v, button) { margin-left: auto; }
+.row > .row__lbl ~ select { max-width: 62%; text-align: right; text-align-last: right; }

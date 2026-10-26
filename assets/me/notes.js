@@ -129,7 +129,7 @@
       }
       const count = id => live().filter(n => n.folder === id).length;
       const tags = [...new Set(live().flatMap(tagsOf))].sort();
-      res.replaceChildren(
+      res.replaceChildren(...[
         group(null, [
           row({ icon: 'folder', color: 'var(--notes)', title: 'Все заметки', value: String(live().length), href: '#notes/f/all' }),
           ...[...state.folders].sort((a, b) => (a.order || 0) - (b.order || 0) || a.id - b.id).map(f => swipe(
@@ -142,7 +142,7 @@
           deleted().length ? row({ icon: 'trash', color: 'var(--notes)', title: 'Недавно удалённые', value: String(deleted().length), href: '#notes/f/deleted' }) : null,
         ]),
         tags.length ? el('section', { class: 'group' }, [el('h2', { class: 'group__h group__h--big', text: 'Теги' }), el('div', { class: 'list tags' }, tags.map(t => el('a', { href: `#notes/f/tag:${encodeURIComponent(t)}`, text: '#' + t })))]) : null,
-      );
+      ].filter(Boolean));
     };
     q.addEventListener('input', draw);
     body.append(el('div', { class: 'search' }, [icon('search'), q]), res);
@@ -166,7 +166,7 @@
     const draw = () => {
       const s = q.value.trim().toLowerCase();
       const items = sorted(all.filter(n => !s || (n.text || '').toLowerCase().includes(s)));
-      if (!items.length) { res.replaceChildren(ME.empty(s ? 'Нет результатов' : isDel ? 'Здесь пусто' : 'Нет заметок', isDel ? 'Удалённые заметки хранятся здесь 30 дней.' : null)); return; }
+      if (!items.length) { res.replaceChildren(...[ME.empty(s ? 'Нет результатов' : isDel ? 'Здесь пусто' : 'Нет заметок', isDel ? 'Удалённые заметки хранятся здесь 30 дней.' : null)].filter(Boolean)); return; }
       const out = [];
       const pinned = isDel || s ? [] : items.filter(n => n.pinned);
       if (pinned.length) out.push(group('Закреплённые', pinned.map(n => noteRow(n, id === 'all' || isTag))));
