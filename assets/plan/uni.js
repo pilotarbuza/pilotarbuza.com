@@ -169,8 +169,10 @@
     const before = PA.select([5, 10, 15, 20, 30, 45, 60].map(n => [n, `за ${n} мин`]), s.uni_before_min, { class: 'fld-in nt-time' });
     before.addEventListener('change', () => saveSetting({ uni_before_min: Number(before.value) }));
     const opt = (key, title, hint, ctrl) => el('div', { class: 'nt-opt' }, [el('label', { class: 'nt-opt__t' }, [sw(key, title), el('span', {}, [el('b', { text: title }), el('span', { class: 'pl-hint', text: hint })])]), ctrl]);
-    return el('section', { class: 'nt-card card' }, [
-      el('h2', { text: 'Напоминания о парах' }),
+    // свёрнуто в одну строку со сводкой; раскрытие запоминается, чтобы не схлопывалось после сохранения
+    const summary = s.uni_paused ? 'на паузе' : [s.uni_morning_on ? `утром ${s.uni_morning_time}` : null, s.uni_before_on ? `за ${s.uni_before_min} мин` : null, s.uni_evening_on ? `вечером ${s.uni_evening_time}` : null].filter(Boolean).join(' · ') || 'выключены';
+    const box = el('details', { class: 'nt-card card un-remind', open: !!state.ui.uniRemindOpen }, [
+      el('summary', {}, [el('span', {}, [el('h2', { text: 'Напоминания о парах' }), el('span', { class: 'pl-hint', text: summary })]), el('i', { class: 'un-remind__chev', 'aria-hidden': 'true' })]),
       el('div', { class: 'nt-opt' }, [el('label', { class: 'nt-opt__t' }, [sw('uni_paused', 'Пауза'), el('span', {}, [el('b', { text: 'Пауза на каникулы и сессию' }), el('span', { class: 'pl-hint', text: s.uni_paused ? 'Сейчас напоминания не приходят' : 'Включите, когда пар нет' })])])]),
       opt('uni_morning_on', 'Утром — пары на сегодня', 'Только в дни, когда есть обязательные пары', time('uni_morning_time')),
       opt('uni_before_on', 'Перед первой парой', 'Предмет, аудитория и преподаватель', before),
@@ -178,6 +180,8 @@
       el('p', { class: 'pl-hint', text: subs ? `Приходят на ${subs} ${plural(subs, 'устройство', 'устройства', 'устройств')}. В праздники из календаря не приходят.` : 'Пока ни одно устройство не подписано.' }),
       subs ? null : el('a', { class: 'btn btn--ghost btn--sm', href: '#notify', text: 'Включить уведомления' }),
     ]);
+    box.addEventListener('toggle', () => { state.ui.uniRemindOpen = box.open; PA.saveUi(); });
+    return box;
   }
 
   // ---------- раздел ----------
