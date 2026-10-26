@@ -18,8 +18,7 @@
 
   function home(box) {
     const t0 = today(), p = parts(t0), name = state.settings.name || 'Максим';
-    const body = screen(box, { title: `${greet()}, ${name}`, right: [navBtn('menu', () => go('more'), { 'aria-label': 'Ещё' })] });
-    body.before(el('p', { class: 'hm-date', text: `${WDL[wday(t0)]}, ${p.d} ${MON_G[p.m]}`, style: 'margin-top:-6px;margin-bottom:12px' }));
+    const body = screen(box, { title: `${p.d} ${MON_G[p.m]}`, kick: WDL[wday(t0)].replace(/^./, c => c.toUpperCase()), sub: `${greet()}, ${name}`, right: [navBtn('sun', () => go('brief'), { 'aria-label': 'Бриф' })] });
     body.append(el('div', { class: 'hm-quick' }, [
       el('button', { type: 'button', style: '--c:var(--notes)', onclick: () => ME.notes.newNote() }, [icon('compose'), 'Заметка']),
       el('button', { type: 'button', style: '--c:var(--green)', onclick: () => ME.fin.txSheet() }, [icon('money'), 'Расход']),
@@ -31,11 +30,12 @@
     const m = ME.countries.dmap(), now = m.get(todayIso()) || [], lastDay = state.days[state.days.length - 1];
     const cc = now.length ? now[now.length - 1].c : lastDay && lastDay[1];
     const yc = cc ? ME.countries.counts(m, ME.countries.yearRange(p.y))[cc] || 0 : 0;
-    const tiles = [el('a', { class: 'tile', href: '#countries', style: '--c:var(--orange)' }, [
-      el('span', { class: 'tile__k' }, [icon('globe'), 'Сейчас']),
-      el('span', { class: 'tile__v', text: cc ? `${flag(cc)} ${cname(cc)}` : '—', style: 'font-size:22px' }),
-      el('span', { class: 'tile__s', text: cc ? `${yc}-й день в ${p.y}${now.length ? '' : ' · сегодня ещё не отмечено'}` : 'Отметьте, где вы' }),
-    ])];
+    body.prepend(el('a', { class: 'hm-gate dark dots', href: '#countries' }, [
+      el('span', { class: 'hm-gate__n doto led', text: String(yc) }),
+      el('span', {}, [el('b', { text: cc ? `${plural(yc, 'день', 'дня', 'дней')} · ${flag(cc)} ${cname(cc)}` : 'Где вы сейчас?' }),
+        el('span', { text: cc ? `в ${p.y} году${now.length ? '' : ' · сегодня ещё не отмечено'}` : 'Отметьте страну — начнётся отсчёт' })]),
+    ]));
+    const tiles = [];
     const sch = state.rules.find(r => r.on && r.tile && r.goal === 'max');
     if (sch) { const u = ME.countries.usage(sch, m); tiles.push(el('a', { class: 'tile', href: `#countries/rule/${sch.id}`, style: '--c:var(--blue)' }, [el('span', { class: 'tile__k' }, [icon('plane'), sch.name]), el('span', { class: 'tile__v' }, [String(u.used), el('small', { text: ` / ${sch.limit}` })]), el('span', { class: 'tile__s', text: u.left >= 0 ? `можно ещё ${days(u.left)}` : `превышение ${days(-u.left)}` })])); }
     const doc = [...state.docs].filter(d => d.expires && dn(d.expires) >= t0).sort((a, b) => a.expires.localeCompare(b.expires))[0];
@@ -155,7 +155,11 @@
     ME.render();
   }
   function moreView(box) {
-    const body = screen(box, { title: 'Ещё', back: '#home', backText: 'Главная' });
+    const body = screen(box, { title: 'Ещё' });
+    body.append(group(null, [
+      row({ icon: 'doc', color: 'var(--ink)', title: 'Документы', sub: 'Сроки, номера, сканы', href: '#docs' }),
+      row({ icon: 'money', color: 'var(--green)', title: 'Деньги', sub: 'Расходы, подписки, долги, бюджет', href: '#money' }),
+    ]));
     body.append(group(null, [
       row({ icon: 'uni', color: 'var(--blue)', title: 'Университет', sub: 'Расписание пар и напоминания', href: '/admin/plan/#uni' }),
       row({ icon: 'plane', color: 'var(--teal)', title: 'Анемос', sub: 'План ANY1, Гант, CRM', href: '/admin/plan/' }),

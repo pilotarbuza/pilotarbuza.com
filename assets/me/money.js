@@ -22,7 +22,7 @@
   // ---------- операции ----------
   function ops(box) {
     const m = ym(), [y, mo] = m.split('-').map(Number);
-    const body = screen(box, { title: 'Деньги', cls: 'money', right: [navBtn('more', moneyMenu, { 'aria-label': 'Настройки' }), navBtn('plus', () => txSheet(), { 'aria-label': 'Новая операция' })] });
+    const body = screen(box, { title: 'Деньги', back: '#more', backText: 'Ещё', cls: 'money', right: [navBtn('more', moneyMenu, { 'aria-label': 'Настройки' }), navBtn('plus', () => txSheet(), { 'aria-label': 'Новая операция' })] });
     body.append(tabs('ops'));
     const list = monthTx(m), exp = list.filter(t => t.kind === 'expense'), inc = list.filter(t => t.kind === 'income');
     const sum = arr => arr.reduce((s, t) => s + (inBase(t.amount, t.currency) ?? 0), 0);
@@ -219,5 +219,5 @@
   }
 
   ME.views.money = (box, args) => (args[0] === 'subs' ? subs(box) : args[0] === 'debts' ? debts(box) : args[0] === 'budget' ? budget(box) : ops(box));
-  ME.fin = { txSheet, monthTx, inBase, base, monthly };
+  ME.fin = { subSheet, txSheet, monthTx, inBase, base, monthly };
 })();

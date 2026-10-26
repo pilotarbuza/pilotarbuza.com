@@ -193,18 +193,19 @@ window.ME = (() => {
   const views = {};
   const cur = { view: 'home', args: [], hash: '' };
   const scrolls = {};
-  const TABS = { home: 'home', notes: 'notes', countries: 'countries', docs: 'docs', money: 'money', brief: 'home', more: 'home' };
+  const TABS = { home: 'home', notes: 'notes', countries: 'countries', docs: 'more', money: 'more', brief: 'home', more: 'more' };
 
   // экран: строка навигации (назад, заголовок, кнопки), крупный заголовок, содержимое
-  function screen(box, { title, back, backText, right = [], left, large = true, cls = '', full = false, sub }) {
+  function screen(box, { title, back, backText, right = [], left, large = true, cls = '', full = false, sub, kick }) {
     const navTitle = el('span', { class: 'nav__title', text: title || '' });
     const nav = el('header', { class: 'nav' + (large ? '' : ' nav--plain') }, el('div', { class: 'nav__row' }, [
-      el('div', { class: 'nav__l' }, left || (back ? el('a', { class: 'nb nb--back', href: back }, [icon('back'), el('span', { text: backText || 'Назад' })]) : null)),
+      el('div', { class: 'nav__l' }, left || (back ? el('a', { class: 'nb nb--back', href: back }, [icon('back'), el('span', { text: backText || 'Назад' })]) : el('a', { class: 'nav__brand hand', href: '#home', text: 'pilot_arbuza' }))),
       navTitle,
       el('div', { class: 'nav__r' }, right),
     ]));
     const body = el('div', { class: 'screen__body' });
     const root = el('div', { class: `screen ${cls}${full ? ' screen--full' : ''}` }, [nav,
+      kick ? el('p', { class: 'lt__kick', text: kick }) : null,
       large && title ? el('div', { class: 'lt' }, [el('h1', { text: title })]) : null,
       sub ? el('p', { class: 'lt__sub', text: sub }) : null, body]);
     box.append(root);

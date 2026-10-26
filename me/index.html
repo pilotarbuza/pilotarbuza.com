@@ -6,8 +6,7 @@
   <title>Личное — pilot_arbuza</title>
   <meta name="robots" content="noindex, nofollow">
   <meta name="referrer" content="no-referrer">
-  <meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#E6EBEE">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Личное">
@@ -15,11 +14,14 @@
   <link rel="manifest" href="/me/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/assets/me/icons/apple-touch-icon.png">
   <link rel="icon" href="/assets/me/icons/icon-192.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Doto:wght@700;900&family=Geologica:wght@400;500;600;700&family=Gloria+Hallelujah&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/me/me.css">
 </head>
 <body>
   <form class="login" id="login" hidden>
-    <img class="app-ico" src="/assets/me/icons/icon-192.png" alt="">
+    <span class="hand" style="font-size:24px">pilot_arbuza</span>
     <h1>Личное</h1>
     <input id="password" type="password" autocomplete="current-password" placeholder="Пароль" required aria-label="Пароль">
     <label class="chk"><input type="checkbox" id="remember"> Запомнить на 30 дней</label>
@@ -30,11 +32,11 @@
   <div class="app" id="app" hidden>
     <main id="view" tabindex="-1"></main>
     <nav class="tabs" id="tabs" aria-label="Разделы"><div class="tabs__row">
-      <a href="#home" data-tab="home" style="--tc:var(--indigo)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11L12 4l8.5 7M5.5 9.5V20h5v-6h3v6h5V9.5"/></svg>Главная</a>
-      <a href="#notes" data-tab="notes" style="--tc:var(--notes)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h9l4 4V20a.5.5 0 0 1-.5.5h-12a.5.5 0 0 1-.5-.5zM15 3.5V8h4M8.5 12h7M8.5 15.5h7M8.5 9h3"/></svg>Заметки</a>
-      <a href="#countries" data-tab="countries" style="--tc:var(--orange)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM3 12h18M12 3c2.5 2.6 3.7 5.6 3.7 9s-1.2 6.4-3.7 9c-2.5-2.6-3.7-5.6-3.7-9S9.5 5.6 12 3z"/></svg>Страны</a>
-      <a href="#docs" data-tab="docs" style="--tc:var(--blue)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5A1.5 1.5 0 0 1 5.5 5h13A1.5 1.5 0 0 1 20 6.5v11a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5zM7 15.5c.6-1.6 1.8-2.5 3-2.5s2.4.9 3 2.5M10 11.2a1.7 1.7 0 1 0 0-3.4 1.7 1.7 0 0 0 0 3.4zM15 9.5h2.5M15 12.5h2.5"/></svg>Документы</a>
-      <a href="#money" data-tab="money" style="--tc:var(--green)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7.5A1.5 1.5 0 0 1 4.5 6h15A1.5 1.5 0 0 1 21 7.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 16.5zM12 14.6a2.6 2.6 0 1 0 0-5.2 2.6 2.6 0 0 0 0 5.2zM6.5 9.5v5M17.5 9.5v5"/></svg>Деньги</a>
+      <a href="#home" data-tab="home"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11L12 4l8.5 7M5.5 9.5V20h5v-6h3v6h5V9.5"/></svg>Главная</a>
+      <a href="#notes" data-tab="notes"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h9l4 4V20a.5.5 0 0 1-.5.5h-12a.5.5 0 0 1-.5-.5zM15 3.5V8h4M8.5 12h7M8.5 15.5h7M8.5 9h3"/></svg>Заметки</a>
+      <button type="button" class="tabs__add" id="tabs-add" aria-label="Добавить"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+      <a href="#countries" data-tab="countries"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM3 12h18M12 3c2.5 2.6 3.7 5.6 3.7 9s-1.2 6.4-3.7 9c-2.5-2.6-3.7-5.6-3.7-9S9.5 5.6 12 3z"/></svg>Страны</a>
+      <a href="#more" data-tab="more"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Ещё</a>
     </div></nav>
     <p class="toast" id="toast" role="status" aria-live="polite"><span id="toast-text"></span><button type="button" id="toast-act" hidden></button></p>
   </div>
