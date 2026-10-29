@@ -642,6 +642,7 @@ section { position: relative; }
 .ic-ig { background: linear-gradient(135deg, #F4A24A, #E1476B 55%, #8D4BC9); }
 .ic-mail { --ic: #FF5C73; } .ic-tr { --ic: #C8354A; } .ic-ru { --ic: #2C4C8F; }
 .ic-ann { --ic: #00707A; } .ic-pix { --ic: #7A1830; } .ic-nc { --ic: #2F6FC4; } .ic-gh { --ic: #13223A; }
+.ic-li { --ic: #0A66C2; }
 
 /* аватары в проектах */
 .chat__head img, .ch__ava { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; display: block; }
