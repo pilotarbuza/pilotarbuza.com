@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maksim Akhmadulin — Photography & Visual Stories</title>
+  <meta name="description" content="Visual storytelling, landscape expeditions, aviation spotting and remote places across Russia, Turkey and the Caucasus by Maksim Akhmadulin (pilot_arbuza).">
+  
+  <!-- Open Graph / Meta -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Maksim Akhmadulin — Photography">
+  <meta property="og:description" content="Landscape expeditions, aviation spotting and visual stories by Maksim Akhmadulin.">
+  <meta property="og:image" content="https://cdn.myportfolio.com/85b6ac69-486f-4cff-bc8a-8b1f1ec62197/878c8898-42b6-4318-b4d1-d2aac76dc743_rwc_0x0x2612x1632x2612.png?h=ad075d72a13487af750533697d3d9dee">
+  <link rel="icon" href="https://pilotarbuza.com/assets/favicon.svg" type="image/svg+xml">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+  <!-- Top Sticky Header -->
+  <header class="site-header">
+    <div class="header-container">
+      <a href="#" class="brand" aria-label="Home">
+        <div class="brand-badge">P</div>
+        <div class="brand-text">
+          <span class="brand-name">Maksim Akhmadulin</span>
+          <span class="brand-desc">Photography</span>
+        </div>
+      </a>
+
+      <!-- Category Filter Pills -->
+      <nav class="nav-filters" aria-label="Category filters">
+        <button class="filter-btn active" data-category="all">All <span class="count mono">23</span></button>
+        <button class="filter-btn" data-category="mountains">Mountains <span class="count mono">4</span></button>
+        <button class="filter-btn" data-category="aviation">Aviation <span class="count mono">5</span></button>
+        <button class="filter-btn" data-category="cities">Cities <span class="count mono">7</span></button>
+        <button class="filter-btn" data-category="stories">Stories <span class="count mono">7</span></button>
+      </nav>
+
+      <!-- Actions -->
+      <div class="header-actions">
+        <span class="stat-pill mono" id="total-frames-pill">832 frames</span>
+        <a href="https://pilotarbuza.com" class="link-home" target="_blank" rel="noopener">pilotarbuza.com ↗</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero" id="hero-section">
+    <div class="hero-tag">Visual Storytelling & Expeditions</div>
+    <h1 class="hero-title">Light, scale and atmosphere across <span>peaks and cockpits</span>.</h1>
+    <p class="hero-lead">High-altitude mountain expeditions, civil and military aviation spotting, and architectural series captured across Russia, Turkey, and the Caucasus.</p>
+  </section>
+
+  <!-- Main Projects Grid Section -->
+  <main class="main-content" id="main-grid-section">
+    <div class="view-controls">
+      <h2 class="view-title" id="view-title">All Projects (23)</h2>
+    </div>
+    <div class="projects-grid" id="projects-grid">
+      <!-- Injected via app.js -->
+    </div>
+  </main>
+
+  <!-- Single Project Roll View -->
+  <section class="main-content project-roll-view" id="project-roll-view">
+    <div class="roll-header">
+      <button class="btn-back" id="btn-back-to-grid">
+        <span>←</span>
+        <span>Back to Projects</span>
+      </button>
+      <div class="roll-meta">
+        <div class="roll-tags">
+          <span class="roll-cat" id="roll-category">Category</span>
+          <span>•</span>
+          <span class="mono" id="roll-count">Frames</span>
+        </div>
+        <h2 class="roll-title" id="roll-title">Project Title</h2>
+        <p class="roll-desc" id="roll-description"></p>
+      </div>
+    </div>
+
+    <!-- Multi-column Photo Wall -->
+    <div class="gallery-masonry" id="gallery-masonry">
+      <!-- Photos injected dynamically -->
+    </div>
+  </section>
+
+  <!-- Fullscreen Lightbox -->
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo Lightbox">
+    <div class="lightbox-topbar">
+      <div class="lb-title-group">
+        <span class="lb-title" id="lightbox-title">Photo Title</span>
+        <span class="lb-counter mono" id="lightbox-counter">1 / 1</span>
+      </div>
+      <div class="lb-controls">
+        <button class="lb-btn" id="lightbox-fullscreen" aria-label="Toggle Fullscreen" title="Toggle Fullscreen (F)">⛶</button>
+        <button class="lb-btn" id="lightbox-close" aria-label="Close Lightbox" title="Close (Esc)">✕</button>
+      </div>
+    </div>
+
+    <div class="lightbox-stage">
+      <button class="lightbox-nav lightbox-prev" id="lightbox-prev" aria-label="Previous photo" title="Previous (Left arrow)">‹</button>
+      <div class="lightbox-img-wrapper">
+        <img class="lightbox-img" id="lightbox-img" src="" alt="Photo preview">
+      </div>
+      <button class="lightbox-nav lightbox-next" id="lightbox-next" aria-label="Next photo" title="Next (Right arrow)">›</button>
+    </div>
+  </div>
+
+  <!-- Minimal Footer -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-left">
+        <span>© 2026 Maksim Akhmadulin</span>
+        <span>•</span>
+        <span>All photographs hosted via Adobe Cloud CDN</span>
+      </div>
+      <div class="footer-right">
+        <a href="https://pilotarbuza.com">Engineering & Portfolio at pilotarbuza.com ↗</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="assets/data.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>
