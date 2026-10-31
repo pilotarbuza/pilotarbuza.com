@@ -1,6 +1,7 @@
 /**
- * Lusion-Style Transition Overlay & Preloader
+ * Lusion-Style Transition Overlay & Preloader with Minecraft Percentage Counter
  * Exact recreation of lusion.co pixel-art wave preloader and page transitions.
+ * Features giant Minecraft-font bottom-left odometer percentage counter (000 -> 100).
  * pilotarbuza.com
  */
 (() => {
@@ -45,14 +46,49 @@
 
   class LusionLoader {
     constructor() {
+      // 1. Inject @font-face and styles if needed
+      this.injectStyles();
+
+      // 2. Setup Canvas
       this.canvas = document.getElementById('transition-overlay');
       if (!this.canvas) {
         this.canvas = document.createElement('canvas');
         this.canvas.id = 'transition-overlay';
         (document.body || document.documentElement).appendChild(this.canvas);
       }
-
       this.ctx = this.canvas.getContext('2d');
+
+      // 3. Setup Preloader DOM (Minecraft bottom-left counter)
+      this.domContainer = document.getElementById('preloader');
+      if (!this.domContainer) {
+        this.domContainer = document.createElement('div');
+        this.domContainer.id = 'preloader';
+        this.domContainer.innerHTML = `
+          <div id="preloader-percent-digits" aria-hidden="true">
+            <div class="preloader-percent-digit">
+              <div class="preloader-percent-digit-num">0</div>
+              <div class="preloader-percent-digit-num">0</div>
+            </div>
+            <div class="preloader-percent-digit">
+              <div class="preloader-percent-digit-num">0</div>
+              <div class="preloader-percent-digit-num">0</div>
+            </div>
+            <div class="preloader-percent-digit">
+              <div class="preloader-percent-digit-num">0</div>
+              <div class="preloader-percent-digit-num">0</div>
+            </div>
+          </div>
+        `;
+        (document.body || document.documentElement).appendChild(this.domContainer);
+      }
+
+      this.domDigitsContainer = document.getElementById('preloader-percent-digits');
+      this.domDigits = Array.from(this.domContainer.querySelectorAll('.preloader-percent-digit'));
+      this.domDigits.forEach(col => {
+        col._domNums = col.querySelectorAll('.preloader-percent-digit-num');
+        col._easedVal = 0;
+      });
+
       this.active = true;
       this.state = 'show'; // 'show' -> 'wait' -> 'hide' -> 'curtain' -> 'done'
       this.showRatio = 0;
@@ -61,7 +97,11 @@
       this.exitRatio = 0;
       this.lastTime = performance.now();
       this.pixelWidth = 10;
-      this.waitTimer = 0.22;
+      this.waitTimer = 0.25;
+
+      // Percentage counter states
+      this.percent = 0;
+      this.percentTarget = 0;
 
       // Unblock on DOM ready, do not stall on external third-party requests
       this.pageLoaded = (document.readyState === 'interactive' || document.readyState === 'complete');
@@ -98,6 +138,58 @@
       this.setupLinkTransitions();
     }
 
+    injectStyles() {
+      if (document.getElementById('lusion-mc-styles')) return;
+      const st = document.createElement('style');
+      st.id = 'lusion-mc-styles';
+      st.textContent = `
+        @font-face {
+          font-family: 'Minecraft';
+          src: url('/assets/fonts/minecraft.woff2') format('woff2');
+          font-weight: normal;
+          font-style: normal;
+          font-display: swap;
+        }
+        #preloader {
+          position: fixed;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          z-index: 10000000;
+          background-color: transparent;
+          pointer-events: none;
+        }
+        #preloader-percent-digits {
+          position: absolute;
+          bottom: env(safe-area-inset-bottom, 0px);
+          left: env(safe-area-inset-left, 0px);
+          font-family: 'Minecraft', monospace;
+          font-size: clamp(6.5rem, 13vw, 16rem);
+          height: 1.0em;
+          line-height: 1.0em;
+          color: #ffffff;
+          overflow: hidden;
+          display: flex;
+          user-select: none;
+          pointer-events: none;
+          letter-spacing: -0.02em;
+        }
+        .preloader-percent-digit {
+          position: relative;
+          width: 1ch;
+          text-align: center;
+          will-change: transform;
+        }
+        .preloader-percent-digit-num {
+          height: 1.0em;
+          line-height: 1.0em;
+          text-align: center;
+        }
+      `;
+      (document.head || document.documentElement).appendChild(st);
+    }
+
     resize() {
       const dpr = Math.min(window.devicePixelRatio || 1, 3);
       const w = window.innerWidth;
@@ -123,29 +215,44 @@
       } else {
         this.canvas.style.display = 'none';
         this.canvas.style.pointerEvents = 'none';
+        if (this.domContainer) {
+          this.domContainer.style.display = 'none';
+        }
       }
     }
 
     update(dt) {
       if (this.state === 'show') {
-        this.showRatio += dt * 1.6; // ~0.62s wave in
+        this.showRatio += dt * 1.5; // ~0.66s wave in
+        // Progress counts up fluidly towards ~85-92%
+        const targetShow = fit(this.showRatio, 0, 1, 0, 0.88, expoOut);
+        this.percentTarget = Math.max(this.percentTarget, targetShow);
+
         if (this.showRatio >= 1) {
           this.showRatio = 1;
           this.state = 'wait';
         }
       } else if (this.state === 'wait') {
-        this.waitTimer -= dt;
-        if (this.waitTimer <= 0 && this.pageLoaded) {
-          this.state = 'hide';
+        if (!this.pageLoaded) {
+          // Creep forward slowly towards 95% if still waiting for DOM
+          this.percentTarget = Math.min(0.95, this.percentTarget + dt * 0.15);
+        } else {
+          this.waitTimer -= dt;
+          this.percentTarget = 1.0;
+          if (this.waitTimer <= 0 && this.percent >= 0.99) {
+            this.state = 'hide';
+          }
         }
       } else if (this.state === 'hide') {
+        this.percentTarget = 1.0;
         this.hideRatio += dt * 1.85; // ~0.54s wave out
         if (this.hideRatio >= 1) {
           this.hideRatio = 1;
           this.state = 'curtain';
         }
       } else if (this.state === 'curtain') {
-        this.curtainRatio += dt * 2.4; // ~0.42s smooth curtain fade
+        this.percentTarget = 1.0;
+        this.curtainRatio += dt * 2.2; // ~0.45s smooth curtain fade & digits lift
         if (this.curtainRatio >= 1) {
           this.curtainRatio = 1;
           this.state = 'done';
@@ -155,6 +262,57 @@
         this.exitRatio += dt * 3.8; // ~0.26s exit cover
         if (this.exitRatio >= 1) {
           this.exitRatio = 1;
+        }
+      }
+
+      // Smooth percentage easing towards target
+      if (this.state !== 'exit') {
+        const easeRate = this.percentTarget >= 1.0 ? 14 : 10;
+        this.percent += (this.percentTarget - this.percent) * (1 - Math.exp(-easeRate * dt));
+        if (Math.abs(this.percentTarget - this.percent) < 0.003) {
+          this.percent = this.percentTarget;
+        }
+        this.updateDigits(dt);
+      }
+    }
+
+    updateDigits(dt) {
+      if (!this.domDigits || !this.domDigits.length) return;
+      const t = this.percent;
+      const n = (this.state === 'curtain') ? expoInOut(this.curtainRatio) : 0;
+
+      for (let a = 0; a < this.domDigits.length; a++) {
+        const col = this.domDigits[a];
+        // Exact Lusion digit slot target
+        const c = Math.floor(t * 100 / Math.pow(10, this.domDigits.length - a - 1));
+
+        // Smooth mechanical roll
+        col._easedVal = (col._easedVal || 0) + (c - (col._easedVal || 0)) * (1 - Math.exp(-12 * dt));
+        if (c - col._easedVal < 0.01) col._easedVal = c;
+
+        const u = col._easedVal % 10;
+        const f = Math.floor(u);
+        const p = (f + 1) % 10;
+        const g = u - f;
+
+        if (col._domNums && col._domNums.length >= 2) {
+          col._domNums[0].textContent = f;
+          col._domNums[1].textContent = p;
+        }
+
+        // Staggered curtain lift off when transitioning out
+        const curtainLift = (n > 0)
+          ? expoInOut(Math.min(1, Math.max(0, n * 1.2 - 0.2 * a / (this.domDigits.length - 1))))
+          : 0;
+
+        col.style.transform = `translateY(${-(g - curtainLift) * 50}%)`;
+      }
+
+      if (this.domDigitsContainer) {
+        if (this.state === 'curtain') {
+          this.domDigitsContainer.style.opacity = (1 - expoInOut(this.curtainRatio));
+        } else {
+          this.domDigitsContainer.style.opacity = '1';
         }
       }
     }
@@ -238,6 +396,9 @@
       this.active = false;
       this.canvas.style.display = 'none';
       this.canvas.style.pointerEvents = 'none';
+      if (this.domContainer) {
+        this.domContainer.style.display = 'none';
+      }
     }
 
     setupLinkTransitions() {
@@ -271,6 +432,9 @@
           this.exitRatio = 0;
           this.canvas.style.display = 'block';
           this.canvas.style.pointerEvents = 'all';
+          if (this.domContainer) {
+            this.domContainer.style.display = 'none';
+          }
 
           setTimeout(() => {
             window.location.href = url.href;
