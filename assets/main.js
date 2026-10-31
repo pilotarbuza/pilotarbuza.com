@@ -27,11 +27,35 @@
   if (top && hero) {
     new IntersectionObserver(([e]) => top.classList.toggle('top--light', !e.isIntersecting), { rootMargin: '-64px 0px 0px 0px', threshold: 0 }).observe(hero);
   }
-  const burger = $('#burger'), menu = $('#menu');
+  const burger = $('#burger'), menu = $('#menu'), backdrop = $('#menu-backdrop');
   if (burger && menu) {
-    const set = (open) => { menu.classList.toggle('menu--open', open); burger.setAttribute('aria-expanded', open); document.body.style.overflow = open ? 'hidden' : ''; };
+    const set = (open) => {
+      menu.classList.toggle('menu--open', open);
+      if (backdrop) backdrop.classList.toggle('open', open);
+      burger.setAttribute('aria-expanded', open);
+      document.body.style.overflow = open ? 'hidden' : '';
+    };
     burger.addEventListener('click', () => set(!menu.classList.contains('menu--open')));
+    if (backdrop) backdrop.addEventListener('click', () => set(false));
     $$('a', menu).forEach(a => a.addEventListener('click', () => set(false)));
+    window.addEventListener('keydown', e => { if (e.key === 'Escape') set(false); });
+
+    const menuNavLinks = $$('.menu-nav-link', menu);
+    if (menuNavLinks.length) {
+      const sections = $$('header#hero, section[id]');
+      const spyObs = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const id = entry.target.id;
+            menuNavLinks.forEach(link => {
+              const matches = link.getAttribute('data-nav') === id || link.getAttribute('href') === '#' + id;
+              link.classList.toggle('active', matches);
+            });
+          }
+        });
+      }, { threshold: 0.25 });
+      sections.forEach(s => spyObs.observe(s));
+    }
   }
 
   /* ---------- альтиметр ---------- */

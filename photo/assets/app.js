@@ -332,4 +332,22 @@
   } else {
     init();
   }
+
+  // Lusion-style mobile menu
+  const burger = document.getElementById('burger');
+  const menu = document.getElementById('menu');
+  const backdrop = document.getElementById('menu-backdrop');
+  if (burger && menu) {
+    const set = (open) => {
+      menu.classList.toggle('menu--open', open);
+      if (backdrop) backdrop.classList.toggle('open', open);
+      burger.setAttribute('aria-expanded', open);
+      document.body.style.overflow = open ? 'hidden' : '';
+    };
+    burger.addEventListener('click', () => set(!menu.classList.contains('menu--open')));
+    if (backdrop) backdrop.addEventListener('click', () => set(false));
+    menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => set(false)));
+    window.addEventListener('keydown', e => { if (e.key === 'Escape') set(false); });
+  }
+
 })();

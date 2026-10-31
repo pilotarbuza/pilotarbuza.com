@@ -42,16 +42,70 @@
     <div class="top__right">
       <div class="lsw" role="group" aria-label="Language"><button type="button" data-lang="en" aria-pressed="true">EN</button><button type="button" data-lang="ru" aria-pressed="false">RU</button><button type="button" data-lang="tr" aria-pressed="false">TR</button></div>
       <button type="button" class="btn btn--primary btn--sm" data-preorder data-i18n="sp.pre">Preorder</button>
-      <button class="burger" id="burger" type="button" data-i18n-aria="nav.menu" aria-label="Menu" aria-expanded="false" aria-controls="menu"><i></i><i></i></button>
+      <button class="burger" id="burger" type="button" data-i18n-aria="nav.menu" aria-label="Menu" aria-expanded="false" aria-controls="menu"><span class="burger-dots" aria-hidden="true"><span class="burger-dot"></span><span class="burger-dot"></span></span></button>
     </div>
   </header>
 
+  <div class="menu-backdrop" id="menu-backdrop" aria-hidden="true"></div>
+
   <nav class="menu" id="menu" data-i18n-aria="nav.menu" aria-label="Menu">
-    <a href="/" style="--i:0" data-i18n="sp.back">Back to the site</a>
-    <a href="#catalog" style="--i:1" data-i18n="sp.catalog">Catalogue</a>
-    <a href="/#projects" style="--i:2" data-i18n="nav.projects">Projects</a>
-    <a href="/#contact" style="--i:3" data-i18n="nav.contacts">Contacts</a>
-    <div class="lsw lsw--menu" role="group" aria-label="Language"><button type="button" data-lang="en" aria-pressed="true">EN</button><button type="button" data-lang="ru" aria-pressed="false">RU</button><button type="button" data-lang="tr" aria-pressed="false">TR</button></div>
+    <!-- Card 1 -->
+    <div class="menu-card menu-card--nav">
+      <div class="menu-nav-links">
+        <a href="/" class="menu-nav-link" data-nav="home">
+          <span data-i18n="sp.back">Back to the site</span>
+          <span class="menu-nav-dot"></span>
+        </a>
+        <a href="#catalog" class="menu-nav-link active" data-nav="catalog">
+          <span data-i18n="sp.catalog">Catalogue</span>
+          <span class="menu-nav-dot"></span>
+        </a>
+        <a href="/#projects" class="menu-nav-link" data-nav="projects">
+          <span data-i18n="nav.projects">Projects</span>
+          <span class="menu-nav-dot"></span>
+        </a>
+        <a href="/photo/" class="menu-nav-link" data-nav="photo">
+          <span data-i18n="nav.photo">Photo</span>
+          <span class="menu-nav-dot"></span>
+        </a>
+        <a href="/#contact" class="menu-nav-link" data-nav="contact">
+          <span data-i18n="nav.contacts">Contacts</span>
+          <span class="menu-nav-dot"></span>
+        </a>
+      </div>
+
+      <div class="menu-divider"></div>
+
+      <div class="menu-lsw lsw" role="group" aria-label="Language">
+        <button type="button" data-lang="en" aria-pressed="true">EN</button>
+        <button type="button" data-lang="ru" aria-pressed="false">RU</button>
+        <button type="button" data-lang="tr" aria-pressed="false">TR</button>
+      </div>
+    </div>
+
+    <!-- Card 2 -->
+    <a href="/#contact" class="menu-card menu-card--talk" id="menu-talk-card">
+      <span class="menu-talk-text" data-i18n="nav.talk">Let's talk</span>
+      <svg class="menu-talk-icon" width="22" height="22" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+        <rect width="18" height="18" x="3" y="3" stroke="#000" stroke-width="1.8" rx="3"></rect>
+        <line x1="7" y1="8" x2="17" y2="8" stroke="#000" stroke-width="1.8" stroke-linecap="round"></line>
+        <line x1="7" y1="12" x2="17" y2="12" stroke="#000" stroke-width="1.8" stroke-linecap="round"></line>
+        <rect width="10" height="2.5" x="7" y="15.5" fill="#000" rx="1.25"></rect>
+      </svg>
+    </a>
+
+    <!-- Card 3 -->
+    <a href="https://t.me/pilot_arbuza" target="_blank" rel="noopener" class="menu-card menu-card--brand">
+      <div class="menu-brand-left">
+        <span class="menu-brand-icon">
+          <svg width="22" height="22" viewBox="0 0 180 180" aria-hidden="true"><circle cx="90" cy="90" r="90" fill="#ffffff"/><path d="M 27.83 131.41 C 29.08 130.53, 31.22 127.29, 32.59 124.21 C 36.49 115.39, 47.90 95.04, 52.34 89.00 C 60.09 78.43, 75.98 60.29, 79.78 57.65 C 87.14 52.55, 90.00 54.39, 90.00 64.24 C 90.00 75.65, 85.93 91.99, 78.51 110.41 C 74.83 119.53, 74.84 121.67, 78.55 122.60 C 81.96 123.46, 82.71 122.66, 86.89 113.66 C 92.72 101.09, 105.91 87.97, 126.27 74.51 C 129.44 72.41, 132.26 70.93, 132.55 71.21 C 132.83 71.50, 129.61 80.43, 125.40 91.06 C 116.24 114.16, 115.01 121.10, 119.32 125.42 C 124.05 130.14, 130.77 128.76, 143.65 120.44 C 152.97 114.42, 170.63 97.32, 171.63 93.35 C 172.36 90.43, 171.10 87.66, 168.84 87.21 C 168.04 87.06, 162.46 91.92, 156.44 98.02 C 145.45 109.15, 139.21 113.99, 133.03 116.14 C 130.20 117.13, 129.51 117.05, 128.49 115.65 C 126.70 113.21, 127.49 110.35, 135.67 89.78 C 141.86 74.22, 143.06 70.27, 142.81 66.38 C 142.39 60.04, 140.71 59.10, 133.75 61.29 C 126.73 63.50, 111.60 73.53, 102.90 81.73 C 99.11 85.31, 96.01 88.08, 96.01 87.87 C 96.02 87.67, 96.91 83.22, 98.00 78.00 C 101.35 61.89, 100.11 51.27, 94.45 47.56 C 90.96 45.27, 84.66 45.63, 79.11 48.44 C 72.50 51.79, 68.64 55.22, 61.82 63.80 C 56.00 71.13, 56.00 71.13, 56.00 65.15 C 56.00 58.17, 55.44 56.30, 52.94 54.97 C 50.54 53.68, 46.27 55.61, 45.33 58.40 C 44.94 59.56, 44.74 63.10, 44.88 66.28 C 45.31 76.21, 42.20 83.91, 25.01 115.50 C 21.72 121.55, 19.02 127.26, 19.01 128.19 C 19.00 129.90, 22.54 133.00, 24.50 133.00 C 25.08 133.00, 26.58 132.28, 27.83 131.41 Z" fill="#000000"/></svg>
+        </span>
+        <span class="menu-brand-text">TELEGRAM</span>
+      </div>
+      <svg class="menu-brand-arrow" width="20" height="20" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 19L19 5m0 0v12M19 5H7"></path>
+      </svg>
+    </a>
   </nav>
 
   <main>

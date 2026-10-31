@@ -766,3 +766,15 @@ button {
   background-color: #000000;
   display: block;
 }
+
+
+
+
+@media (max-width: 840px) {
+  .header-actions .link-home {
+    display: none;
+  }
+  .burger {
+    display: flex;
+  }
+}
