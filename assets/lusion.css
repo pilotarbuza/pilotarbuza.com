@@ -1,0 +1,587 @@
+/* ============================================================
+   Lusion Style Sheet for pilotarbuza.com
+   Matches Lusion.co hero, 3D balloons, 3-card menu, and blue footer
+   ============================================================ */
+
+/* ---------- Reset & Base Overrides for Hero ---------- */
+#hero {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  min-height: 640px;
+  background: #000000;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+}
+
+/* Giant Background Typography */
+.hero-bg-letters {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: clamp(7rem, 21.5vw, 25rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: #ffffff;
+  white-space: nowrap;
+  user-select: none;
+  pointer-events: none;
+  z-index: 1;
+  line-height: 0.88;
+  margin: 0;
+  padding: 0;
+}
+
+/* Horizontal Crosshairs */
+.hero-crosshairs {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: space-around;
+  pointer-events: none;
+  z-index: 2;
+  padding: 0 4vw;
+  box-sizing: border-box;
+}
+.hero-crosshair {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 19px;
+  font-weight: 300;
+  line-height: 1;
+  user-select: none;
+}
+
+/* 3D WebGL Canvas */
+#hero-balloons-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+  cursor: grab;
+  touch-action: none;
+}
+#hero-balloons-canvas:active {
+  cursor: grabbing;
+}
+
+/* Bottom Right Scroll Hint */
+.hero-scroll-explore {
+  position: absolute;
+  bottom: 28px;
+  right: 36px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #ffffff;
+  z-index: 5;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.9;
+}
+
+/* ---------- Top Bar Header ---------- */
+.lusion-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 24px 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 100;
+  pointer-events: none;
+  box-sizing: border-box;
+  background: transparent;
+  transition: padding 0.3s ease;
+}
+
+.lusion-header * {
+  pointer-events: auto;
+}
+
+.lusion-logo {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #ffffff;
+  transition: opacity 0.25s ease;
+  user-select: none;
+}
+.lusion-logo:hover {
+  opacity: 0.85;
+}
+
+.lusion-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Sound Button */
+.lusion-btn-sound {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  outline: none;
+  transition: transform 0.25s ease, background-color 0.25s ease;
+  flex-shrink: 0;
+}
+.lusion-btn-sound:hover {
+  transform: scale(1.06);
+}
+.lusion-btn-sound-bar {
+  width: 14px;
+  height: 2.5px;
+  background: #000000;
+  border-radius: 2px;
+  transition: transform 0.25s ease, width 0.25s ease;
+}
+.lusion-btn-sound.playing .lusion-btn-sound-bar {
+  animation: soundPulse 0.75s ease-in-out infinite alternate;
+}
+@keyframes soundPulse {
+  0% { transform: scaleY(0.7); width: 10px; }
+  100% { transform: scaleY(2.2); width: 15px; }
+}
+
+/* Capsule Buttons */
+.lusion-capsule {
+  height: 38px;
+  padding: 0 18px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  outline: none;
+  white-space: nowrap;
+  transition: background-color 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
+}
+.lusion-capsule:hover {
+  background: rgba(255, 255, 255, 0.24);
+  transform: scale(1.03);
+}
+
+.lusion-capsule--white {
+  background: #ffffff;
+  color: #000000;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.15);
+}
+.lusion-capsule--white:hover {
+  background: #f0f0f0;
+}
+
+.lusion-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: currentColor;
+  flex-shrink: 0;
+}
+
+.lusion-menu-dots {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.1, 1);
+}
+.lusion-menu-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: #000000;
+}
+.lusion-menu-btn[aria-expanded="true"] .lusion-menu-dots {
+  transform: rotate(90deg);
+}
+
+/* ---------- Lusion 3-Card Menu System ---------- */
+.lusion-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  z-index: 90;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.1, 1);
+}
+.lusion-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.lusion-menu {
+  position: fixed;
+  top: 76px;
+  right: 36px;
+  width: 320px;
+  max-width: calc(100vw - 32px);
+  z-index: 95;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+  visibility: hidden;
+  transition: visibility 0s linear 0.45s;
+  box-sizing: border-box;
+}
+.lusion-menu.open,
+.lusion-menu.menu--open {
+  visibility: visible;
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+
+.lusion-card {
+  border-radius: 20px;
+  will-change: transform, opacity;
+  transition: transform 0.46s cubic-bezier(0.4, 0, 0.1, 1), opacity 0.46s cubic-bezier(0.4, 0, 0.1, 1);
+  box-sizing: border-box;
+}
+
+/* Card 1: Links */
+.lusion-card--nav {
+  background: #ffffff;
+  color: #000000;
+  padding: 22px 24px 18px;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+  transform: translate3d(0, 45px, 0) rotate(2.5deg);
+  opacity: 0;
+}
+.lusion-nav-links {
+  display: flex;
+  flex-direction: column;
+}
+.lusion-nav-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  color: #000000;
+  text-decoration: none;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 1.18rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.lusion-nav-link:last-child {
+  border-bottom: none;
+  padding-bottom: 4px;
+}
+.lusion-nav-link:hover {
+  opacity: 0.65;
+  transform: translateX(3px);
+}
+.lusion-nav-link .link-dot {
+  width: 6px;
+  height: 6px;
+  background: #000000;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.lusion-nav-link.active .link-dot {
+  opacity: 1;
+}
+
+/* Card 2: Newsletter */
+.lusion-card--newsletter {
+  background: #ffffff;
+  color: #000000;
+  padding: 22px 24px;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.3);
+  transform: translate3d(0, 55px, 0) rotate(-1.5deg);
+  opacity: 0;
+}
+.lusion-newsletter-title {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 1.45rem;
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 18px;
+  color: #000000;
+}
+.lusion-newsletter-box {
+  display: flex;
+  align-items: center;
+  background: #f0f1f5;
+  border-radius: 12px;
+  padding: 4px 6px 4px 14px;
+}
+.lusion-newsletter-input {
+  border: none;
+  background: transparent;
+  font-size: 0.92rem;
+  font-family: inherit;
+  color: #000000;
+  outline: none;
+  width: 100%;
+}
+.lusion-newsletter-input::placeholder {
+  color: #8c909c;
+}
+.lusion-newsletter-submit {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #000000;
+  border-radius: 8px;
+  transition: transform 0.2s ease;
+}
+.lusion-newsletter-submit:hover {
+  transform: translateX(2px);
+}
+
+/* Card 3: Labs / Brand */
+.lusion-card--labs {
+  background: #000000;
+  color: #ffffff;
+  padding: 16px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-decoration: none;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  transform: translate3d(0, 65px, 0) rotate(1.2deg);
+  opacity: 0;
+}
+.lusion-card--labs:hover .labs-arrow {
+  transform: translate(2px, -2px);
+}
+.labs-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.labs-icon {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+.labs-text {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.labs-arrow {
+  color: #ffffff;
+  transition: transform 0.25s ease;
+}
+
+/* Staggered Open Animations */
+.lusion-menu.open .lusion-card--nav,
+.lusion-menu.menu--open .lusion-card--nav {
+  transform: translateZ(0) rotate(0deg);
+  opacity: 1;
+  transition-delay: 0.05s;
+}
+.lusion-menu.open .lusion-card--newsletter,
+.lusion-menu.menu--open .lusion-card--newsletter {
+  transform: translateZ(0) rotate(0deg);
+  opacity: 1;
+  transition-delay: 0.12s;
+}
+.lusion-menu.open .lusion-card--labs,
+.lusion-menu.menu--open .lusion-card--labs {
+  transform: translateZ(0) rotate(0deg);
+  opacity: 1;
+  transition-delay: 0.19s;
+}
+
+/* ---------- Lusion Blue "Let's work together!" Section ---------- */
+#end-section {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  min-height: 700px;
+  background: #1A2FFB;
+  color: #ffffff;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  z-index: 20;
+}
+
+/* Crosshairs in Blue Section */
+.end-crosshairs {
+  position: absolute;
+  top: 14%;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  pointer-events: none;
+  z-index: 2;
+  padding: 0 4vw;
+  box-sizing: border-box;
+}
+.end-crosshair {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 19px;
+  font-weight: 300;
+}
+
+/* Text Center Content */
+.end-content {
+  position: relative;
+  z-index: 6;
+  text-align: center;
+  padding: 0 24px;
+  margin-top: -65px;
+  user-select: none;
+}
+.end-subtitle {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: clamp(0.72rem, 1.2vw, 0.95rem);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #ffffff;
+  margin-bottom: 22px;
+  opacity: 0.92;
+}
+.end-title {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: clamp(3.6rem, 9.8vw, 10.8rem);
+  font-weight: 500;
+  line-height: 0.94;
+  letter-spacing: -0.035em;
+  color: #ffffff;
+  margin: 0;
+}
+
+/* Floating Bottom Pill Button */
+.end-bottom-pill {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  height: 44px;
+  padding: 0 28px;
+  border-radius: 9999px;
+  background: #ffffff;
+  color: #000000;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.end-bottom-pill:hover {
+  transform: translateX(-50%) scale(1.04);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+}
+.end-bottom-pill .arrow-icon {
+  font-size: 0.85rem;
+  transition: transform 0.25s ease;
+}
+.end-bottom-pill:hover .arrow-icon {
+  transform: translateY(2px);
+}
+
+/* White Shapes Canvas */
+#end-shapes-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 4;
+  pointer-events: auto;
+  cursor: default;
+}
+
+/* ---------- Mobile Adaptations ---------- */
+@media (max-width: 768px) {
+  .lusion-header {
+    padding: 16px 20px;
+  }
+  .lusion-logo {
+    font-size: 1.15rem;
+  }
+  .lusion-capsule {
+    height: 34px;
+    padding: 0 14px;
+    font-size: 0.7rem;
+  }
+  .lusion-btn-sound {
+    width: 34px;
+    height: 34px;
+  }
+  .hero-scroll-explore {
+    bottom: 20px;
+    right: 20px;
+    font-size: 0.65rem;
+  }
+  .lusion-menu {
+    top: 66px;
+    right: 16px;
+    left: 16px;
+    width: auto;
+    max-width: 100%;
+  }
+  .end-bottom-pill {
+    bottom: 24px;
+    height: 40px;
+    padding: 0 20px;
+    font-size: 0.68rem;
+  }
+}
