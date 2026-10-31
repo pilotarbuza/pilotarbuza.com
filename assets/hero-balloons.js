@@ -1,11 +1,11 @@
 /* ============================================================
-   Lusion-style 3D Fluid Balloons Simulation (Three.js)
-   Features:
-   - Dynamic fluid particle physics with sphere collision
-   - Viscous drag & center spring attractor
-   - High-end monochrome studio lighting with specular highlights
-   - Interactive pointer repulsion field & swipe velocity
-   - Viewport visibility optimization via IntersectionObserver
+   pilotarbuza.com — 3D Fluid Balloons Simulation (Three.js)
+   Styled with Anemos Aircraft Brandbook Palette:
+   - Breeze Teal (#4FC7C4 / #0B7A85) luminous glass droplets
+   - Titanium Chrome (#E8F4F5) reflective aerospace spheres
+   - Deep Petrol (#14232A / #1F3A45) obsidian contrast spheres
+   - Garnet Flame (#FF6A4A / #E8492A) radiant accent droplets
+   - Mist Ice (#BFE6E4) frosted pearlescent beads
    ============================================================ */
 
 (() => {
@@ -33,83 +33,111 @@
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.15;
+    renderer.toneMappingExposure = 1.25;
 
-    // 2. Studio Lighting
-    const ambientLight = new THREE.AmbientLight(0x222228, 2.2);
+    // 2. Studio Lighting (Aeronautical High-Key)
+    const ambientLight = new THREE.AmbientLight(0x0C1517, 2.4);
     scene.add(ambientLight);
 
-    const keyLight = new THREE.DirectionalLight(0xffffff, 3.4);
-    keyLight.position.set(6, 10, 12);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 3.6);
+    keyLight.position.set(6, 11, 12);
     scene.add(keyLight);
 
-    const rimLight = new THREE.DirectionalLight(0xaaccff, 1.8);
+    // Cyan/Breeze Rim Light
+    const rimLight = new THREE.DirectionalLight(0x4FC7C4, 2.2);
     rimLight.position.set(-8, -4, 6);
     scene.add(rimLight);
 
-    const centerGlow = new THREE.PointLight(0xffffff, 2.0, 16);
-    centerGlow.position.set(0, 0, 3.5);
+    // Warm Garnet/Amber Accent Light from lower right
+    const warmLight = new THREE.DirectionalLight(0xE8492A, 1.2);
+    warmLight.position.set(9, -6, 4);
+    scene.add(warmLight);
+
+    // Center Glow
+    const centerGlow = new THREE.PointLight(0x4FC7C4, 2.4, 18);
+    centerGlow.position.set(0, 0, 4);
     scene.add(centerGlow);
 
-    // 3. Materials
-    const chromeMat = new THREE.MeshStandardMaterial({
-      color: 0xeeeeee,
+    // 3. Anemos Aircraft Materials
+    // A) Luminous Anemos Breeze Teal
+    const breezeMat = new THREE.MeshStandardMaterial({
+      color: 0x4FC7C4,
+      roughness: 0.08,
+      metalness: 0.35,
+      emissive: 0x0B7A85,
+      emissiveIntensity: 0.55
+    });
+
+    // B) Aerospace Titanium / Chrome
+    const titaniumMat = new THREE.MeshStandardMaterial({
+      color: 0xE8F4F5,
       roughness: 0.1,
-      metalness: 0.7,
-      envMapIntensity: 1.5
+      metalness: 0.88,
+      envMapIntensity: 1.6
     });
 
-    const glowMat = new THREE.MeshStandardMaterial({
-      color: 0xffffff,
-      roughness: 0.06,
-      metalness: 0.1,
-      emissive: 0x223344,
-      emissiveIntensity: 0.4
-    });
-
-    const darkMat = new THREE.MeshStandardMaterial({
-      color: 0x141416,
+    // C) Anemos Deep Petrol / Night Surface
+    const deepMat = new THREE.MeshStandardMaterial({
+      color: 0x14232A,
       roughness: 0.18,
-      metalness: 0.85
+      metalness: 0.82
     });
 
-    const pearlMat = new THREE.MeshStandardMaterial({
-      color: 0xffffff,
-      roughness: 0.22,
-      metalness: 0.05,
-      emissive: 0x444444,
-      emissiveIntensity: 0.5
+    // D) Anemos Garnet Flame Accent
+    const garnetMat = new THREE.MeshStandardMaterial({
+      color: 0xFF6A4A,
+      roughness: 0.12,
+      metalness: 0.35,
+      emissive: 0xE8492A,
+      emissiveIntensity: 0.65
+    });
+
+    // E) Mist / Pearlescent Ice
+    const mistMat = new THREE.MeshStandardMaterial({
+      color: 0xBFE6E4,
+      roughness: 0.2,
+      metalness: 0.15,
+      emissive: 0x1F3A45,
+      emissiveIntensity: 0.35
     });
 
     // 4. Create Bodies
-    const NUM_BALLOONS = width < 768 ? 75 : 120;
+    const NUM_BALLOONS = width < 768 ? 85 : 130;
     const spheres = [];
     const sphereGeom = new THREE.SphereGeometry(1, 28, 28);
 
     for (let i = 0; i < NUM_BALLOONS; i++) {
       const rand = Math.random();
       let r;
-      if (rand < 0.06) {
-        r = 1.1 + Math.random() * 0.9; // Large hero spheres
-      } else if (rand < 0.28) {
+      if (rand < 0.07) {
+        r = 1.15 + Math.random() * 0.95; // Large hero spheres
+      } else if (rand < 0.3) {
         r = 0.55 + Math.random() * 0.45; // Medium
       } else {
-        r = 0.16 + Math.random() * 0.32; // Droplets
+        r = 0.16 + Math.random() * 0.32; // Small droplets
       }
 
+      // Material assignment based on Anemos brand distribution
       let mat;
-      if (rand < 0.32) mat = glowMat;
-      else if (rand < 0.65) mat = chromeMat;
-      else if (rand < 0.88) mat = darkMat;
-      else mat = pearlMat;
+      if (rand < 0.36) {
+        mat = breezeMat; // Signature Teal
+      } else if (rand < 0.62) {
+        mat = titaniumMat; // Aerospace Chrome
+      } else if (rand < 0.78) {
+        mat = deepMat; // Deep Petrol
+      } else if (rand < 0.89) {
+        mat = garnetMat; // Flame Garnet
+      } else {
+        mat = mistMat; // Mist Ice
+      }
 
       const mesh = new THREE.Mesh(sphereGeom, mat);
       mesh.scale.setScalar(r);
 
-      // Elongated horizontal distribution across center
-      const spreadX = (Math.random() - 0.5) * (width < 768 ? 7 : 11.5);
-      const spreadY = (Math.random() - 0.5) * (width < 768 ? 6 : 4.5);
-      const spreadZ = (Math.random() - 0.5) * 3.5;
+      // Horizontal cluster spread across center
+      const spreadX = (Math.random() - 0.5) * (width < 768 ? 7.5 : 12.5);
+      const spreadY = (Math.random() - 0.5) * (width < 768 ? 6 : 4.8);
+      const spreadZ = (Math.random() - 0.5) * 3.8;
 
       mesh.position.set(spreadX, spreadY, spreadZ);
       scene.add(mesh);
@@ -117,7 +145,7 @@
       spheres.push({
         mesh,
         radius: r,
-        mass: Math.max(0.1, r * r * r * 2.5),
+        mass: Math.max(0.1, r * r * r * 2.4),
         pos: mesh.position,
         vel: new THREE.Vector3(
           (Math.random() - 0.5) * 0.6,
@@ -188,13 +216,13 @@
 
       // Camera parallax
       if (mouse3D.x < 1000) {
-        camera.position.x += (mouse.x * 0.8 - camera.position.x) * 0.05;
-        camera.position.y += (mouse.y * 0.5 - camera.position.y) * 0.05;
+        camera.position.x += (mouse.x * 0.7 - camera.position.x) * 0.05;
+        camera.position.y += (mouse.y * 0.45 - camera.position.y) * 0.05;
         camera.lookAt(0, 0, 0);
       }
 
-      const MOUSE_RADIUS = width < 768 ? 2.8 : 3.8;
-      const MOUSE_FORCE = 55.0;
+      const MOUSE_RADIUS = width < 768 ? 3.0 : 4.0;
+      const MOUSE_FORCE = 60.0;
       const CENTER_GRAVITY = 1.35;
       const DAMPING = 0.945;
 
@@ -203,12 +231,12 @@
 
         // A) Pull toward center
         s.vel.x -= s.pos.x * CENTER_GRAVITY * dt;
-        s.vel.y -= s.pos.y * CENTER_GRAVITY * 1.25 * dt; // slightly stronger Y pulls into horizontal strip
-        s.vel.z -= s.pos.z * CENTER_GRAVITY * 2.2 * dt;  // keep flat in Z
+        s.vel.y -= s.pos.y * CENTER_GRAVITY * 1.25 * dt;
+        s.vel.z -= s.pos.z * CENTER_GRAVITY * 2.2 * dt;
 
         // B) Organic breathing motion
-        s.vel.x += Math.sin(time * 0.7 + s.seed) * 0.08 * dt;
-        s.vel.y += Math.cos(time * 0.6 + s.seed * 1.4) * 0.08 * dt;
+        s.vel.x += Math.sin(time * 0.75 + s.seed) * 0.09 * dt;
+        s.vel.y += Math.cos(time * 0.65 + s.seed * 1.4) * 0.09 * dt;
         s.vel.z += Math.sin(time * 0.5 + s.seed * 0.8) * 0.05 * dt;
 
         // C) Mouse repulsion & drag impulse
@@ -219,9 +247,8 @@
           const pushMag = factor * MOUSE_FORCE;
           s.vel.addScaledVector(tempPush, (pushMag / s.mass) * dt);
 
-          // Add mouse sweep fling
           if (mouseVel3D.lengthSq() > 0.001) {
-            s.vel.addScaledVector(mouseVel3D, 2.5 * factor);
+            s.vel.addScaledVector(mouseVel3D, 2.6 * factor);
           }
         }
 
@@ -237,16 +264,14 @@
             tempNormal.copy(tempDelta).divideScalar(dist);
             const overlap = (minDist - dist) * 0.5;
 
-            // Separate
-            s.pos.addScaledVector(tempNormal, overlap * 0.75);
-            other.pos.addScaledVector(tempNormal, -overlap * 0.75);
+            s.pos.addScaledVector(tempNormal, overlap * 0.78);
+            other.pos.addScaledVector(tempNormal, -overlap * 0.78);
 
-            // Elastic bounce
             tempRelVel.subVectors(s.vel, other.vel);
             const velNormal = tempRelVel.dot(tempNormal);
 
             if (velNormal < 0) {
-              const impulse = -1.15 * velNormal / (1 / s.mass + 1 / other.mass);
+              const impulse = -1.18 * velNormal / (1 / s.mass + 1 / other.mass);
               s.vel.addScaledVector(tempNormal, impulse / s.mass);
               other.vel.addScaledVector(tempNormal, -impulse / other.mass);
             }
@@ -258,7 +283,6 @@
         s.vel.multiplyScalar(DAMPING);
       }
 
-      // Decay mouse velocity
       mouseVel3D.multiplyScalar(0.7);
 
       renderer.render(scene, camera);
@@ -266,7 +290,6 @@
 
     animate();
 
-    // Resize handler
     window.addEventListener('resize', () => {
       width = container.clientWidth || window.innerWidth;
       height = container.clientHeight || window.innerHeight;

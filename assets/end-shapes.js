@@ -1,10 +1,9 @@
 /* ============================================================
-   Lusion-style "Let's work together" Interactive Granular Particle Sea
-   Features:
-   - Geometric shapes: Triangles, Crosses, Circles, Squares
-   - Dynamic fluid physics with gravity & particle bed restoration
-   - Pointer splash & fling forces with rotational tumble
-   - Visibility culling via IntersectionObserver (0% idle CPU)
+   pilotarbuza.com — Interactive Granular Particle Sea
+   Styled with Anemos Aircraft Brandbook Palette:
+   - Deep Teal Sea Background (#0B7A85 to #1F3A45)
+   - Milk Silk (#FFF8F0), Ice Mist (#BFE6E4) and Garnet (#FF6A4A) shapes
+   - Delta Aircraft Wings, Navigation Crosses, Instrument Circles & Squares
    ============================================================ */
 
 (() => {
@@ -31,13 +30,21 @@
     }
     resize();
 
-    // Shape Types: 0 = Cross (+), 1 = Square (■), 2 = Circle (●), 3 = Triangle (▲)
-    const SHAPE_COUNT = width < 768 ? 950 : 1900;
+    // Shape Types: 0 = Cross (+), 1 = Square (■), 2 = Circle (●), 3 = Delta Wing (▲)
+    const SHAPE_COUNT = width < 768 ? 900 : 1800;
     const particles = [];
+
+    const COLORS = [
+      '#FFF8F0', // 70% Milk silk
+      '#FFF8F0',
+      '#FFF8F0',
+      '#BFE6E4', // 20% Mist / Ice
+      '#BFE6E4',
+      '#FF6A4A'  // 10% Garnet flame
+    ];
 
     for (let i = 0; i < SHAPE_COUNT; i++) {
       const x = Math.random() * width;
-      // Exponential distribution bias towards bottom
       const depth = Math.pow(Math.random(), 0.72);
       const baseY = height * 0.44 + depth * (height * 0.56);
 
@@ -50,6 +57,7 @@
         rot: Math.random() * Math.PI * 2,
         vRot: (Math.random() - 0.5) * 0.05,
         type: Math.floor(Math.random() * 4),
+        color: COLORS[Math.floor(Math.random() * COLORS.length)],
         size: width < 768 ? (4.5 + Math.random() * 4.5) : (5.5 + Math.random() * 6),
         waveOffset: Math.random() * Math.PI * 2,
         waveSpeed: 0.7 + Math.random() * 1.1,
@@ -107,11 +115,12 @@
         ctx.arc(0, 0, half, 0, Math.PI * 2);
         ctx.fill();
       } else {
-        // Triangle (▲)
+        // Delta Aircraft Chevron (▲)
         ctx.beginPath();
-        ctx.moveTo(0, -half * 1.15);
-        ctx.lineTo(half, half * 0.9);
-        ctx.lineTo(-half, half * 0.9);
+        ctx.moveTo(0, -half * 1.25);
+        ctx.lineTo(half * 0.95, half * 0.9);
+        ctx.lineTo(0, half * 0.4);
+        ctx.lineTo(-half * 0.95, half * 0.9);
         ctx.closePath();
         ctx.fill();
       }
@@ -131,9 +140,8 @@
 
       time += 0.016;
       ctx.clearRect(0, 0, width, height);
-      ctx.fillStyle = '#ffffff';
 
-      const MOUSE_RADIUS = width < 768 ? 95 : 135;
+      const MOUSE_RADIUS = width < 768 ? 95 : 140;
       const MOUSE_RADIUS_SQ = MOUSE_RADIUS * MOUSE_RADIUS;
 
       for (let i = 0; i < particles.length; i++) {
@@ -166,7 +174,7 @@
         } else {
           const depth = p.y - targetY;
           p.vy -= depth * 0.085;
-          p.vy *= 0.8; // Damp bottom bounce
+          p.vy *= 0.8;
         }
 
         // Velocity decay
@@ -178,14 +186,15 @@
         p.y += p.vy;
         p.rot += p.vRot;
 
-        // Horizontal screen wrapping
+        // Screen wrapping
         if (p.x < -15) p.x = width + 15;
         if (p.x > width + 15) p.x = -15;
 
-        // 4. Render shape
+        // 4. Render
         ctx.save();
         ctx.translate(p.x, p.y);
         ctx.rotate(p.rot);
+        ctx.fillStyle = p.color;
         ctx.globalAlpha = p.opacity;
         drawShape(p.type, p.size);
         ctx.restore();
