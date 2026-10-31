@@ -165,7 +165,7 @@
           bottom: env(safe-area-inset-bottom, 0px);
           left: env(safe-area-inset-left, 0px);
           font-family: 'Minecraft', monospace;
-          font-size: clamp(6.5rem, 13vw, 16rem);
+          font-size: clamp(3.25rem, 6.5vw, 8rem);
           height: 1.0em;
           line-height: 1.0em;
           color: #ffffff;
