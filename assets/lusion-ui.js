@@ -10,9 +10,9 @@
   'use strict';
 
   function initLusionUI() {
-    const menuBtn = document.getElementById('lusion-menu-btn');
-    const menu = document.getElementById('lusion-menu');
-    const backdrop = document.getElementById('lusion-backdrop');
+    const menuBtn = document.getElementById('burger') || document.getElementById('lusion-menu-btn') || document.querySelector('.lusion-menu-btn');
+    const menu = document.getElementById('menu') || document.getElementById('lusion-menu') || document.querySelector('.lusion-menu');
+    const backdrop = document.getElementById('menu-backdrop') || document.getElementById('lusion-backdrop') || document.querySelector('.lusion-backdrop');
     const menuBtnText = document.getElementById('lusion-menu-btn-text');
     const soundBtn = document.getElementById('lusion-sound-btn');
 

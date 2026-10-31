@@ -1,15 +1,15 @@
 /* ============================================================
-   pilotarbuza.com — Lusion Architecture with Anemos Aircraft Brandbook
-   Palette:
-   - Night Ground: #0C1517
-   - Night Surface: #14232A
-   - Deep Petrol: #1F3A45
-   - Breeze Teal: #0B7A85 (Day) / #4FC7C4 (Night)
-   - Mist Ice: #BFE6E4
-   - Garnet Flame: #E8492A / #FF6A4A
-   - Milk Ground: #FFF8F0
+   pilotarbuza.com — Authentic Lusion Architecture & Layout
+   Styled in Anemos Aircraft Brandbook Palette:
+     - Night Ground:        #0C1517
+     - Night Surface:       #14232A
+     - Deep Petrol:         #1F3A45
+     - Breeze Teal:         #0B7A85 (Day) / #4FC7C4 (Night Luminous)
+     - Mist Ice:            #BFE6E4
+     - Garnet Flame Accent: #E8492A / #FF6A4A
+     - Milk Ground:         #FFF8F0
    Fonts:
-   - Unbounded, Manrope, JetBrains Mono, Doto
+     - Unbounded, Manrope, JetBrains Mono, Doto
    ============================================================ */
 
 :root {
@@ -22,71 +22,81 @@
   --anemos-garnet: #E8492A;
   --anemos-garnet-light: #FF6A4A;
   --anemos-ground: #FFF8F0;
+  
   --anemos-font-display: "Unbounded", "Manrope", system-ui, sans-serif;
   --anemos-font-text: "Manrope", system-ui, sans-serif;
   --anemos-font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* Lusion Base Spacings */
+  --base-padding-x: max(5vw, 40px);
+  --base-padding-y: clamp(26px, 3.5vw, 46px);
 }
 
-/* ---------- Hero Section (Anemos Night) ---------- */
+/* ============================================================
+   01 · HERO SECTION
+   ============================================================ */
 #hero {
   position: relative;
   width: 100%;
   height: 100vh;
-  min-height: 640px;
+  min-height: 600px;
   background: var(--anemos-night);
   overflow: hidden;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
   padding: 0;
   margin: 0;
+  box-sizing: border-box;
 }
 
-/* Giant Background Typography: PILOTARBUZA */
+/* Giant Background Typography: PILOTARBUZA (Anchored to bottom like Lusion) */
 .hero-bg-letters {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  bottom: -2vh;
+  left: 0;
+  width: 100%;
   font-family: var(--anemos-font-display);
-  font-size: clamp(3.5rem, 13vw, 15rem);
-  font-weight: 800;
-  letter-spacing: -0.04em;
+  font-size: clamp(6rem, 23.5vw, 28rem);
+  font-weight: 900;
+  letter-spacing: -0.05em;
   color: var(--anemos-ground);
-  opacity: 0.22;
+  opacity: 0.96;
   white-space: nowrap;
   user-select: none;
   pointer-events: none;
   z-index: 1;
-  line-height: 0.9;
+  line-height: 0.82;
   text-transform: uppercase;
+  text-align: center;
 }
 
-/* Horizontal Crosshairs */
+/* Horizontal Crosshairs (+ + + + +) */
 .hero-crosshairs {
   position: absolute;
-  top: 50%;
+  top: 55%;
   left: 0;
   width: 100%;
   transform: translateY(-50%);
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   pointer-events: none;
   z-index: 2;
-  padding: 0 4vw;
+  padding: 0 var(--base-padding-x);
   box-sizing: border-box;
 }
 .hero-crosshair {
   color: var(--anemos-breeze-light);
-  opacity: 0.45;
+  opacity: 0.38;
   font-size: 19px;
   font-weight: 300;
   line-height: 1;
-  user-select: none;
   font-family: var(--anemos-font-mono);
+  user-select: none;
+  transition: transform 0.4s ease;
 }
 
-/* 3D WebGL Canvas */
+/* 3D WebGL Fluid Canvas */
 #hero-balloons-canvas {
   position: absolute;
   inset: 0;
@@ -103,27 +113,29 @@
 /* Bottom Right Scroll Hint */
 .hero-scroll-explore {
   position: absolute;
-  bottom: 28px;
-  right: 36px;
-  font-family: var(--anemos-font-mono);
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
+  bottom: var(--base-padding-y);
+  right: var(--base-padding-x);
+  font-family: var(--anemos-font-display);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--anemos-breeze-light);
+  color: var(--anemos-ground);
   z-index: 5;
   pointer-events: none;
   user-select: none;
   opacity: 0.85;
 }
 
-/* ---------- Top Bar Header ---------- */
+/* ============================================================
+   02 · HEADER & ACTIONS (Pixel-Perfect Lusion Layout)
+   ============================================================ */
 .lusion-header {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  padding: 22px 36px;
+  padding: var(--base-padding-y) var(--base-padding-x);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -138,16 +150,18 @@
   pointer-events: auto;
 }
 
+/* Brand on Left */
 .lusion-brand {
   display: flex;
   align-items: center;
   gap: 12px;
   text-decoration: none;
   user-select: none;
+  cursor: pointer;
 }
 .lusion-brand-logo {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   flex-shrink: 0;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
@@ -158,24 +172,27 @@
 }
 .lusion-brand-name {
   font-family: var(--anemos-font-display);
-  font-size: 1.15rem;
-  font-weight: 700;
+  font-size: 1.25rem;
+  font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--anemos-ground);
+  text-transform: lowercase;
 }
 
+/* Actions on Right */
 .lusion-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
-/* Sound Button */
+/* Sound Button (Circle with minus / waveform) */
 .lusion-btn-sound {
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: var(--anemos-ground);
+  color: var(--anemos-night);
   border: none;
   display: flex;
   align-items: center;
@@ -185,7 +202,7 @@
   outline: none;
   transition: transform 0.25s ease, background-color 0.25s ease;
   flex-shrink: 0;
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.25);
 }
 .lusion-btn-sound:hover {
   transform: scale(1.06);
@@ -202,63 +219,62 @@
   animation: soundPulse 0.75s ease-in-out infinite alternate;
 }
 @keyframes soundPulse {
-  0% { transform: scaleY(0.7); width: 10px; }
+  0%   { transform: scaleY(0.7); width: 10px; }
   100% { transform: scaleY(2.2); width: 15px; }
 }
 
 /* Capsule Buttons */
 .lusion-capsule {
-  height: 38px;
-  padding: 0 18px;
+  height: 44px;
+  padding: 0 22px;
   border-radius: 9999px;
-  background: rgba(20, 35, 42, 0.65);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(79, 199, 196, 0.25);
+  background: var(--anemos-deep);
   color: var(--anemos-ground);
   font-family: var(--anemos-font-display);
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   cursor: pointer;
   text-decoration: none;
   outline: none;
   white-space: nowrap;
-  transition: background-color 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
+  border: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  transition: background-color 0.25s ease, transform 0.25s ease, color 0.25s ease;
 }
 .lusion-capsule:hover {
-  background: rgba(31, 58, 69, 0.85);
-  border-color: var(--anemos-breeze-light);
+  background: var(--anemos-surface);
   transform: scale(1.03);
 }
 
-/* Anemos Garnet Dot on LET'S TALK */
+/* Dot on LET'S TALK */
 .lusion-dot-garnet {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background-color: var(--anemos-garnet);
-  box-shadow: 0 0 8px rgba(232, 73, 42, 0.6);
+  background-color: var(--anemos-garnet-light);
+  box-shadow: 0 0 8px rgba(255, 106, 74, 0.8);
   flex-shrink: 0;
 }
 
+/* White Pill for MENU Button */
 .lusion-capsule--white {
   background: var(--anemos-ground);
   color: var(--anemos-night);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
 }
 .lusion-capsule--white:hover {
   background: #f4eee5;
 }
 
+/* Two Dots (••) inside Menu Button */
 .lusion-menu-dots {
   display: inline-flex;
-  gap: 3px;
+  gap: 4px;
   align-items: center;
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.1, 1);
 }
@@ -272,7 +288,9 @@
   transform: rotate(90deg);
 }
 
-/* ---------- Lusion Menu System (Integrated for pilotarbuza) ---------- */
+/* ============================================================
+   03 · MENU DRAWER (2-Card Stack)
+   ============================================================ */
 .lusion-backdrop {
   position: fixed;
   inset: 0;
@@ -291,9 +309,9 @@
 
 .lusion-menu {
   position: fixed;
-  top: 76px;
-  right: 36px;
-  width: 320px;
+  top: calc(var(--base-padding-y) + 48px + 12px);
+  right: var(--base-padding-x);
+  width: 340px;
   max-width: calc(100vw - 32px);
   z-index: 95;
   display: flex;
@@ -312,7 +330,7 @@
 }
 
 .lusion-card {
-  border-radius: 20px;
+  border-radius: 16px;
   will-change: transform, opacity;
   transition: transform 0.46s cubic-bezier(0.4, 0, 0.1, 1), opacity 0.46s cubic-bezier(0.4, 0, 0.1, 1);
   box-sizing: border-box;
@@ -322,12 +340,18 @@
 .lusion-card--nav {
   background: var(--anemos-ground);
   color: var(--anemos-deep);
-  padding: 20px 24px 16px;
+  padding: 22px 26px 18px;
   box-shadow: 0 20px 48px rgba(0, 0, 0, 0.4);
-  transform: translate3d(0, 45px, 0) rotate(2deg);
+  transform: translate3d(0, 50px, 0) rotate(3.5deg);
   opacity: 0;
   border: 1px solid rgba(0, 0, 0, 0.05);
 }
+.lusion-menu.open .lusion-card--nav,
+.lusion-menu.menu--open .lusion-card--nav {
+  transform: translate3d(0, 0, 0) rotate(0deg);
+  opacity: 1;
+}
+
 .lusion-nav-links {
   display: flex;
   flex-direction: column;
@@ -349,46 +373,47 @@
 }
 .lusion-nav-link:last-child {
   border-bottom: none;
-  padding-bottom: 2px;
 }
 .lusion-nav-link:hover {
   color: var(--anemos-breeze);
   transform: translateX(4px);
 }
 .lusion-nav-link .link-dot {
-  width: 6px;
-  height: 6px;
-  background: var(--anemos-breeze);
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  opacity: 0;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  background-color: transparent;
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 .lusion-nav-link.active .link-dot {
-  opacity: 1;
+  background-color: var(--anemos-garnet);
+  transform: scale(1.2);
 }
 
-/* Card 2: GitHub Card (Replacing newsletter with user's github link) */
+/* Card 2: GitHub (Replacing newsletter) */
 .lusion-card--github {
-  background: var(--anemos-surface);
+  background: var(--anemos-night);
   color: var(--anemos-ground);
-  padding: 18px 22px;
+  padding: 18px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   text-decoration: none;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
   border: 1px solid rgba(79, 199, 196, 0.2);
-  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.5);
-  transform: translate3d(0, 60px, 0) rotate(-1.2deg);
+  transform: translate3d(0, 70px, 0) rotate(-3.5deg);
   opacity: 0;
-  transition: transform 0.46s cubic-bezier(0.4, 0, 0.1, 1), opacity 0.46s cubic-bezier(0.4, 0, 0.1, 1), border-color 0.25s ease, background 0.25s ease;
+  transition-delay: 0.08s;
+  cursor: pointer;
+}
+.lusion-menu.open .lusion-card--github,
+.lusion-menu.menu--open .lusion-card--github {
+  transform: translate3d(0, 0, 0) rotate(0deg);
+  opacity: 1;
 }
 .lusion-card--github:hover {
+  background: var(--anemos-surface);
   border-color: var(--anemos-breeze-light);
-  background: var(--anemos-deep);
-}
-.lusion-card--github:hover .github-arrow {
-  transform: translate(3px, -3px);
-  color: var(--anemos-breeze-light);
 }
 .github-left {
   display: flex;
@@ -396,119 +421,109 @@
   gap: 12px;
 }
 .github-icon-svg {
-  width: 22px;
-  height: 22px;
-  fill: currentColor;
+  width: 24px;
+  height: 24px;
+  fill: var(--anemos-ground);
 }
 .github-text {
   font-family: var(--anemos-font-display);
-  font-size: 1.05rem;
+  font-size: 0.95rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  letter-spacing: 0.08em;
   color: var(--anemos-ground);
 }
 .github-arrow {
+  color: var(--anemos-breeze-light);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.1, 1);
+}
+.lusion-card--github:hover .github-arrow {
+  transform: translate(3px, -3px);
   color: var(--anemos-ground);
-  transition: transform 0.25s ease, color 0.25s ease;
 }
 
-/* Staggered Open Animations */
-.lusion-menu.open .lusion-card--nav,
-.lusion-menu.menu--open .lusion-card--nav {
-  transform: translateZ(0) rotate(0deg);
-  opacity: 1;
-  transition-delay: 0.05s;
-}
-.lusion-menu.open .lusion-card--github,
-.lusion-menu.menu--open .lusion-card--github {
-  transform: translateZ(0) rotate(0deg);
-  opacity: 1;
-  transition-delay: 0.14s;
-}
-
-/* ---------- Anemos Blue/Teal "Let's work together!" Section ---------- */
+/* ============================================================
+   04 · ANEMOS BLUE END SECTION ("Let's work together!")
+   ============================================================ */
 #end-section {
   position: relative;
   width: 100%;
   height: 100vh;
-  min-height: 700px;
+  min-height: 600px;
   background: linear-gradient(180deg, var(--anemos-breeze) 0%, var(--anemos-deep) 100%);
-  color: var(--anemos-ground);
   overflow: hidden;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 0;
   margin: 0;
-  z-index: 20;
+  box-sizing: border-box;
 }
 
-/* Crosshairs in Blue Section */
+/* Crosshairs */
 .end-crosshairs {
   position: absolute;
-  top: 14%;
+  top: 36%;
   left: 0;
   width: 100%;
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
+  padding: 0 var(--base-padding-x);
   pointer-events: none;
   z-index: 2;
-  padding: 0 4vw;
   box-sizing: border-box;
 }
 .end-crosshair {
-  color: var(--anemos-mist);
-  opacity: 0.55;
-  font-size: 19px;
+  color: var(--anemos-ground);
+  opacity: 0.35;
+  font-size: 20px;
   font-weight: 300;
   font-family: var(--anemos-font-mono);
 }
 
-/* Text Center Content */
+/* Center Content */
 .end-content {
   position: relative;
-  z-index: 6;
+  z-index: 5;
   text-align: center;
-  padding: 0 24px;
-  margin-top: -65px;
-  user-select: none;
+  pointer-events: none;
+  padding: 0 20px;
 }
 .end-subtitle {
   font-family: var(--anemos-font-mono);
-  font-size: clamp(0.72rem, 1.2vw, 0.95rem);
-  font-weight: 700;
-  letter-spacing: 0.2em;
+  font-size: clamp(0.75rem, 1.4vw, 1.15rem);
+  font-weight: 600;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--anemos-mist);
-  margin-bottom: 22px;
-  opacity: 0.95;
+  color: var(--anemos-ground);
+  opacity: 0.85;
+  margin-bottom: 24px;
 }
 .end-title {
   font-family: var(--anemos-font-display);
-  font-size: clamp(3.4rem, 9.2vw, 9.5rem);
-  font-weight: 600;
-  line-height: 0.94;
-  letter-spacing: -0.035em;
+  font-size: clamp(3.8rem, 10.5vw, 9.5rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
   color: var(--anemos-ground);
+  line-height: 0.95;
   margin: 0;
+  text-transform: none;
+  text-shadow: 0 4px 28px rgba(12, 21, 23, 0.25);
 }
 
-/* Floating Bottom Pill Button */
+/* Floating Bottom Pill */
 .end-bottom-pill {
   position: absolute;
-  bottom: 40px;
+  bottom: var(--base-padding-y);
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
   height: 46px;
-  padding: 0 30px;
+  padding: 0 32px;
   border-radius: 9999px;
   background: var(--anemos-ground);
   color: var(--anemos-deep);
   font-family: var(--anemos-font-display);
-  font-size: 0.72rem;
+  font-size: 0.74rem;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -546,46 +561,90 @@
   cursor: default;
 }
 
-/* ---------- Mobile Adaptations ---------- */
-@media (max-width: 768px) {
+/* ============================================================
+   05 · MOBILE RESPONSIVENESS (Exact Match to Image 1)
+   ============================================================ */
+@media (max-width: 812px) {
+  :root {
+    --base-padding-x: 25px;
+    --base-padding-y: 25px;
+  }
+
   .lusion-header {
-    padding: 16px 20px;
+    padding: var(--base-padding-y) var(--base-padding-x);
   }
+
   .lusion-brand-logo {
-    width: 32px;
-    height: 32px;
-  }
-  .lusion-brand-name {
-    font-size: 1.05rem;
-  }
-  .lusion-capsule {
-    height: 34px;
-    padding: 0 14px;
-    font-size: 0.68rem;
-  }
-  .lusion-btn-sound {
     width: 34px;
     height: 34px;
   }
-  .hero-scroll-explore {
-    bottom: 20px;
-    right: 20px;
-    font-size: 0.65rem;
+  .lusion-brand-name {
+    font-size: 1.15rem;
   }
+
+  /* HIDE sound button on mobile (matches Image 1) */
+  .lusion-btn-sound {
+    display: none !important;
+  }
+
+  /* HIDE let's talk button on mobile (matches Image 1) */
+  .lusion-capsule:not(.lusion-menu-btn) {
+    display: none !important;
+  }
+
+  /* TRANSFORM menu button into a sleek white circle with two dots (matches Image 1) */
+  .lusion-menu-btn {
+    width: 44px !important;
+    height: 44px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  #lusion-menu-btn-text {
+    display: none !important;
+  }
+  .lusion-menu-dots {
+    gap: 4px !important;
+  }
+  .lusion-menu-dot {
+    width: 4.5px !important;
+    height: 4.5px !important;
+  }
+
+  /* Giant Background Typography on Mobile */
+  .hero-bg-letters {
+    font-size: clamp(4.2rem, 18vw, 9rem);
+    bottom: 0;
+  }
+
+  /* Scroll Explore on Mobile */
+  .hero-scroll-explore {
+    display: none;
+  }
+
+  /* Menu Drawer on Mobile */
   .lusion-menu {
-    top: 66px;
-    right: 16px;
-    left: 16px;
+    top: calc(var(--base-padding-y) + 48px + 8px);
+    right: var(--base-padding-x);
+    left: var(--base-padding-x);
     width: auto;
     max-width: 100%;
   }
+
+  /* End Section on Mobile */
   .end-bottom-pill {
     bottom: 24px;
-    height: 40px;
-    padding: 0 20px;
+    height: 42px;
+    padding: 0 22px;
     font-size: 0.68rem;
   }
-  .hero-bg-letters {
-    font-size: clamp(2.5rem, 11.5vw, 6rem);
+}
+
+@media (max-width: 400px) {
+  :root {
+    --base-padding-x: 16px;
+    --base-padding-y: 18px;
   }
 }
