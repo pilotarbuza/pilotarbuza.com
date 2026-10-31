@@ -747,3 +747,15 @@ button {
     right: 8px;
   }
 }
+
+/* Lusion Loading Screen Overlay */
+#transition-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999999;
+  pointer-events: none;
+  background-color: #000000;
+  display: block;
+}

@@ -787,3 +787,15 @@ a.sp-card__stage { display: block; }
 .pp-mini span { font-size: 15px; font-weight: 600; line-height: 1.2; padding: 0 4px 4px; }
 @media (max-width: 900px) { .pp { padding-top: 88px; } .pp__grid { grid-template-columns: 1fr; } .pp__row { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .pills a { white-space: nowrap; }
+
+/* Lusion Loading Screen Overlay */
+#transition-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999999;
+  pointer-events: none;
+  background-color: #000000;
+  display: block;
+}

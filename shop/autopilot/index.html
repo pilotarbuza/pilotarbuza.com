@@ -19,8 +19,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Doto:wght@500;700;900&family=Geologica:wght@300;400;500;600;700&family=Gloria+Hallelujah&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/style.css">
+  <style>#transition-overlay{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999999;pointer-events:none;background:#000;display:block}</style>
 </head>
 <body data-print="autopilot">
+  <canvas id="transition-overlay"></canvas>
+  <script src="/assets/loader.js"></script>
   <div class="grain" aria-hidden="true"></div>
 
   <header class="top top--light" id="top">
