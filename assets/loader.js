@@ -61,10 +61,14 @@
       this.exitRatio = 0;
       this.lastTime = performance.now();
       this.pixelWidth = 10;
-      this.waitTimer = 0.25;
+      this.waitTimer = 0.22;
 
-      this.pageLoaded = (document.readyState === 'complete');
+      // Unblock on DOM ready, do not stall on external third-party requests
+      this.pageLoaded = (document.readyState === 'interactive' || document.readyState === 'complete');
       if (!this.pageLoaded) {
+        document.addEventListener('DOMContentLoaded', () => {
+          this.pageLoaded = true;
+        }, { once: true });
         window.addEventListener('load', () => {
           this.pageLoaded = true;
         }, { once: true });
@@ -84,12 +88,12 @@
         }
       });
 
-      // Safety fallback: auto-finish after 3.2s
+      // Safety fallback: auto-finish after 2.8s
       setTimeout(() => {
         if (this.active && this.state !== 'exit') {
           this.finish();
         }
-      }, 3200);
+      }, 2800);
 
       this.setupLinkTransitions();
     }
@@ -124,7 +128,7 @@
 
     update(dt) {
       if (this.state === 'show') {
-        this.showRatio += dt * 1.55; // ~0.65s wave in
+        this.showRatio += dt * 1.6; // ~0.62s wave in
         if (this.showRatio >= 1) {
           this.showRatio = 1;
           this.state = 'wait';
@@ -135,13 +139,13 @@
           this.state = 'hide';
         }
       } else if (this.state === 'hide') {
-        this.hideRatio += dt * 1.8; // ~0.55s wave out
+        this.hideRatio += dt * 1.85; // ~0.54s wave out
         if (this.hideRatio >= 1) {
           this.hideRatio = 1;
           this.state = 'curtain';
         }
       } else if (this.state === 'curtain') {
-        this.curtainRatio += dt * 2.2; // ~0.45s smooth curtain fade
+        this.curtainRatio += dt * 2.4; // ~0.42s smooth curtain fade
         if (this.curtainRatio >= 1) {
           this.curtainRatio = 1;
           this.state = 'done';

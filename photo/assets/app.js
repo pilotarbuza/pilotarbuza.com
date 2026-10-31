@@ -154,7 +154,7 @@
     const galleryEl = $('#gallery-masonry');
     galleryEl.innerHTML = project.images.map((img, idx) => `
       <div class="photo-item" data-index="${idx}" tabindex="0" role="button" aria-label="View photo ${idx + 1}">
-        <img src="${img.preview}" data-highres="${img.url}" alt="${project.title} - ${idx + 1}" loading="lazy" decoding="async">
+        <img src="${img.url}" alt="${project.title} - ${idx + 1}" loading="lazy" decoding="async" onload="this.classList.add('loaded')">
       </div>
     `).join('');
 

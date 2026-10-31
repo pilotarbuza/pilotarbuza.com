@@ -536,12 +536,19 @@ button {
   border-color: var(--border-teal);
 }
 
+.photo-item {
+  min-height: 200px;
+}
 .photo-item img {
   width: 100%;
   height: auto;
   display: block;
-  background: #1a1a1a;
-  transition: filter 0.3s;
+  background: #181818;
+  opacity: 0;
+  transition: opacity 0.35s ease, filter 0.3s;
+}
+.photo-item img.loaded {
+  opacity: 1;
 }
 
 .photo-item:hover img {
