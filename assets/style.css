@@ -55,6 +55,9 @@ section { position: relative; }
 .top--light { color: var(--ink); background: linear-gradient(rgba(230,235,238,.9), rgba(230,235,238,.6)); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
 .brand { display: inline-flex; align-items: center; gap: 10px; }
 .brand .hand { font-size: 24px; line-height: 1; }
+.brand__logo { width: 36px; height: 36px; flex-shrink: 0; border-radius: 50%; box-shadow: 0 0 0 1px rgba(243,238,230,.2); transition: box-shadow .3s, transform .2s var(--ease); }
+.top--light .brand__logo { box-shadow: 0 0 0 1px rgba(19,34,58,.15); }
+.brand:hover .brand__logo { transform: scale(1.05); }
 .brand__wing { fill: var(--cream); transition: fill .3s; } .top--light .brand__wing { fill: var(--ink); }
 .pills { display: flex; gap: 2px; justify-self: center; padding: 4px; border-radius: 999px; border: 1px solid rgba(243,238,230,.18); background: rgba(243,238,230,.06); transition: border-color .3s, background .3s; }
 .top--light .pills { border-color: var(--line); background: rgba(243,245,246,.75); }
