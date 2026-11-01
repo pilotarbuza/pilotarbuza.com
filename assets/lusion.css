@@ -90,11 +90,11 @@ main, section, header, footer {
   bottom: 0;
   left: 0;
   width: 100%;
-  font-family: var(--anemos-font-text);
+  font-family: var(--anemos-font-display);
   font-size: clamp(3.2rem, 11.2vw, 15rem);
   font-weight: 900;
   letter-spacing: -0.04em;
-  color: var(--anemos-ground);
+  color: #FFF8F0;
   opacity: 0.98;
   white-space: nowrap;
   user-select: none;
