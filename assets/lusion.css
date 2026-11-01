@@ -90,8 +90,8 @@ main, section, header, footer {
   bottom: 0;
   left: 0;
   width: 100%;
-  font-family: var(--anemos-font-display);
-  font-size: clamp(3.2rem, 11.2vw, 15rem);
+  font-family: "Aeonik", "Inter", "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: clamp(3.8rem, 13.2vw, 17.5rem);
   font-weight: 900;
   letter-spacing: -0.04em;
   color: #FFF8F0;
@@ -99,8 +99,8 @@ main, section, header, footer {
   white-space: nowrap;
   user-select: none;
   pointer-events: none;
-  z-index: 1;
-  line-height: 0.86;
+  z-index: 2;
+  line-height: 0.84;
   text-transform: uppercase;
   text-align: center;
 }
@@ -365,7 +365,7 @@ main, section, header, footer {
 }
 
 .lusion-card {
-  border-radius: 16px;
+  border-radius: 26px;
   will-change: transform, opacity;
   transition: transform 0.46s cubic-bezier(0.4, 0, 0.1, 1), opacity 0.46s cubic-bezier(0.4, 0, 0.1, 1);
   box-sizing: border-box;
@@ -375,11 +375,12 @@ main, section, header, footer {
 .lusion-card--nav {
   background: var(--anemos-ground);
   color: var(--anemos-deep);
-  padding: 22px 26px 18px;
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.4);
-  transform: translate3d(0, 50px, 0) rotate(3.5deg);
+  padding: 26px 32px 22px;
+  box-shadow: 0 24px 56px rgba(0, 0, 0, 0.45);
+  transform: translate3d(0, 50px, 0) rotate(3deg);
   opacity: 0;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 28px;
 }
 .lusion-menu.open .lusion-card--nav,
 .lusion-menu.menu--open .lusion-card--nav {
@@ -395,15 +396,15 @@ main, section, header, footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 0;
-  color: var(--anemos-deep);
+  padding: 10px 0;
+  color: #0C1517;
   text-decoration: none;
-  font-family: var(--anemos-font-display);
-  font-size: 1.05rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  font-family: "Aeonik", "Inter", "Manrope", system-ui, sans-serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.015em;
   text-transform: uppercase;
-  border-bottom: 1px solid rgba(31, 58, 69, 0.06);
+  border-bottom: 1px solid rgba(12, 21, 23, 0.07);
   transition: transform 0.2s ease, color 0.2s ease;
 }
 .lusion-nav-link:last-child {
@@ -414,29 +415,30 @@ main, section, header, footer {
   transform: translateX(4px);
 }
 .lusion-nav-link .link-dot {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background-color: transparent;
   transition: background-color 0.2s ease, transform 0.2s ease;
 }
 .lusion-nav-link.active .link-dot {
-  background-color: var(--anemos-garnet);
-  transform: scale(1.2);
+  background-color: #0C1517 !important;
+  transform: scale(1.15);
 }
 
 /* Card 2: GitHub (Replacing newsletter) */
 .lusion-card--github {
   background: var(--anemos-night);
   color: var(--anemos-ground);
-  padding: 18px 24px;
+  padding: 20px 28px;
+  border-radius: 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   text-decoration: none;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(79, 199, 196, 0.2);
-  transform: translate3d(0, 70px, 0) rotate(-3.5deg);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  transform: translate3d(0, 70px, 0) rotate(-3deg);
   opacity: 0;
   transition-delay: 0.08s;
   cursor: pointer;
@@ -461,10 +463,10 @@ main, section, header, footer {
   fill: var(--anemos-ground);
 }
 .github-text {
-  font-family: var(--anemos-font-display);
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-family: "Aeonik", "Inter", "Manrope", system-ui, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
   color: var(--anemos-ground);
 }
 .github-arrow {
@@ -472,7 +474,7 @@ main, section, header, footer {
   transition: transform 0.25s cubic-bezier(0.4, 0, 0.1, 1);
 }
 .lusion-card--github:hover .github-arrow {
-  transform: translate(3px, -3px);
+  transform: translate(5px, -5px);
   color: var(--anemos-ground);
 }
 
@@ -534,9 +536,9 @@ main, section, header, footer {
   margin-bottom: 24px;
 }
 .end-title {
-  font-family: var(--anemos-font-display);
+  font-family: "Aeonik", "Inter", "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-size: clamp(3.8rem, 10.5vw, 9.5rem);
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: -0.04em;
   color: var(--anemos-ground);
   line-height: 0.95;

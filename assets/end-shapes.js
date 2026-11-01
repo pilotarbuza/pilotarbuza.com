@@ -35,12 +35,12 @@
     const particles = [];
 
     const COLORS = [
-      '#FFF8F0', // 70% Milk silk
+      '#FFF8F0', // 90% Pure Milk Silk / Starlight White
       '#FFF8F0',
       '#FFF8F0',
-      '#BFE6E4', // 20% Mist / Ice
-      '#BFE6E4',
-      '#FF6A4A'  // 10% Garnet flame
+      '#FFF8F0',
+      '#FFF8F0',
+      '#BFE6E4'  // 10% Mist / Ice Accent
     ];
 
     for (let i = 0; i < SHAPE_COUNT; i++) {
