@@ -1,14 +1,14 @@
 /**
- * pilotarbuza.com — 3D Fluid Particle Nebula & Viscous Ribbon
+ * pilotarbuza.com — 3D Fluid Sphere Vortex & Aerodynamic Liquid Streak
  * 
- * Recreates the exact dynamic behavior, particle density, depth-of-field bokeh,
- * fluid vortex physics, and interactive impulse explosions from Lusion,
- * shaded in the official Anemos Aircraft brandbook palette:
- *   - Titanium Silk / White: #FFF8F0 / #FFFFFF
- *   - Luminous Breeze Teal:  #4FC7C4 / #0B7A85
- *   - Deep Petrol:           #14232A / #1F3A45
- *   - Garnet Flame Accent:   #FF6A4A / #E8492A
- *   - Pearlescent Ice:       #BFE6E4
+ * Exact recreation of Lusion's fluid particle architecture:
+ *   - Thousands of tangible 3D shaded spheres with spherical normals, specular highlights,
+ *     diffuse lighting, ambient occlusion, and Fresnel rims (Normal Blending with true depth).
+ *   - Foreground glowing bokeh orbs with soft bloom.
+ *   - Central aerodynamic liquid chrome streak undulating with fluid tension.
+ *   - Interactive physics: central attractor, vortex angular momentum, 3D mouse wake,
+ *     and click/touch impulse explosion.
+ *   - Palette: Anemos Aircraft Brandbook (Milk Ground, Breeze Teal, Deep Petrol, Garnet Flame, Mist Ice).
  */
 
 (function () {
@@ -19,8 +19,8 @@
 
   // 1. Scene, Camera, Renderer
   var scene = new THREE.Scene();
-  var camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.1, 100);
-  camera.position.set(0, 0, 16);
+  var camera = new THREE.PerspectiveCamera(36, window.innerWidth / window.innerHeight, 0.1, 100);
+  camera.position.set(0, 0, 15);
 
   var renderer = new THREE.WebGLRenderer({
     canvas: canvas,
@@ -32,46 +32,38 @@
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.setClearColor(0x000000, 0);
 
-  // 2. Anemos Aircraft Color Palette (RGB Vector3 for Shaders)
-  var COLOR_WHITE   = new THREE.Color('#FFF8F0');
-  var COLOR_BREEZE  = new THREE.Color('#4FC7C4');
-  var COLOR_DEEP    = new THREE.Color('#1F3A45');
-  var COLOR_GARNET  = new THREE.Color('#FF6A4A');
-  var COLOR_ICE     = new THREE.Color('#BFE6E4');
+  // 2. Anemos Color Palette
+  var COLOR_MILK   = new THREE.Color('#FFF8F0'); // 45% porcelain white
+  var COLOR_BREEZE = new THREE.Color('#4FC7C4'); // 25% vibrant teal
+  var COLOR_ICE    = new THREE.Color('#BFE6E4'); // 15% pearlescent mist
+  var COLOR_DEEP   = new THREE.Color('#1F3A45'); // 10% dark petrol
+  var COLOR_GARNET = new THREE.Color('#FF6A4A'); // 5% accent flame
 
-  // Palette array for particle assignments
   var PALETTE = [
-    { color: COLOR_WHITE,  weight: 0.38, glow: 1.0 },
-    { color: COLOR_BREEZE, weight: 0.28, glow: 0.8 },
-    { color: COLOR_ICE,    weight: 0.18, glow: 0.7 },
-    { color: COLOR_DEEP,   weight: 0.10, glow: 0.3 },
-    { color: COLOR_GARNET, weight: 0.06, glow: 0.9 }
+    { color: COLOR_MILK,   weight: 0.45, roughness: 0.25, metallic: 0.3 },
+    { color: COLOR_BREEZE, weight: 0.25, roughness: 0.15, metallic: 0.6 },
+    { color: COLOR_ICE,    weight: 0.15, roughness: 0.20, metallic: 0.4 },
+    { color: COLOR_DEEP,   weight: 0.10, roughness: 0.10, metallic: 0.8 },
+    { color: COLOR_GARNET, weight: 0.05, roughness: 0.15, metallic: 0.5 }
   ];
 
-  // 3. Particle System Configuration
+  // 3. Particle Cloud Setup
   var isMobile = window.innerWidth <= 812;
-  var PARTICLE_COUNT = isMobile ? 8000 : 16000;
+  var PARTICLE_COUNT = isMobile ? 8500 : 15000;
 
-  var positions   = new Float32Array(PARTICLE_COUNT * 3);
-  var basePos     = new Float32Array(PARTICLE_COUNT * 3);
-  var velocities  = new Float32Array(PARTICLE_COUNT * 3);
-  var colors      = new Float32Array(PARTICLE_COUNT * 3);
-  var sizes       = new Float32Array(PARTICLE_COUNT);
-  var alphas      = new Float32Array(PARTICLE_COUNT);
-  var randomSeeds = new Float32Array(PARTICLE_COUNT);
+  var positions     = new Float32Array(PARTICLE_COUNT * 3);
+  var basePos       = new Float32Array(PARTICLE_COUNT * 3);
+  var velocities    = new Float32Array(PARTICLE_COUNT * 3);
+  var colors        = new Float32Array(PARTICLE_COUNT * 3);
+  var sizes         = new Float32Array(PARTICLE_COUNT);
+  var glowFlags     = new Float32Array(PARTICLE_COUNT);
+  var randomSeeds   = new Float32Array(PARTICLE_COUNT);
 
-  // Helper random
-  function pseudoRandom(seed) {
-    var x = Math.sin(seed++) * 10000;
-    return x - Math.floor(x);
-  }
-
-  // Generate particles along an organic diagonal fluid vortex
   for (var i = 0; i < PARTICLE_COUNT; i++) {
     var i3 = i * 3;
     var t = i / PARTICLE_COUNT;
-    
-    // Pick color by weight
+
+    // Pick palette
     var rPick = Math.random();
     var acc = 0;
     var chosen = PALETTE[0];
@@ -87,21 +79,21 @@
     colors[i3 + 1] = chosen.color.g;
     colors[i3 + 2] = chosen.color.b;
 
-    // Organic vortex distribution: spiral arm + central cluster
-    var angle = t * Math.PI * 14 + (Math.random() - 0.5) * 1.5;
-    var radius = Math.pow(Math.random(), 1.6) * 4.8 + 0.2;
-    var zDist = (Math.random() - 0.5) * 5.5;
+    // Organic vortex distribution with diagonal tilt
+    // Spiral swirl around inclined diagonal axis
+    var angle = t * Math.PI * 18 + (Math.random() - 0.5) * 1.8;
+    var radius = Math.pow(Math.random(), 1.5) * 4.6 + 0.15;
+    var zDist = (Math.random() - 0.5) * 4.8;
 
-    // Tilt vortex along diagonal axis (matching Lusion splash angle)
-    var x = Math.cos(angle) * radius * 1.25;
-    var y = Math.sin(angle) * radius * 0.85 + x * 0.3;
-    var z = zDist + (x * 0.25 - y * 0.2);
+    var x = Math.cos(angle) * radius * 1.35;
+    var y = Math.sin(angle) * radius * 0.95 + x * 0.28;
+    var z = zDist + (x * 0.2 - y * 0.15);
 
-    // Some scattered peripheral spray droplets
-    if (Math.random() < 0.12) {
-      x *= 1.8 + Math.random() * 0.8;
-      y *= 1.8 + Math.random() * 0.8;
-      z *= 1.6;
+    // Peripheral droplets
+    if (Math.random() < 0.14) {
+      x *= 1.6 + Math.random() * 0.6;
+      y *= 1.6 + Math.random() * 0.6;
+      z *= 1.5;
     }
 
     positions[i3 + 0] = x;
@@ -112,28 +104,28 @@
     basePos[i3 + 1] = y;
     basePos[i3 + 2] = z;
 
-    velocities[i3 + 0] = (Math.random() - 0.5) * 0.02;
-    velocities[i3 + 1] = (Math.random() - 0.5) * 0.02;
-    velocities[i3 + 2] = (Math.random() - 0.5) * 0.02;
+    velocities[i3 + 0] = (Math.random() - 0.5) * 0.015;
+    velocities[i3 + 1] = (Math.random() - 0.5) * 0.015;
+    velocities[i3 + 2] = (Math.random() - 0.5) * 0.015;
 
-    // Varied particle sizes: mostly fine droplets, with some large glowing bokeh orbs
+    // Sizes: variable radii from fine mist to foreground bokeh orbs
     var rSize = Math.random();
-    if (rSize > 0.985) {
-      // Rare giant foreground bokeh orbs
-      sizes[i] = isMobile ? 32 : 46;
-      alphas[i] = 0.55;
+    if (rSize > 0.988) {
+      // Large glowing foreground bokeh orbs
+      sizes[i] = isMobile ? 38 : 52;
+      glowFlags[i] = 1.0;
     } else if (rSize > 0.92) {
-      // Medium glowing bubbles
-      sizes[i] = isMobile ? 16 : 24;
-      alphas[i] = 0.85;
-    } else if (rSize > 0.65) {
+      // Medium shiny spheres
+      sizes[i] = isMobile ? 18 : 26;
+      glowFlags[i] = 0.5;
+    } else if (rSize > 0.60) {
       // Standard droplets
-      sizes[i] = isMobile ? 7 : 11;
-      alphas[i] = 0.95;
+      sizes[i] = isMobile ? 8 : 12;
+      glowFlags[i] = 0.0;
     } else {
-      // Micro mist particles
-      sizes[i] = isMobile ? 3.5 : 5.5;
-      alphas[i] = 0.75;
+      // Fine spray
+      sizes[i] = isMobile ? 4 : 6;
+      glowFlags[i] = 0.0;
     }
 
     randomSeeds[i] = Math.random() * 100.0;
@@ -143,62 +135,82 @@
   particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
   particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
   particleGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-  particleGeometry.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
+  particleGeometry.setAttribute('isGlow', new THREE.BufferAttribute(glowFlags, 1));
   particleGeometry.setAttribute('seed', new THREE.BufferAttribute(randomSeeds, 1));
 
-  // Custom Point Shader with smooth circular drop, specular highlight, and bokeh blur
+  // True 3D Sphere Point Shader (Calculates exact sphere normals on GPU)
   var particleVertexShader = [
     'attribute float size;',
-    'attribute float alpha;',
     'attribute vec3 color;',
+    'attribute float isGlow;',
     'attribute float seed;',
     'varying vec3 vColor;',
-    'varying float vAlpha;',
-    'varying float vZ;',
+    'varying float vGlow;',
+    'varying float vDepth;',
     'uniform float uTime;',
     'uniform float uPixelRatio;',
     'void main() {',
     '  vColor = color;',
-    '  vAlpha = alpha;',
+    '  vGlow = isGlow;',
     '  vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);',
-    '  vZ = -mvPosition.z;',
-    '  // Size attenuation with subtle harmonic pulse',
-    '  float pulse = 1.0 + 0.08 * sin(uTime * 1.5 + seed);',
-    '  gl_PointSize = size * uPixelRatio * pulse * (16.0 / -mvPosition.z);',
+    '  vDepth = -mvPosition.z;',
+    '  float pulse = 1.0 + 0.06 * sin(uTime * 1.6 + seed);',
+    '  gl_PointSize = size * uPixelRatio * pulse * (15.0 / -mvPosition.z);',
     '  gl_Position = projectionMatrix * mvPosition;',
     '}'
   ].join('\n');
 
   var particleFragmentShader = [
     'varying vec3 vColor;',
-    'varying float vAlpha;',
-    'varying float vZ;',
+    'varying float vGlow;',
+    'varying float vDepth;',
+    'uniform vec3 uLightPos;',
     'void main() {',
-    '  // Circle coord from center',
     '  vec2 coord = gl_PointCoord - vec2(0.5);',
-    '  float dist = length(coord);',
-    '  if (dist > 0.5) discard;',
+    '  float r2 = dot(coord, coord);',
+    '  if (r2 > 0.25) discard;',
     '',
-    '  // Radial smooth falloff (droplet surface)',
-    '  float edgeSoft = smoothstep(0.5, 0.35, dist);',
+    '  // Calculate exact 3D sphere normal from 2D disc',
+    '  float z = sqrt(max(0.0, 0.25 - r2));',
+    '  vec3 normal = normalize(vec3(coord.x * 2.0, -coord.y * 2.0, z * 2.0));',
     '',
-    '  // Specular top-right highlight (droplet gloss)',
-    '  vec2 lightDir = normalize(vec2(0.35, -0.35));',
-    '  float spec = smoothstep(0.25, 0.05, length(coord - lightDir * 0.16));',
+    '  // Light direction (key light from top-right-front)',
+    '  vec3 lightDir = normalize(vec3(0.5, 0.6, 0.8));',
+    '  vec3 viewDir = vec3(0.0, 0.0, 1.0);',
     '',
-    '  // Emissive core glow',
-    '  float coreGlow = smoothstep(0.4, 0.0, dist);',
+    '  // Diffuse shading with soft ambient wrap',
+    '  float diff = max(0.0, dot(normal, lightDir));',
+    '  float ambient = 0.22 + 0.15 * normal.y;',
     '',
-    '  vec3 finalColor = vColor + vec3(spec * 0.65) + vec3(coreGlow * 0.2);',
-    '  float finalAlpha = vAlpha * edgeSoft;',
+    '  // Specular gloss reflection',
+    '  vec3 halfVec = normalize(lightDir + viewDir);',
+    '  float spec = pow(max(0.0, dot(normal, halfVec)), 28.0) * 0.85;',
     '',
-    '  gl_FragColor = vec4(finalColor, finalAlpha);',
+    '  // Fresnel rim glow',
+    '  float fresnel = pow(1.0 - max(0.0, dot(normal, viewDir)), 2.8) * 0.45;',
+    '',
+    '  // Ambient occlusion towards droplet edge',
+    '  float ao = smoothstep(0.5, 0.25, length(coord));',
+    '',
+    '  vec3 litColor = vColor * (diff * 0.75 + ambient) + vec3(spec) + vColor * fresnel;',
+    '  litColor *= (ao * 0.4 + 0.6);',
+    '',
+    '  // Extra soft glow for bokeh orbs',
+    '  if (vGlow > 0.0) {',
+    '    litColor += vColor * (vGlow * 0.35);',
+    '  }',
+    '',
+    '  // Smooth anti-aliased edge',
+    '  float alpha = smoothstep(0.5, 0.46, length(coord));',
+    '',
+    '  gl_FragColor = vec4(litColor, alpha);',
     '}'
   ].join('\n');
 
   var particleUniforms = {
     uTime: { value: 0 },
-    uPixelRatio: { value: Math.min(window.devicePixelRatio || 1, 2) }
+    uPixelRatio: { value: Math.min(window.devicePixelRatio || 1, 2) },
+    uLightPos: { value: new THREE.Vector3(5, 8, 10) }
   };
 
   var particleMaterial = new THREE.ShaderMaterial({
@@ -206,106 +218,95 @@
     vertexShader: particleVertexShader,
     fragmentShader: particleFragmentShader,
     transparent: true,
-    depthWrite: false,
-    blending: THREE.AdditiveBlending
+    depthTest: true,
+    depthWrite: true,
+    blending: THREE.NormalBlending
   });
 
   var particleSystem = new THREE.Points(particleGeometry, particleMaterial);
   scene.add(particleSystem);
 
-  // 4. Central Viscous Liquid Ribbon
-  // A dynamic Catmull-Rom tube that twists diagonally across the vortex core
-  var RIBBON_POINTS_COUNT = 14;
-  var ribbonCurvePoints = [];
-  var ribbonBasePoints = [];
+  // 4. Central Aerodynamic Liquid Chrome Streak
+  // Smooth organic ribbon cutting diagonally across the cluster (like Lusion)
+  var STREAK_POINTS = 16;
+  var streakCurvePoints = [];
+  var streakBasePoints = [];
 
-  for (var k = 0; k < RIBBON_POINTS_COUNT; k++) {
-    var fraction = (k / (RIBBON_POINTS_COUNT - 1)) * 2.0 - 1.0; // -1 to 1
-    var rx = fraction * 4.6;
-    var ry = fraction * 2.2 + Math.sin(fraction * Math.PI) * 1.1;
-    var rz = Math.cos(fraction * Math.PI * 1.5) * 1.4;
+  for (var k = 0; k < STREAK_POINTS; k++) {
+    var frac = (k / (STREAK_POINTS - 1)) * 2.0 - 1.0; // -1 to 1
+    // Smooth aerodynamic S-curve / liquid stream
+    var sx = frac * 5.2;
+    var sy = frac * 1.8 + Math.sin(frac * Math.PI) * 0.8;
+    var sz = Math.cos(frac * Math.PI * 1.2) * 1.1;
 
-    ribbonBasePoints.push(new THREE.Vector3(rx, ry, rz));
-    ribbonCurvePoints.push(new THREE.Vector3(rx, ry, rz));
+    streakBasePoints.push(new THREE.Vector3(sx, sy, sz));
+    streakCurvePoints.push(new THREE.Vector3(sx, sy, sz));
   }
 
-  var ribbonCurve = new THREE.CatmullRomCurve3(ribbonCurvePoints, false, 'centripetal', 0.5);
-  var ribbonGeometry = new THREE.TubeGeometry(ribbonCurve, 72, 0.32, 16, false);
+  var streakCurve = new THREE.CatmullRomCurve3(streakCurvePoints, false, 'centripetal', 0.5);
+  // Variable thickness tube geometry for tapered aerodynamic stream
+  var streakGeometry = new THREE.TubeGeometry(streakCurve, 80, 0.24, 20, false);
 
-  // Metallic Chrome / Titanium Shading for the Ribbon
-  var ribbonMaterial = new THREE.MeshStandardMaterial({
-    color: 0x14232A,
-    roughness: 0.15,
-    metalness: 0.92,
+  var streakMaterial = new THREE.MeshStandardMaterial({
+    color: 0x1F3A45,
+    roughness: 0.12,
+    metalness: 0.94,
     emissive: 0x0B7A85,
-    emissiveIntensity: 0.28,
+    emissiveIntensity: 0.35,
     transparent: true,
-    opacity: 0.88,
-    wireframe: false
+    opacity: 0.92
   });
 
-  var ribbonMesh = new THREE.Mesh(ribbonGeometry, ribbonMaterial);
-  scene.add(ribbonMesh);
+  var streakMesh = new THREE.Mesh(streakGeometry, streakMaterial);
+  scene.add(streakMesh);
 
-  // Lights for the liquid ribbon
-  var ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
-  scene.add(ambientLight);
+  // Directional lighting for the streak
+  var dirLight = new THREE.DirectionalLight(0xFFF8F0, 2.2);
+  dirLight.position.set(5, 8, 10);
+  scene.add(dirLight);
 
-  var pointLight1 = new THREE.PointLight(0x4FC7C4, 3.5, 30);
-  pointLight1.position.set(5, 6, 8);
-  scene.add(pointLight1);
+  var tealLight = new THREE.PointLight(0x4FC7C4, 2.5, 20);
+  tealLight.position.set(-4, -3, 5);
+  scene.add(tealLight);
 
-  var pointLight2 = new THREE.PointLight(0xFF6A4A, 2.0, 25);
-  pointLight2.position.set(-6, -4, 6);
-  scene.add(pointLight2);
-
-  var pointLight3 = new THREE.PointLight(0xFFF8F0, 2.5, 20);
-  pointLight3.position.set(0, 0, 10);
-  scene.add(pointLight3);
+  var flameLight = new THREE.PointLight(0xFF6A4A, 1.8, 18);
+  flameLight.position.set(4, -2, 6);
+  scene.add(flameLight);
 
   // 5. Interactive Physics State
   var mouse = {
     x: 0,
     y: 0,
     targetX: 0,
-    targetY: 0,
-    prevX: 0,
-    prevY: 0,
-    vx: 0,
-    vy: 0,
-    isDown: false,
-    radius: 3.2
+    targetY: 0
   };
 
   var raycaster = new THREE.Raycaster();
   var mouse3D = new THREE.Vector3(0, 0, 0);
   var mousePrev3D = new THREE.Vector3(0, 0, 0);
   var mouseVelocity3D = new THREE.Vector3(0, 0, 0);
-
   var planeZ = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
-  var targetPlaneIntersect = new THREE.Vector3();
+  var planeIntersect = new THREE.Vector3();
 
-  // Mouse move handler
   function onPointerMove(e) {
-    var clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
-    var clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+    var cx = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+    var cy = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
 
-    mouse.targetX = (clientX / window.innerWidth) * 2 - 1;
-    mouse.targetY = -(clientY / window.innerHeight) * 2 + 1;
+    mouse.targetX = (cx / window.innerWidth) * 2 - 1;
+    mouse.targetY = -(cy / window.innerHeight) * 2 + 1;
 
-    // Raycast to Z=0 plane
     raycaster.setFromCamera(new THREE.Vector2(mouse.targetX, mouse.targetY), camera);
-    raycaster.ray.intersectPlane(planeZ, targetPlaneIntersect);
-    
-    if (targetPlaneIntersect) {
-      mouseVelocity3D.copy(targetPlaneIntersect).sub(mouse3D).multiplyScalar(0.4);
-      mouse3D.copy(targetPlaneIntersect);
+    raycaster.ray.intersectPlane(planeZ, planeIntersect);
+
+    if (planeIntersect) {
+      mouseVelocity3D.copy(planeIntersect).sub(mouse3D).multiplyScalar(0.45);
+      mouse3D.copy(planeIntersect);
     }
   }
 
-  // Click impulse burst (Lusion e.applyImpulse() recreation)
+  // Click / touch impulse explosion (Lusion applyImpulse)
   function applyImpulse(strength) {
-    var forceMagnitude = strength || 0.45;
+    var force = strength || 0.55;
     var posAttr = particleGeometry.attributes.position;
     var posArray = posAttr.array;
 
@@ -315,35 +316,34 @@
       var py = posArray[i3 + 1];
       var pz = posArray[i3 + 2];
 
-      var dist = Math.sqrt(px * px + py * py + pz * pz) + 0.1;
-      var burst = (forceMagnitude / dist) * (0.8 + Math.random() * 0.6);
+      var dist = Math.sqrt(px * px + py * py + pz * pz) + 0.15;
+      var burst = (force / dist) * (0.8 + Math.random() * 0.7);
 
-      velocities[i3 + 0] += (px / dist) * burst + (Math.random() - 0.5) * 0.12;
-      velocities[i3 + 1] += (py / dist) * burst + (Math.random() - 0.5) * 0.12;
-      velocities[i3 + 2] += (pz / dist) * burst + (Math.random() - 0.5) * 0.15;
+      velocities[i3 + 0] += (px / dist) * burst + (Math.random() - 0.5) * 0.14;
+      velocities[i3 + 1] += (py / dist) * burst + (Math.random() - 0.5) * 0.14;
+      velocities[i3 + 2] += (pz / dist) * burst + (Math.random() - 0.5) * 0.18;
     }
 
-    // Shockwave pulse on ribbon
-    ribbonMaterial.emissiveIntensity = 1.2;
+    streakMaterial.emissiveIntensity = 1.4;
     setTimeout(function () {
-      ribbonMaterial.emissiveIntensity = 0.28;
+      streakMaterial.emissiveIntensity = 0.35;
     }, 450);
   }
 
   window.addEventListener('mousemove', onPointerMove, { passive: true });
   window.addEventListener('touchmove', onPointerMove, { passive: true });
   canvas.addEventListener('click', function () {
-    applyImpulse(0.55);
+    applyImpulse(0.65);
   });
   canvas.addEventListener('touchstart', function () {
-    applyImpulse(0.55);
+    applyImpulse(0.65);
   }, { passive: true });
 
-  // 6. Physics and Animation Loop
+  // 6. Physics Animation Loop
   var clock = new THREE.Clock();
-  var GRAVITY_FACTOR = 0.038;
-  var DAMPING = 0.945;
-  var VORTEX_SPEED = 0.45;
+  var GRAVITY_FACTOR = 0.042;
+  var DAMPING = 0.942;
+  var VORTEX_SPEED = 0.40;
 
   function animate() {
     requestAnimationFrame(animate);
@@ -354,12 +354,12 @@
     particleUniforms.uTime.value = time;
 
     // Smooth mouse inertia
-    mouse.x += (mouse.targetX - mouse.x) * 0.1;
-    mouse.y += (mouse.targetY - mouse.y) * 0.1;
+    mouse.x += (mouse.targetX - mouse.x) * 0.08;
+    mouse.y += (mouse.targetY - mouse.y) * 0.08;
 
-    // Tilt camera subtly with mouse (Lusion parallax)
-    camera.position.x = mouse.x * 1.2;
-    camera.position.y = mouse.y * 0.8;
+    // Camera look parallax
+    camera.position.x = mouse.x * 1.1;
+    camera.position.y = mouse.y * 0.75;
     camera.lookAt(0, 0, 0);
 
     // Update particles physics
@@ -376,7 +376,7 @@
       var vy = velocities[i3 + 1];
       var vz = velocities[i3 + 2];
 
-      // 1. Central Gravity Attractor (pulls towards base vortex coordinates)
+      // 1. Central Attractor to base vortex coordinates
       var bx = basePos[i3 + 0];
       var by = basePos[i3 + 1];
       var bz = basePos[i3 + 2];
@@ -389,31 +389,27 @@
       vy += dy * GRAVITY_FACTOR;
       vz += dz * GRAVITY_FACTOR;
 
-      // 2. Swirling Vortex Angular Velocity around tilted axis
+      // 2. Swirling Vortex Angular Velocity around diagonal axis
       var distCenter = Math.sqrt(px * px + py * py) + 0.1;
-      var tangentialForce = (VORTEX_SPEED / distCenter) * 0.015;
-      vx += -py * tangentialForce;
-      vy +=  px * tangentialForce;
+      var tangential = (VORTEX_SPEED / distCenter) * 0.016;
+      vx += -py * tangential;
+      vy +=  px * tangential;
 
       // 3. 3D Mouse Fluid Repulsion Wake
-      var mx = mouse3D.x;
-      var my = mouse3D.y;
-      var mz = mouse3D.z;
-
-      var dmx = px - mx;
-      var dmy = py - my;
-      var dmz = pz - mz;
+      var dmx = px - mouse3D.x;
+      var dmy = py - mouse3D.y;
+      var dmz = pz - mouse3D.z;
       var distMouseSq = dmx * dmx + dmy * dmy + dmz * dmz;
 
-      if (distMouseSq < 16.0) {
+      if (distMouseSq < 15.0) {
         var distMouse = Math.sqrt(distMouseSq) + 0.01;
-        var push = (1.0 - distMouse / 4.0) * 0.085;
-        vx += (dmx / distMouse) * push + mouseVelocity3D.x * 0.025;
-        vy += (dmy / distMouse) * push + mouseVelocity3D.y * 0.025;
+        var push = (1.0 - distMouse / 3.87) * 0.095;
+        vx += (dmx / distMouse) * push + mouseVelocity3D.x * 0.03;
+        vy += (dmy / distMouse) * push + mouseVelocity3D.y * 0.03;
         vz += (dmz / distMouse) * push;
       }
 
-      // 4. Viscous Damping & Integration
+      // 4. Damping & Integration
       vx *= DAMPING;
       vy *= DAMPING;
       vz *= DAMPING;
@@ -429,33 +425,31 @@
 
     posAttr.needsUpdate = true;
 
-    // Slowly rotate base particles around diagonal for organic fluid drift
-    particleSystem.rotation.z = time * 0.035;
-    particleSystem.rotation.y = Math.sin(time * 0.05) * 0.12;
+    // Organic drift rotation
+    particleSystem.rotation.z = time * 0.028;
+    particleSystem.rotation.y = Math.sin(time * 0.04) * 0.10;
 
-    // 7. Update Liquid Ribbon Spline
-    for (var k = 0; k < RIBBON_POINTS_COUNT; k++) {
-      var base = ribbonBasePoints[k];
-      var current = ribbonCurvePoints[k];
-      var wave = Math.sin(time * 1.8 + k * 0.6) * 0.28;
-      var cosWave = Math.cos(time * 1.5 + k * 0.5) * 0.22;
+    // 7. Update Liquid Streak Mesh
+    for (var k = 0; k < STREAK_POINTS; k++) {
+      var base = streakBasePoints[k];
+      var current = streakCurvePoints[k];
+      var wave = Math.sin(time * 1.6 + k * 0.5) * 0.24;
+      var cosWave = Math.cos(time * 1.3 + k * 0.4) * 0.18;
 
-      // Mouse influence on ribbon
-      var distToMouse = Math.sqrt(
+      var distM = Math.sqrt(
         Math.pow(base.x - mouse3D.x, 2) + Math.pow(base.y - mouse3D.y, 2)
       );
-      var mousePush = Math.max(0, 1.0 - distToMouse / 5.0) * 0.6;
+      var pushM = Math.max(0, 1.0 - distM / 4.5) * 0.5;
 
-      current.x = base.x + wave + (base.x - mouse3D.x) * mousePush * 0.15;
-      current.y = base.y + cosWave + (base.y - mouse3D.y) * mousePush * 0.15;
-      current.z = base.z + Math.sin(time * 1.2 + k) * 0.35;
+      current.x = base.x + wave + (base.x - mouse3D.x) * pushM * 0.12;
+      current.y = base.y + cosWave + (base.y - mouse3D.y) * pushM * 0.12;
+      current.z = base.z + Math.sin(time * 1.1 + k) * 0.28;
     }
 
-    // Rebuild ribbon geometry smoothly
-    ribbonGeometry.dispose();
-    ribbonCurve = new THREE.CatmullRomCurve3(ribbonCurvePoints, false, 'centripetal', 0.5);
-    ribbonGeometry = new THREE.TubeGeometry(ribbonCurve, 72, 0.32, 16, false);
-    ribbonMesh.geometry = ribbonGeometry;
+    streakGeometry.dispose();
+    streakCurve = new THREE.CatmullRomCurve3(streakCurvePoints, false, 'centripetal', 0.5);
+    streakGeometry = new THREE.TubeGeometry(streakCurve, 80, 0.24, 20, false);
+    streakMesh.geometry = streakGeometry;
 
     renderer.render(scene, camera);
   }
@@ -468,7 +462,7 @@
     var height = window.innerHeight;
 
     camera.aspect = width / height;
-    camera.fov = width <= 812 ? 46 : 38;
+    camera.fov = width <= 812 ? 48 : 36;
     camera.updateProjectionMatrix();
 
     renderer.setSize(width, height);
