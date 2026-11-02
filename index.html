@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title data-i18n="meta.title">pilotarbuza — Maksim Akhmadulin</title>
   <meta name="description" data-i18n-content="meta.desc" content="Maksim Akhmadulin: mechanical engineer in progress, pilot by plan. Studying in Türkiye, an aviation documentation bot, the pilot_arbuza brand.">
-  <meta name="theme-color" content="#0E1A2B">
+  <meta name="theme-color" content="#0C1517">
   <meta property="og:title" content="pilotarbuza — Maksim Akhmadulin">
   <meta property="og:description" content="Mechanical engineer in progress, pilot by plan.">
   <meta property="og:type" content="website">
@@ -37,7 +37,7 @@
       <span class="lusion-brand-name">pilotarbuza</span>
     </a>
     <div class="lusion-actions">
-      <button class="lusion-btn-sound" id="lusion-sound-btn" type="button" aria-label="Toggle Sound">
+      <button class="lusion-btn-sound" id="lusion-sound-btn" type="button" aria-label="Toggle sound" aria-pressed="false">
         <div class="lusion-btn-sound-bar"></div>
       </button>
       <a href="#contact" class="lusion-capsule lusion-capsule--talk">
@@ -99,7 +99,7 @@
     <!-- Card 2: GitHub (Replacing newsletter) -->
     <a href="https://github.com/pilotarbuza" target="_blank" rel="noopener" class="menu-card lusion-card lusion-card--github">
       <div class="github-left">
-        <span class="github-symbol" style="font-size:1.35rem;font-weight:900;letter-spacing:-0.02em;line-height:1;margin-right:6px;">Ö</span>
+        <svg class="github-icon-svg" width="22" height="22" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5a9.5 9.5 0 0 0-3 18.5c.5.1.7-.2.7-.5v-1.8c-2.6.6-3.2-1.2-3.2-1.2-.4-1.1-1-1.4-1-1.4-.9-.6 0-.6 0-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.3 1.1 2.9.8.1-.6.3-1.1.6-1.3-2.1-.2-4.3-1-4.3-4.7 0-1 .4-1.9 1-2.6-.1-.2-.4-1.2.1-2.5 0 0 .8-.3 2.6 1a9 9 0 0 1 4.8 0c1.8-1.3 2.6-1 2.6-1 .5 1.3.2 2.3.1 2.5.6.7 1 1.6 1 2.6 0 3.7-2.2 4.5-4.3 4.7.3.3.6.9.6 1.8v2.7c0 .3.2.6.7.5A9.5 9.5 0 0 0 12 2.5z"/></svg>
         <span class="github-text">GITHUB</span>
       </div>
       <svg class="github-arrow" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -199,7 +199,7 @@
         </div>
         <div class="intro__photo intro__photo--round" data-reveal>
           <span class="hand intro__note">future captain (probably)</span>
-          <svg class="intro__arrow" width="60" height="46" viewBox="0 0 60 46" aria-hidden="true"><path class="draw-once" d="M6 6 C 30 6, 44 18, 46 38" fill="none" stroke="#7A1830" stroke-width="2.5" stroke-linecap="round"/><path class="draw-once" d="M38 30 L46 40 L53 29" fill="none" stroke="#7A1830" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg class="intro__arrow" width="60" height="46" viewBox="0 0 60 46" aria-hidden="true"><path class="draw-once" d="M6 6 C 30 6, 44 18, 46 38" fill="none" stroke="#B8361C" stroke-width="2.5" stroke-linecap="round"/><path class="draw-once" d="M38 30 L46 40 L53 29" fill="none" stroke="#B8361C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <img src="assets/img/portrait.jpg" data-i18n-alt="intro.alt" alt="Maksim Akhmadulin" width="600" height="600">
           <span class="doto intro__crew">CREW 01</span>
         </div>
@@ -207,7 +207,7 @@
 
       <div class="board dots led" data-reveal>
         <div class="board__head">
-          <span class="board__title doto"><svg width="30" height="30" viewBox="0 0 48 48" aria-hidden="true"><path d="M45 24c0-1.6-1.4-2.6-3.2-2.6H30L20 5h-4.2l5.2 16.4H10.4L6.6 15H3l2.4 9L3 33h3.6l3.8-6.4h10.6L15.8 43H20l10-16.4h11.8c1.8 0 3.2-1 3.2-2.6z" fill="#FF5C73"/></svg><span data-flip>DEPARTURES</span></span>
+          <span class="board__title doto"><svg width="30" height="30" viewBox="0 0 48 48" aria-hidden="true"><path d="M45 24c0-1.6-1.4-2.6-3.2-2.6H30L20 5h-4.2l5.2 16.4H10.4L6.6 15H3l2.4 9L3 33h3.6l3.8-6.4h10.6L15.8 43H20l10-16.4h11.8c1.8 0 3.2-1 3.2-2.6z" fill="#0B7A85"/></svg><span data-flip>DEPARTURES</span></span>
           <span class="board__sub doto">FLIGHT PLAN PILOT_ARBUZA</span>
           <span class="board__clock doto">KONYA <time class="clock">--:--</time></span>
         </div>
@@ -244,19 +244,19 @@
         </div>
         <div class="radar" data-reveal>
           <svg viewBox="0 0 360 360" aria-hidden="true">
-            <circle cx="180" cy="180" r="170" fill="none" stroke="rgba(243,238,230,.2)" stroke-width="1.5"/>
-            <circle cx="180" cy="180" r="118" fill="none" stroke="rgba(243,238,230,.14)"/>
-            <circle cx="180" cy="180" r="64" fill="none" stroke="rgba(243,238,230,.14)"/>
-            <line x1="180" y1="10" x2="180" y2="350" stroke="rgba(243,238,230,.1)"/>
-            <line x1="10" y1="180" x2="350" y2="180" stroke="rgba(243,238,230,.1)"/>
-            <g class="sweep"><path d="M180 180 L180 10 A170 170 0 0 0 60 60 Z" fill="#FF5C73" opacity=".16"/><line x1="180" y1="180" x2="180" y2="10" stroke="#FF5C73" stroke-width="2"/></g>
-            <circle class="ping" cx="250" cy="110" r="5" fill="#FF5C73" style="animation-delay:.5s"/><text x="262" y="106">TG</text>
-            <circle class="ping" cx="290" cy="230" r="5" fill="#FF5C73" style="animation-delay:1.27s"/><text x="262" y="254">WA</text>
-            <circle class="ping" cx="130" cy="270" r="5" fill="#FF5C73" style="animation-delay:2.3s"/><text x="142" y="288">IG</text>
-            <circle class="ping" cx="100" cy="120" r="5" fill="#FF5C73" style="animation-delay:3.4s"/><text x="66" y="108">MAIL</text>
-            <circle class="ping" cx="170" cy="90" r="5" fill="#FF5C73" style="animation-delay:1.8s"/><text x="182" y="86">GH</text>
-            <circle class="ping" cx="210" cy="280" r="5" fill="#FF5C73" style="animation-delay:2.7s"/><text x="222" y="296">IN</text>
-            <circle cx="180" cy="180" r="4" fill="#F3EEE6"/><text x="174" y="28" fill="#F3EEE6">N</text>
+            <circle cx="180" cy="180" r="170" fill="none" stroke="rgba(243,237,228,.2)" stroke-width="1.5"/>
+            <circle cx="180" cy="180" r="118" fill="none" stroke="rgba(243,237,228,.14)"/>
+            <circle cx="180" cy="180" r="64" fill="none" stroke="rgba(243,237,228,.14)"/>
+            <line x1="180" y1="10" x2="180" y2="350" stroke="rgba(243,237,228,.1)"/>
+            <line x1="10" y1="180" x2="350" y2="180" stroke="rgba(243,237,228,.1)"/>
+            <g class="sweep"><path d="M180 180 L180 10 A170 170 0 0 0 60 60 Z" fill="#0B7A85" opacity=".16"/><line x1="180" y1="180" x2="180" y2="10" stroke="#0B7A85" stroke-width="2"/></g>
+            <circle class="ping" cx="250" cy="110" r="5" fill="#0B7A85" style="animation-delay:.5s"/><text x="262" y="106">TG</text>
+            <circle class="ping" cx="290" cy="230" r="5" fill="#0B7A85" style="animation-delay:1.27s"/><text x="262" y="254">WA</text>
+            <circle class="ping" cx="130" cy="270" r="5" fill="#0B7A85" style="animation-delay:2.3s"/><text x="142" y="288">IG</text>
+            <circle class="ping" cx="100" cy="120" r="5" fill="#0B7A85" style="animation-delay:3.4s"/><text x="66" y="108">MAIL</text>
+            <circle class="ping" cx="170" cy="90" r="5" fill="#0B7A85" style="animation-delay:1.8s"/><text x="182" y="86">GH</text>
+            <circle class="ping" cx="210" cy="280" r="5" fill="#0B7A85" style="animation-delay:2.7s"/><text x="222" y="296">IN</text>
+            <circle cx="180" cy="180" r="4" fill="#F3EDE4"/><text x="174" y="28" fill="#F3EDE4">N</text>
           </svg>
         </div>
       </div>
@@ -315,10 +315,10 @@
         <div class="map-wrap" id="map-wrap">
           <div class="map" id="map">
             <svg width="1344" height="410" viewBox="0 0 1344 410" aria-hidden="true">
-              <path id="route-path" d="M60 180 C 150 180, 230 300, 310 300 S 470 150, 560 150 S 720 300, 810 300 S 970 170, 1060 170 S 1220 105, 1290 105" fill="none" stroke="#13223A" stroke-width="2.5" stroke-dasharray="2 10" stroke-linecap="round" opacity=".55"/>
-              <path id="route-draw" d="M60 180 C 150 180, 230 300, 310 300 S 470 150, 560 150 S 720 300, 810 300 S 970 170, 1060 170 S 1220 105, 1290 105" fill="none" stroke="#FF5C73" stroke-width="3.5" stroke-linecap="round"/>
+              <path id="route-path" d="M60 180 C 150 180, 230 300, 310 300 S 470 150, 560 150 S 720 300, 810 300 S 970 170, 1060 170 S 1220 105, 1290 105" fill="none" stroke="#1F3A45" stroke-width="2.5" stroke-dasharray="2 10" stroke-linecap="round" opacity=".55"/>
+              <path id="route-draw" d="M60 180 C 150 180, 230 300, 310 300 S 470 150, 560 150 S 720 300, 810 300 S 970 170, 1060 170 S 1220 105, 1290 105" fill="none" stroke="#0B7A85" stroke-width="3.5" stroke-linecap="round"/>
             </svg>
-            <div class="plane" id="plane"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M45 24c0-1.6-1.4-2.6-3.2-2.6H30L20 5h-4.2l5.2 16.4H10.4L6.6 15H3l2.4 9L3 33h3.6l3.8-6.4h10.6L15.8 43H20l10-16.4h11.8c1.8 0 3.2-1 3.2-2.6z" fill="#13223A"/></svg></div>
+            <div class="plane" id="plane"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M45 24c0-1.6-1.4-2.6-3.2-2.6H30L20 5h-4.2l5.2 16.4H10.4L6.6 15H3l2.4 9L3 33h3.6l3.8-6.4h10.6L15.8 43H20l10-16.4h11.8c1.8 0 3.2-1 3.2-2.6z" fill="#1F3A45"/></svg></div>
 
             <div class="wp" data-at="0" style="left:60px;top:180px"><i class="tri"></i><div class="wp__label wp__label--up"><b data-i18n="wp.spb">Saint Petersburg</b><span data-i18n="wp.spbv">departure point</span></div></div>
             <div class="wp" data-at=".2" style="left:310px;top:300px"><i class="tri"></i><div class="wp__label wp__label--down"><b data-i18n="wp.ukhta">Ukhta</b><span data-i18n="wp.ukhtav">childhood</span></div></div>
@@ -385,7 +385,7 @@
                 <div class="msg msg--bot" data-i18n="ann.reply">Here's the latest edition. There are also lectures and a couple of books on this — want to see?</div>
                 <div class="chat__chips"><button type="button" class="chip" data-i18n="ann.c1">Documents</button><button type="button" class="chip" data-i18n="ann.c2">Books &amp; lectures</button><button type="button" class="chip" data-i18n="ann.c3">Admissions</button></div>
               </div>
-              <form class="chat__input" onsubmit="return false"><label for="bot-msg" class="sr-only" data-i18n="ann.label">Message to the bot</label><input id="bot-msg" type="text" data-i18n-ph="ann.ph" placeholder="Message"><button type="button" data-i18n-aria="ann.send" aria-label="Send"><svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="#13223A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></form>
+              <form class="chat__input" onsubmit="return false"><label for="bot-msg" class="sr-only" data-i18n="ann.label">Message to the bot</label><input id="bot-msg" type="text" data-i18n-ph="ann.ph" placeholder="Message"><button type="button" data-i18n-aria="ann.send" aria-label="Send"><svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="#1F3A45" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></form>
             </div>
           </article>
 
@@ -428,7 +428,7 @@
 
           <article class="pcard pcard--channel" data-reveal>
             <div class="ch__row"><img class="ch__ava" src="assets/img/channel.jpg" alt="" width="52" height="52"><h3 data-i18n="ch.h">Telegram channel</h3></div>
-            <a class="pcard__link" href="https://t.me/" target="_blank" rel="noopener" data-i18n="ch.name">“captain jack sparrow”</a>
+            <a class="pcard__link" href="https://t.me/pilotarbuza" target="_blank" rel="noopener" data-i18n="ch.name">“captain jack sparrow”</a>
             <div class="chart">
               <span class="bars"><i style="--h:60%"></i><i style="--h:90%" class="bars--cream"></i><i style="--h:45%"></i><i style="--h:75%" class="bars--cream"></i></span>
               <span data-i18n="ch.p">Every year — admission scores for universities and civil aviation flight schools, with infographics from 2026.</span>
@@ -465,7 +465,7 @@
           </ol>
         </details>
         <div class="card volunteer" data-reveal>
-          <div class="volunteer__top"><span class="doto volunteer__num"><span data-count="600">0</span>+</span><svg class="cross" width="56" height="56" viewBox="0 0 72 72" aria-hidden="true"><path d="M26 6 H46 V26 H66 V46 H46 V66 H26 V46 H6 V26 H26 Z" fill="none" stroke="#7A1830" stroke-width="3.5" stroke-linejoin="round"/></svg></div>
+          <div class="volunteer__top"><span class="doto volunteer__num"><span data-count="600">0</span>+</span><svg class="cross" width="56" height="56" viewBox="0 0 72 72" aria-hidden="true"><path d="M26 6 H46 V26 H66 V46 H46 V66 H26 V46 H6 V26 H26 Z" fill="none" stroke="#B8361C" stroke-width="3.5" stroke-linejoin="round"/></svg></div>
           <h3 data-i18n="vol.h">hours with Volunteer Medics</h3>
           <p data-i18n="vol.p">First-aid instructor, qualified as a rescuer in 2026. Medical support at mass events, work in the emergency unit of Veresaev City Hospital, organising nationwide forums.</p>
         </div>
@@ -483,7 +483,7 @@
         <div class="rail__track peaks__grid">
           <article class="peak" data-reveal>
             <div class="peak__photo" data-parallax>
-              <svg viewBox="0 0 432 260" preserveAspectRatio="none" aria-hidden="true"><path d="M0 260 L0 190 L70 150 L130 170 L190 70 L225 95 L260 60 L330 150 L432 120 L432 260 Z" fill="#2A4468"/><path d="M172 100 L190 70 L225 95 L260 60 L292 104 L262 92 L242 108 L212 96 Z" fill="#E6EBEE" opacity=".85"/></svg>
+              <svg viewBox="0 0 432 260" preserveAspectRatio="none" aria-hidden="true"><path d="M0 260 L0 190 L70 150 L130 170 L190 70 L225 95 L260 60 L330 150 L432 120 L432 260 Z" fill="#2A4A55"/><path d="M172 100 L190 70 L225 95 L260 60 L292 104 L262 92 L242 108 L212 96 Z" fill="#F1EEE6" opacity=".85"/></svg>
               <span class="ph" data-i18n="pk.ph1">[summit photo, Elbrus]</span>
               <div class="thumbs" data-gallery="elbrus">
                 <button type="button" class="thumb" data-i="0" data-full="assets/img/peaks/elbrus-1.jpg" data-i18n-aria="pk.open" aria-label="Open photo"><img src="assets/img/peaks/elbrus-1-t.jpg" alt="Elbrus 1" loading="lazy"></button>
@@ -496,7 +496,7 @@
           </article>
           <article class="peak" data-reveal>
             <div class="peak__photo" data-parallax>
-              <svg viewBox="0 0 432 260" preserveAspectRatio="none" aria-hidden="true"><path d="M0 260 L0 210 L120 120 L216 40 L300 110 L340 100 L432 180 L432 260 Z" fill="#2A4468"/><path d="M180 70 L216 40 L252 70 L232 76 L216 64 L200 78 Z" fill="#E6EBEE" opacity=".85"/></svg>
+              <svg viewBox="0 0 432 260" preserveAspectRatio="none" aria-hidden="true"><path d="M0 260 L0 210 L120 120 L216 40 L300 110 L340 100 L432 180 L432 260 Z" fill="#2A4A55"/><path d="M180 70 L216 40 L252 70 L232 76 L216 64 L200 78 Z" fill="#F1EEE6" opacity=".85"/></svg>
               <span class="ph" data-i18n="pk.ph2">[summit photo, Ararat]</span>
               <div class="thumbs" data-gallery="ararat">
                 <button type="button" class="thumb" data-i="0" data-full="assets/img/peaks/ararat-1.jpg" data-i18n-aria="pk.open" aria-label="Open photo"><img src="assets/img/peaks/ararat-1-t.jpg" alt="Ararat 1" loading="lazy"></button>
@@ -509,7 +509,7 @@
           </article>
           <article class="peak" data-reveal>
             <div class="peak__photo" data-parallax>
-              <svg viewBox="0 0 432 260" preserveAspectRatio="none" aria-hidden="true"><path d="M0 260 L0 200 L90 170 L170 110 L230 50 L290 120 L360 140 L432 110 L432 260 Z" fill="#2A4468"/><path d="M205 80 L230 50 L262 88 L242 84 L228 96 Z" fill="#E6EBEE" opacity=".85"/></svg>
+              <svg viewBox="0 0 432 260" preserveAspectRatio="none" aria-hidden="true"><path d="M0 260 L0 200 L90 170 L170 110 L230 50 L290 120 L360 140 L432 110 L432 260 Z" fill="#2A4A55"/><path d="M205 80 L230 50 L262 88 L242 84 L228 96 Z" fill="#F1EEE6" opacity=".85"/></svg>
               <span class="ph" data-i18n="pk.ph3">[summit photo, Kazbek]</span>
               <div class="thumbs" data-gallery="kazbek">
                 <button type="button" class="thumb" data-i="0" data-full="assets/img/peaks/kazbek-1.jpg" data-i18n-aria="pk.open" aria-label="Open photo"><img src="assets/img/peaks/kazbek-1-t.jpg" alt="Kazbek 1" loading="lazy"></button>

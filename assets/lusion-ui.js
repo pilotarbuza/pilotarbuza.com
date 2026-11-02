@@ -93,6 +93,7 @@
 
           isPlaying = !isPlaying;
           soundBtn.classList.toggle('playing', isPlaying);
+          soundBtn.setAttribute('aria-pressed', isPlaying ? 'true' : 'false');
 
           if (masterGain) {
             const now = audioCtx.currentTime;

@@ -1,29 +1,29 @@
 /* ============================================================
    photo.pilotarbuza.com — Photography Portfolio
-   Colors: Palette from pilotarbuza.ru (#212121, #0E6466, #FFCA9D, #D9AF8E)
+   Colors: Palette from pilotarbuza.ru (#0C1517, #0B7A85, #FF6A4A, #FF8A6E)
    UI: Modern minimalist editorial aesthetic like pilotarbuza.com
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Geologica:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-  --bg: #212121;
-  --bg-deep: #161616;
-  --bg-surface: #292929;
-  --bg-surface-elevated: #323232;
-  --teal: #0E6466;
-  --teal-light: #168183;
-  --teal-glow: rgba(14, 100, 102, 0.45);
-  --teal-subtle: rgba(14, 100, 102, 0.15);
-  --sand: #D9AF8E;
-  --apricot: #FFCA9D;
+  --bg: #0C1517;
+  --bg-deep: #080F10;
+  --bg-surface: #14232A;
+  --bg-surface-elevated: #1A2E35;
+  --teal: #0B7A85;
+  --teal-light: #4FC7C4;
+  --teal-glow: rgba(11,122,133, 0.45);
+  --teal-subtle: rgba(11,122,133, 0.15);
+  --sand: #FF8A6E;
+  --apricot: #FF6A4A;
   --white: #FFFFFF;
-  --text-muted: #A9A9A9;
-  --text-dim: #707070;
+  --text-muted: #97B0B4;
+  --text-dim: #6E8589;
   --border: rgba(255, 255, 255, 0.08);
   --border-strong: rgba(255, 255, 255, 0.16);
-  --border-teal: rgba(14, 100, 102, 0.4);
-  --border-apricot: rgba(255, 202, 157, 0.4);
+  --border-teal: rgba(11,122,133, 0.4);
+  --border-apricot: rgba(255,106,74, 0.4);
   --shadow-card: 0 16px 36px rgba(0, 0, 0, 0.4);
   --radius-sm: 8px;
   --radius-md: 16px;
@@ -101,7 +101,7 @@ button {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(33, 33, 33, 0.85);
+  background: rgba(12,21,23, 0.85);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
@@ -162,7 +162,7 @@ button {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: rgba(22, 22, 22, 0.6);
+  background: rgba(8,15,16, 0.6);
   padding: 4px;
   border-radius: var(--radius-pill);
   border: 1px solid var(--border);
@@ -204,10 +204,10 @@ button {
 .stat-pill {
   font-size: 12px;
   color: var(--apricot);
-  background: rgba(255, 202, 157, 0.1);
+  background: rgba(255,106,74, 0.1);
   padding: 5px 12px;
   border-radius: var(--radius-pill);
-  border: 1px solid rgba(255, 202, 157, 0.2);
+  border: 1px solid rgba(255,106,74, 0.2);
 }
 
 .link-home {
@@ -327,7 +327,7 @@ button {
 .project-card:hover {
   transform: translateY(-4px);
   border-color: var(--border-apricot);
-  box-shadow: var(--shadow-card), 0 0 20px rgba(14, 100, 102, 0.2);
+  box-shadow: var(--shadow-card), 0 0 20px rgba(11,122,133, 0.2);
 }
 
 .project-card .card-media {
@@ -356,10 +356,10 @@ button {
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgba(22, 22, 22, 0.2) 0%,
-    rgba(22, 22, 22, 0.1) 40%,
-    rgba(22, 22, 22, 0.88) 85%,
-    rgba(22, 22, 22, 0.98) 100%
+    rgba(8,15,16, 0.2) 0%,
+    rgba(8,15,16, 0.1) 40%,
+    rgba(8,15,16, 0.88) 85%,
+    rgba(8,15,16, 0.98) 100%
   );
   pointer-events: none;
 }
@@ -392,7 +392,7 @@ button {
   letter-spacing: 0.08em;
   padding: 4px 10px;
   border-radius: var(--radius-pill);
-  background: rgba(14, 100, 102, 0.85);
+  background: rgba(11,122,133, 0.85);
   color: var(--white);
   backdrop-filter: blur(8px);
   border: 1px solid var(--border-teal);
@@ -406,7 +406,7 @@ button {
   background: rgba(0, 0, 0, 0.6);
   color: var(--apricot);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 202, 157, 0.2);
+  border: 1px solid rgba(255,106,74, 0.2);
 }
 
 .card-title {
@@ -542,7 +542,7 @@ button {
   width: 100%;
   height: auto;
   display: block;
-  background: #181818;
+  background: #0A1214;
   opacity: 0;
   transition: opacity 0.35s ease, filter 0.3s;
 }
@@ -559,7 +559,7 @@ button {
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: rgba(14, 14, 14, 0.96);
+  background: rgba(6,11,12, 0.96);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   display: none;
@@ -598,10 +598,10 @@ button {
 .lb-counter {
   font-size: 12px;
   color: var(--apricot);
-  background: rgba(255, 202, 157, 0.12);
+  background: rgba(255,106,74, 0.12);
   padding: 3px 10px;
   border-radius: var(--radius-pill);
-  border: 1px solid rgba(255, 202, 157, 0.25);
+  border: 1px solid rgba(255,106,74, 0.25);
 }
 
 .lb-controls {
@@ -666,7 +666,7 @@ button {
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: rgba(30, 30, 30, 0.7);
+  background: rgba(20,35,42, 0.7);
   border: 1px solid var(--border);
   color: var(--white);
   display: flex;
@@ -695,7 +695,7 @@ button {
 .site-footer {
   margin-top: auto;
   border-top: 1px solid var(--border);
-  background: rgba(22, 22, 22, 0.8);
+  background: rgba(8,15,16, 0.8);
   padding: 32px 24px;
 }
 

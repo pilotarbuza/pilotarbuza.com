@@ -32,8 +32,8 @@
 
   /* ---------- цвет пина — год последнего визита ---------- */
   const NOW_Y = new Date().getFullYear();
-  const YC = ['#FF5C73', '#F5A524', '#2FB57C', '#3D9DF2', '#8B6CF2'];   // этот год, прошлый, позапрошлый…
-  const OLD = '#8C98AC';                                                // раньше и без даты
+  const YC = ['#E8492A', '#0B7A85', '#3F7A45', '#4FC7C4', '#1F3A45'];   // этот год, прошлый, позапрошлый…
+  const OLD = '#A9BCBD';                                                // раньше и без даты
   const pinColor = p => (p.y ? YC[NOW_Y - p.y] || OLD : OLD);
   const EARLIER = { en: 'Earlier', ru: 'Раньше', tr: 'Daha önce' };
   const legend = document.getElementById('globe-legend');
@@ -136,7 +136,7 @@
   }
 
   /* ---------- растр ---------- */
-  const OC = [24, 41, 66], OD = [12, 22, 38], LC = [244, 239, 230], LD = [150, 162, 180], BC = [19, 34, 58];
+  const OC = [31, 58, 69], OD = [12, 21, 23], LC = [255, 248, 240], LD = [169, 188, 189], BC = [31, 58, 69]; // Anemos: Deep, Night, Ground, Fog
   const lx = -0.42, ly = 0.52, lz = 0.74;          // свет сверху-слева
   function raster(q) {
     const S = Math.max(64, Math.round(W * q));
@@ -193,7 +193,7 @@
     const c = W / 2, Rk = R0 * view.k;
     ctx.save(); ctx.beginPath(); ctx.arc(c, c, R0, 0, 6.2832); ctx.clip();
     // сетка
-    ctx.strokeStyle = 'rgba(243,238,230,.09)'; ctx.lineWidth = Math.max(1, dpr * .6);
+    ctx.strokeStyle = 'rgba(243,237,228,.09)'; ctx.lineWidth = Math.max(1, dpr * .6);
     const stepG = view.k > 3 ? 10 : 30;
     const L0 = view.lon * D, A = view.lat * D, cL = Math.cos(L0), sL = Math.sin(L0), cA = Math.cos(A), sA = Math.sin(A);
     const lensR = R0 / Rk;
@@ -224,8 +224,8 @@
       ctx.strokeStyle = style; ctx.lineWidth = width; ctx.lineJoin = 'round'; ctx.stroke();
     };
     const zw = Math.min(1.8, .7 + Math.log2(view.k) * .25);
-    stroke(borders, 'rgba(19,34,58,.32)', dpr * .75 * zw);
-    stroke(coast, 'rgba(19,34,58,.55)', dpr * .8 * zw);
+    stroke(borders, 'rgba(31,58,69,.32)', dpr * .75 * zw);
+    stroke(coast, 'rgba(31,58,69,.55)', dpr * .8 * zw);
     // пины
     pins = [];
     const ps = dpr * Math.min(1.4, 1 + Math.log2(view.k) * .1);
@@ -241,7 +241,7 @@
       const { p, X, Y, z } = pn, on = !activeC || p.c === activeC;
       const r = (2 + .8 * z) * ps * (pn === selected || p === (selected && selected.p) ? 1.6 : 1);
       ctx.globalAlpha = on ? 1 : dim;
-      ctx.beginPath(); ctx.arc(X, Y + r * .2, r + 1.2 * dpr, 0, 6.2832); ctx.fillStyle = 'rgba(8,16,30,.3)'; ctx.fill();
+      ctx.beginPath(); ctx.arc(X, Y + r * .2, r + 1.2 * dpr, 0, 6.2832); ctx.fillStyle = 'rgba(6,11,12,.3)'; ctx.fill();
       ctx.beginPath(); ctx.arc(X, Y, r, 0, 6.2832); ctx.fillStyle = pinColor(p); ctx.fill();
       ctx.lineWidth = dpr; ctx.strokeStyle = 'rgba(255,255,255,.95)'; ctx.stroke();
       pn.r = r;
@@ -255,16 +255,16 @@
         const t = name(pn.p), w = ctx.measureText(t).width + 9 * dpr, h = 16 * dpr, x = pn.X + pn.r + 3 * dpr, y = pn.Y - h / 2;
         if (boxes.some(b => x < b[0] + b[2] && x + w > b[0] && y < b[1] + b[3] && y + h > b[1])) return;
         boxes.push([x, y, w, h]);
-        ctx.fillStyle = 'rgba(14,26,43,.72)'; roundRect(x, y, w, h, h / 2); ctx.fill();
-        ctx.fillStyle = '#F3EEE6'; ctx.fillText(t, x + 4.5 * dpr, y + h / 2 + .5);
+        ctx.fillStyle = 'rgba(12,21,23,.72)'; roundRect(x, y, w, h, h / 2); ctx.fill();
+        ctx.fillStyle = '#F3EDE4'; ctx.fillText(t, x + 4.5 * dpr, y + h / 2 + .5);
       });
     }
     ctx.restore();
     // ободок линзы и атмосфера
     const g = ctx.createRadialGradient(c, c, R0 * .98, c, c, R0 * 1.1);
-    g.addColorStop(0, 'rgba(120,160,230,.35)'); g.addColorStop(1, 'rgba(120,160,230,0)');
+    g.addColorStop(0, 'rgba(79,199,196,.35)'); g.addColorStop(1, 'rgba(79,199,196,0)');
     ctx.fillStyle = g; ctx.beginPath(); ctx.arc(c, c, R0 * 1.1, 0, 6.2832); ctx.arc(c, c, R0, 0, 6.2832, true); ctx.fill();
-    ctx.beginPath(); ctx.arc(c, c, R0 - .5, 0, 6.2832); ctx.strokeStyle = 'rgba(243,238,230,.35)'; ctx.lineWidth = Math.max(1, dpr); ctx.stroke();
+    ctx.beginPath(); ctx.arc(c, c, R0 - .5, 0, 6.2832); ctx.strokeStyle = 'rgba(243,237,228,.35)'; ctx.lineWidth = Math.max(1, dpr); ctx.stroke();
   }
   function roundRect(x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
 

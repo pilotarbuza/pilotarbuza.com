@@ -25,22 +25,22 @@
   /* ---------- шапка и меню ---------- */
   const top = $('#top'), hero = $('#hero');
   if (top && hero) {
-    new IntersectionObserver(([e]) => top.classList.toggle('top--light', !e.isIntersecting), { rootMargin: '-64px 0px 0px 0px', threshold: 0 }).observe(hero);
-  }
-  const burger = $('#burger'), menu = $('#menu'), backdrop = $('#menu-backdrop');
-  if (burger && menu) {
-    const set = (open) => {
-      menu.classList.toggle('menu--open', open);
-      if (backdrop) backdrop.classList.toggle('open', open);
-      burger.setAttribute('aria-expanded', open);
-      document.body.style.overflow = open ? 'hidden' : '';
+    // шапка светлая, только когда под ней светлая секция: на hero, контактах, вершинах и финале остается темной
+    const DARK = '#hero, .dark, #end-section, .marquee-wrap';
+    let queued = false;
+    const syncTop = () => {
+      queued = false;
+      const y = Math.min(innerHeight - 1, top.offsetHeight + 1);
+      const under = document.elementsFromPoint(innerWidth / 2, y).find(el => !top.contains(el) && el !== top);
+      top.classList.toggle('top--light', !(under && under.closest(DARK)));
     };
-    burger.addEventListener('click', () => set(!menu.classList.contains('menu--open')));
-    if (backdrop) backdrop.addEventListener('click', () => set(false));
-    $$('a', menu).forEach(a => a.addEventListener('click', () => set(false)));
-    window.addEventListener('keydown', e => { if (e.key === 'Escape') set(false); });
-
-    const menuNavLinks = $$('.menu-nav-link', menu);
+    addEventListener('scroll', () => { if (!queued) { queued = true; requestAnimationFrame(syncTop); } }, { passive: true });
+    addEventListener('resize', syncTop); syncTop();
+  }
+  // открытие и закрытие меню — в lusion-ui.js; здесь только подсветка текущего раздела
+  const menu = $('#menu');
+  if (menu) {
+    const menuNavLinks = $$('.lusion-nav-link', menu);
     if (menuNavLinks.length) {
       const sections = $$('header#hero, section[id]');
       const spyObs = new IntersectionObserver((entries) => {
@@ -73,7 +73,7 @@
   const canvas = $('#dots');
   const ctx = canvas && canvas.getContext('2d');
   if (ctx) {
-    const CREAM = '#F3EEE6', ACCENT = '#FF5C73';
+    const CREAM = '#F3EDE4', ACCENT = '#0B7A85';
     let dots = [], W = 0, H = 0, step = 14, raf = 0, t = 0;
     const mouse = { x: -9e3, y: -9e3, on: false };
     const linesFor = () => (W < 640 ? ['pilot', 'arbuza'] : ['pilotarbuza']);
