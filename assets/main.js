@@ -26,7 +26,7 @@
   const top = $('#top'), hero = $('#hero');
   if (top && hero) {
     // шапка светлая, только когда под ней светлая секция: на hero, контактах, вершинах и финале остается темной
-    const DARK = '#hero, .dark, #end-section, .marquee-wrap';
+    const DARK = '#hero, .dark, #cards, #end-section, .marquee-wrap';
     let queued = false;
     const syncTop = () => {
       queued = false;

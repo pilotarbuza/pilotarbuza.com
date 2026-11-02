@@ -1,225 +1,130 @@
 /* ============================================================
-   pilotarbuza.com — Interactive Granular Particle Sea
-   Styled with Anemos Aircraft Brandbook Palette:
-   - Deep Teal Sea Background (#0B7A85 to #1F3A45)
-   - Milk Silk (#FFF8F0), Ice Mist (#BFE6E4) and Garnet (#FF6A4A) shapes
-   - Delta Aircraft Wings, Navigation Crosses, Instrument Circles & Squares
+   pilotarbuza.com — финал «Let's work together!»
+   Поле из мелких фигур (плюс, крест, квадрат, круг, треугольник) под холмистым
+   силуэтом: у гребня ряды мельче, внизу крупнее. Силуэт медленно дышит, поле
+   течет, курсор расталкивает фигуры. Цикл спит, пока секция вне экрана или вкладка скрыта.
+   Палитра Anemos: фон Breeze #0B7A85, фигуры Ground #FFF8F0.
    ============================================================ */
 
 (() => {
   'use strict';
 
-  function initEndShapes() {
+  function initEndField() {
     const section = document.getElementById('end-section');
     const canvas = document.getElementById('end-shapes-canvas');
     if (!section || !canvas) return;
-
     const ctx = canvas.getContext('2d');
-    let width = section.clientWidth;
-    let height = section.clientHeight;
-    let dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    let W = 0, H = 0, dpr = 1, pts = [];
+    const mouse = { x: -9999, y: -9999, sx: -9999, sy: -9999 };
+
+    // Силуэт поля: высокий холм справа от центра, пологий слева, плюс медленная волна.
+    // Возвращает y верхнего края поля на экране для точки x.
+    function ridge(x, t) {
+      const u = x / W;
+      const wide = W < 768 ? 2.4 : 1;                 // на узком экране холм шире, иначе выходит пиком
+      const hillR = (W < 768 ? 0.2 : 0.30) * Math.exp(-((u - 0.66) ** 2) / (0.045 * wide));
+      const hillL = 0.10 * Math.exp(-((u - 0.12) ** 2) / 0.02);
+      const wave = 0.022 * Math.sin(u * 7.5 + t * 0.45) + 0.012 * Math.sin(u * 17 - t * 0.7);
+      return H * (0.66 - hillR - hillL - wave);
+    }
+
+    // Точки лежат рядами от гребня вниз: у гребня ряды и фигуры мельче (дальше), внизу крупнее
+    function build() {
+      pts = [];
+      const mobile = W < 768;
+      const rows = mobile ? 34 : 46;
+      for (let k = 0; k <= rows; k++) {
+        const d = Math.pow(k / rows, 1.35);
+        const step = (mobile ? 15 : 19) + d * (mobile ? 16 : 22);
+        const n = Math.ceil((W + 80) / step);
+        for (let i = 0; i < n; i++) {
+          pts.push({
+            u: (-40 + (i + 0.15 + Math.random() * 0.7) * step) / W,
+            d: Math.min(1.04, d + (Math.random() - 0.5) * 0.9 / rows),
+            type: (Math.random() * 5) | 0,
+            rot: Math.random() * Math.PI * 2,
+            spin: (Math.random() - 0.5) * 0.4,
+            ph: Math.random() * Math.PI * 2,
+            ox: 0, oy: 0,
+          });
+        }
+      }
+    }
 
     function resize() {
-      width = section.clientWidth;
-      height = section.clientHeight;
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = width * dpr;
-      canvas.height = height * dpr;
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.scale(dpr, dpr);
+      const r = section.getBoundingClientRect();
+      dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+      W = Math.max(1, Math.round(r.width)); H = Math.max(1, Math.round(r.height));
+      canvas.width = W * dpr; canvas.height = H * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      build();
     }
+
+    function shape(type, x, y, s, rot) {
+      ctx.save(); ctx.translate(x, y); ctx.rotate(rot);
+      switch (type) {
+        case 0: // плюс
+          ctx.fillRect(-s, -s * 0.22, s * 2, s * 0.44); ctx.fillRect(-s * 0.22, -s, s * 0.44, s * 2); break;
+        case 1: // крест
+          ctx.rotate(Math.PI / 4);
+          ctx.fillRect(-s, -s * 0.2, s * 2, s * 0.4); ctx.fillRect(-s * 0.2, -s, s * 0.4, s * 2); break;
+        case 2: // квадрат
+          ctx.fillRect(-s * 0.62, -s * 0.62, s * 1.24, s * 1.24); break;
+        case 3: // круг
+          ctx.beginPath(); ctx.arc(0, 0, s * 0.62, 0, 6.2832); ctx.fill(); break;
+        default: // треугольник
+          ctx.beginPath(); ctx.moveTo(0, -s * 0.8); ctx.lineTo(s * 0.72, s * 0.5); ctx.lineTo(-s * 0.72, s * 0.5); ctx.closePath(); ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    let t = 0, raf = 0, visible = false;
+    function frame() {
+      raf = 0;
+      if (!visible || document.hidden) return;
+      if (!reduce) raf = requestAnimationFrame(frame);
+      t += 0.016;
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = '#FFF8F0';
+
+      mouse.sx += (mouse.x - mouse.sx) * 0.12; mouse.sy += (mouse.y - mouse.sy) * 0.12;
+      const R = W < 768 ? 90 : 150, R2 = R * R;
+      const flow = reduce ? 0 : t * 6;                  // поле медленно течет вправо
+
+      for (const p of pts) {
+        let x = ((p.u * W + flow * (0.4 + p.d)) % (W + 80) + (W + 80)) % (W + 80) - 40;
+        const top = ridge(x, t);
+        const y = top + p.d * (H + 30 - top);
+        const size = 3.3 + p.d * 5;
+
+        const dx = x + p.ox - mouse.sx, dy = y + p.oy - mouse.sy, d2 = dx * dx + dy * dy;
+        if (d2 < R2) { const d = Math.sqrt(d2) || 1, k = (1 - d / R) ** 2 * 26; p.ox += (dx / d) * k * 0.2; p.oy += (dy / d) * k * 0.2; }
+        p.ox *= 0.9; p.oy *= 0.9;
+
+        ctx.globalAlpha = Math.min(1, 0.35 + p.d * 3);    // самый дальний ряд у гребня чуть прозрачнее
+        shape(p.type, x + p.ox, y + p.oy, size, p.rot + (reduce ? 0 : Math.sin(t * 0.6 + p.ph) * p.spin));
+      }
+      ctx.globalAlpha = 1;
+    }
+    const wake = () => { if (!raf && visible && !document.hidden) raf = requestAnimationFrame(frame); };
+
+    new IntersectionObserver(([e]) => { visible = e.isIntersecting; wake(); }, { threshold: 0.02 }).observe(section);
+    document.addEventListener('visibilitychange', wake);
+    section.addEventListener('pointermove', e => { const r = section.getBoundingClientRect(); mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top; });
+    section.addEventListener('pointerleave', () => { mouse.x = mouse.y = -9999; });
+    let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { resize(); wake(); }, 150); }, { passive: true });
     resize();
 
-    // Shape Types: 0 = Cross (+), 1 = Square (■), 2 = Circle (●), 3 = Delta Wing (▲)
-    const SHAPE_COUNT = width < 768 ? 900 : 1800;
-    const particles = [];
-
-    const COLORS = [
-      '#FFF8F0', // 90% Pure Milk Silk / Starlight White
-      '#FFF8F0',
-      '#FFF8F0',
-      '#FFF8F0',
-      '#FFF8F0',
-      '#BFE6E4'  // 10% Mist / Ice Accent
-    ];
-
-    for (let i = 0; i < SHAPE_COUNT; i++) {
-      const x = Math.random() * width;
-      const depth = Math.pow(Math.random(), 0.72);
-      const baseY = height * 0.44 + depth * (height * 0.56);
-
-      particles.push({
-        x,
-        y: baseY,
-        baseY,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: 0,
-        rot: Math.random() * Math.PI * 2,
-        vRot: (Math.random() - 0.5) * 0.05,
-        type: Math.floor(Math.random() * 4),
-        color: COLORS[Math.floor(Math.random() * COLORS.length)],
-        size: width < 768 ? (4.5 + Math.random() * 4.5) : (5.5 + Math.random() * 6),
-        waveOffset: Math.random() * Math.PI * 2,
-        waveSpeed: 0.7 + Math.random() * 1.1,
-        opacity: 0.8 + Math.random() * 0.2
-      });
-    }
-
-    // Pointer tracking
-    const mouse = { x: -9999, y: -9999, prevX: -9999, prevY: -9999, vx: 0, vy: 0 };
-    function updatePointer(cx, cy) {
-      const rect = canvas.getBoundingClientRect();
-      mouse.x = cx - rect.left;
-      mouse.y = cy - rect.top;
-      if (mouse.prevX > -1000) {
-        mouse.vx = mouse.x - mouse.prevX;
-        mouse.vy = mouse.y - mouse.prevY;
-      }
-      mouse.prevX = mouse.x;
-      mouse.prevY = mouse.y;
-    }
-
-    window.addEventListener('pointermove', (e) => {
-      updatePointer(e.clientX, e.clientY);
-    }, { passive: true });
-
-    window.addEventListener('pointerleave', () => {
-      mouse.x = -9999;
-      mouse.y = -9999;
-      mouse.vx = 0;
-      mouse.vy = 0;
-    });
-
-    window.addEventListener('touchmove', (e) => {
-      if (e.touches.length > 0) {
-        updatePointer(e.touches[0].clientX, e.touches[0].clientY);
-      }
-    }, { passive: true });
-
-    // Draw individual shape
-    function drawShape(type, size) {
-      const half = size * 0.5;
-      if (type === 0) {
-        // Cross (+)
-        const bar = size * 0.28;
-        ctx.beginPath();
-        ctx.rect(-half, -bar * 0.5, size, bar);
-        ctx.rect(-bar * 0.5, -half, bar, size);
-        ctx.fill();
-      } else if (type === 1) {
-        // Square (■)
-        ctx.fillRect(-half, -half, size, size);
-      } else if (type === 2) {
-        // Circle (●)
-        ctx.beginPath();
-        ctx.arc(0, 0, half, 0, Math.PI * 2);
-        ctx.fill();
-      } else {
-        // Delta Aircraft Chevron (▲)
-        ctx.beginPath();
-        ctx.moveTo(0, -half * 1.25);
-        ctx.lineTo(half * 0.95, half * 0.9);
-        ctx.lineTo(0, half * 0.4);
-        ctx.lineTo(-half * 0.95, half * 0.9);
-        ctx.closePath();
-        ctx.fill();
-      }
-    }
-
-    // Performance Visibility Culling
-    // цикл не крутится, пока секция вне экрана или вкладка скрыта
-    let isVisible = false, raf = 0;
-    const wake = () => { if (!raf && isVisible && !document.hidden) raf = requestAnimationFrame(loop); };
-    const observer = new IntersectionObserver((entries) => {
-      isVisible = entries[0].isIntersecting;
-      wake();
-    }, { threshold: 0.05 });
-    observer.observe(section);
-    document.addEventListener('visibilitychange', wake);
-
-    let time = 0;
-    function loop() {
-      raf = 0;
-      if (!isVisible || document.hidden) return;
-      raf = requestAnimationFrame(loop);
-
-      time += 0.016;
-      ctx.clearRect(0, 0, width, height);
-
-      const MOUSE_RADIUS = width < 768 ? 95 : 140;
-      const MOUSE_RADIUS_SQ = MOUSE_RADIUS * MOUSE_RADIUS;
-
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
-
-        // 1. Organic wave height
-        const wave = Math.sin(p.x * 0.005 + time * p.waveSpeed + p.waveOffset) * 16
-                   + Math.cos(p.x * 0.011 - time * 0.6) * 7;
-        const targetY = p.baseY + wave;
-
-        // 2. Pointer repulsion & splash
-        const dx = p.x - mouse.x;
-        const dy = p.y - mouse.y;
-        const distSq = dx * dx + dy * dy;
-
-        if (distSq < MOUSE_RADIUS_SQ) {
-          const dist = Math.sqrt(distSq);
-          const factor = 1 - dist / MOUSE_RADIUS;
-          const pushX = (dx / (dist || 1)) * factor * 16;
-          const pushY = (dy / (dist || 1)) * factor * 16;
-
-          p.vx += pushX + mouse.vx * 0.18;
-          p.vy += pushY - factor * 9 + mouse.vy * 0.18;
-          p.vRot += (Math.random() - 0.5) * 0.3;
-        }
-
-        // 3. Gravity and bed restoring spring
-        if (p.y < targetY) {
-          p.vy += 0.48; // Gravity
-        } else {
-          const depth = p.y - targetY;
-          p.vy -= depth * 0.085;
-          p.vy *= 0.8;
-        }
-
-        // Velocity decay
-        p.vx *= 0.92;
-        p.vy *= 0.94;
-        p.vRot *= 0.93;
-
-        p.x += p.vx;
-        p.y += p.vy;
-        p.rot += p.vRot;
-
-        // Screen wrapping
-        if (p.x < -15) p.x = width + 15;
-        if (p.x > width + 15) p.x = -15;
-
-        // 4. Render
-        ctx.save();
-        ctx.translate(p.x, p.y);
-        ctx.rotate(p.rot);
-        ctx.fillStyle = p.color;
-        ctx.globalAlpha = p.opacity;
-        drawShape(p.type, p.size);
-        ctx.restore();
-      }
-
-      // Decay mouse velocity
-      mouse.vx *= 0.6;
-      mouse.vy *= 0.6;
-    }
-
-    wake();
-
-    window.addEventListener('resize', () => {
-      resize();
-    }, { passive: true });
+    // заголовок: буквы перекатываются, когда секция появляется и при наведении
+    const title = section.querySelector('.end-title');
+    if (title && !reduce) {
+      new IntersectionObserver(([e], o) => { if (e.isIntersecting) { title.classList.add('is-in'); o.disconnect(); } }, { threshold: 0.4 }).observe(title);
+      title.addEventListener('pointerenter', () => { title.classList.remove('is-rolling'); void title.offsetWidth; title.classList.add('is-rolling'); });
+    } else if (title) title.classList.add('is-in');
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initEndShapes);
-  } else {
-    initEndShapes();
-  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initEndField);
+  else initEndField();
 })();
