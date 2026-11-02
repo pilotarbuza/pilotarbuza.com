@@ -1162,3 +1162,23 @@ main, section, header, footer {
 
 /* Фон секции с глобусом: контуры названий городов (city-bg.js) */
 .city-bg { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; display: block; }
+
+/* Шапка без подложки и размытия, как у lusion.co: кнопки висят прямо над страницей */
+.lusion-header, .lusion-header.top--light { background: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; border-bottom: 0 !important; box-shadow: none !important; }
+
+/* Полоса прокрутки как у lusion.co: своя короткая дорожка справа по центру,
+   видна во время прокрутки и при наведении, на тёмных секциях светлая */
+html { scrollbar-width: none; }
+html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; }
+.sbar {
+  position: fixed; z-index: 80; right: 16px; top: 40vh; width: 6px; height: 20vh;
+  border-radius: 3px; background: rgba(12, 21, 23, .1);
+  opacity: 0; transition: opacity .5s, background-color .3s; touch-action: none; cursor: grab;
+}
+.sbar::before { content: ""; position: absolute; inset: -8px -10px; }
+.sbar.is-on, .sbar:hover, .sbar.is-drag { opacity: 1; transition-duration: .2s; }
+.sbar.is-drag { cursor: grabbing; }
+.sbar__bar { position: absolute; left: 0; top: 0; width: 100%; border-radius: 3px; background: var(--anemos-night); transition: background-color .3s; will-change: transform; }
+.sbar.is-dark { background: rgba(255, 248, 240, .14); }
+.sbar.is-dark .sbar__bar { background: var(--anemos-ground); }
+@media (max-width: 812px) { .sbar { width: 2px; right: 6px; border-radius: 1px; } .sbar__bar { border-radius: 1px; } }

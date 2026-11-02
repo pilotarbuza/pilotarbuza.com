@@ -59,8 +59,11 @@
     for (let i = 0; i < n; i++) {
       const rand = rnd(97 + i * 131);
       const order = list.slice().sort(() => rand() - 0.5);
-      let txt = '', k = 0;
-      while (meas.measureText(txt).width < W * 1.7) { txt += order[k % order.length] + gap; k++; }
+      // одна порция названий шириной не меньше экрана, повторённая дважды: строка зациклена
+      let seq = '', k = 0;
+      while (meas.measureText(seq).width < W * 1.05) { seq += order[k % order.length] + gap; k++; }
+      const period = meas.measureText(seq).width;
+      const txt = seq + seq;
       const w = Math.ceil(meas.measureText(txt).width);
       const c = document.createElement('canvas');
       c.width = Math.ceil(w * dpr); c.height = Math.ceil(lh * dpr);
@@ -70,7 +73,7 @@
       g.lineWidth = Math.max(1, W / 1200); g.lineJoin = 'round';
       g.strokeStyle = '#1F3A45';
       g.strokeText(txt, 0, lh / 2);
-      rows.push({ c, w, off: rand() * W * 0.6 });
+      rows.push({ c, w, period, off: rand() * period, dir: i % 2 ? 1 : -1, v: 14 + rand() * 16 });
     }
     draw(performance.now());
   }
@@ -116,7 +119,10 @@
     const n = rows.length;
     const xs = rows.map((r, i) => {
       const lr = Math.floor(i / n * 6) / 6;
-      return -r.off - lstep(lr * 0.4, 0.56 + lr * 0.4, p) * 0.5 * W;
+      // сами по себе ползут влево и вправо через строку, плюс сдвиг по скроллу
+      const drift = reduce ? 0 : r.dir * r.v * t;
+      const x = r.off + lstep(lr * 0.4, 0.56 + lr * 0.4, p) * 0.5 * W - drift;
+      return -(((x % r.period) + r.period) % r.period);
     });
 
     ctx.setTransform(1, 0, 0, 1, 0, 0);
