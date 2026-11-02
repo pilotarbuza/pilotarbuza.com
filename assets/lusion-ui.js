@@ -15,41 +15,31 @@
     const menuBtnText = document.getElementById('lusion-menu-btn-text');
     const soundBtn = document.getElementById('lusion-sound-btn');
 
-    // 1. Menu Toggle
+    // 1. Меню: карточки выезжают по очереди, закрываются в обратном порядке
     if (menuBtn && menu) {
+      const cards = Array.from(menu.querySelectorAll('.lusion-card'));
+      const n = cards.length;
+      cards.forEach((c, i) => {
+        c.style.setProperty('--open-delay', (i / 50 + 0.02) + 's');
+        c.style.setProperty('--close-delay', (Math.abs(i - n + 1) / 50) + 's');
+      });
+      const isOpen = () => menu.classList.contains('open');
       const setMenuOpen = (open) => {
         menu.classList.toggle('open', open);
-        menu.classList.toggle('menu--open', open);
-        if (backdrop) {
-          backdrop.classList.toggle('open', open);
-          backdrop.classList.toggle('menu--open', open);
-        }
+        if (backdrop) backdrop.classList.toggle('open', open);
         menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
-        
-        if (menuBtnText) {
-          menuBtnText.textContent = open ? 'CLOSE' : 'MENU';
-        }
-        document.body.style.overflow = open ? 'hidden' : '';
+        if (menuBtnText && !menuBtnText.querySelector('.mbt__a')) menuBtnText.textContent = open ? 'CLOSE' : 'MENU';
       };
 
-      menuBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        setMenuOpen(!menu.classList.contains('open'));
-      });
-
-      if (backdrop) {
-        backdrop.addEventListener('click', () => setMenuOpen(false));
-      }
-
-      menu.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', () => setMenuOpen(false));
-      });
-
-      window.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && menu.classList.contains('open')) {
-          setMenuOpen(false);
-        }
-      });
+      menuBtn.addEventListener('click', (e) => { e.stopPropagation(); setMenuOpen(!isOpen()); });
+      // клик мимо карточек закрывает меню
+      document.addEventListener('click', (e) => { if (isOpen() && !menu.contains(e.target)) setMenuOpen(false); });
+      menu.querySelectorAll('a').forEach(link => link.addEventListener('click', () => setMenuOpen(false)));
+      window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && isOpen()) { setMenuOpen(false); menuBtn.focus(); } });
+      // заметная прокрутка страницы тоже закрывает меню
+      let y0 = 0;
+      menuBtn.addEventListener('click', () => { y0 = window.scrollY; });
+      window.addEventListener('scroll', () => { if (isOpen() && Math.abs(window.scrollY - y0) > 120) setMenuOpen(false); }, { passive: true });
     }
 
     // 2. Sound Toggle (Native Web Audio API Synth)

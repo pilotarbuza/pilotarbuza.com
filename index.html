@@ -43,67 +43,38 @@
         <span class="lusion-dot-garnet"></span>
       </a>
       <button class="lusion-capsule lusion-capsule--white lusion-menu-btn" id="burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="menu">
-        <span id="lusion-menu-btn-text">MENU</span>
+        <span id="lusion-menu-btn-text" class="mbt"><span class="mbt__a">MENU</span><span class="mbt__b" aria-hidden="true">CLOSE</span></span>
         <span class="lusion-menu-dots" aria-hidden="true"><span class="lusion-menu-dot"></span><span class="lusion-menu-dot"></span></span>
       </button>
     </div>
   </header>
 
-  <div class="menu-backdrop lusion-backdrop" id="menu-backdrop" aria-hidden="true"></div>
+  <div class="lusion-backdrop" id="menu-backdrop" aria-hidden="true"></div>
 
-  <nav class="menu lusion-menu" id="menu" aria-label="Menu">
-    <!-- Card 1: All 9 Navigation Sections -->
-    <div class="menu-card lusion-card lusion-card--nav">
+  <nav class="lusion-menu" id="menu" aria-label="Menu">
+    <div class="lusion-card lusion-card--nav">
       <div class="lusion-nav-links">
-        <a href="#hero" class="lusion-nav-link active" data-nav="hero">
-          <span>HOME</span>
-          <span class="link-dot"></span>
-        </a>
-        <a href="#about" class="lusion-nav-link" data-nav="about">
-          <span>ABOUT</span>
-          <span class="link-dot"></span>
-        </a>
-        <a href="#route" class="lusion-nav-link" data-nav="route">
-          <span>ROUTE</span>
-          <span class="link-dot"></span>
-        </a>
-        <a href="#projects" class="lusion-nav-link" data-nav="projects">
-          <span>PROJECTS</span>
-          <span class="link-dot"></span>
-        </a>
-        <a href="#skills" class="lusion-nav-link" data-nav="skills">
-          <span>SKILLS</span>
-          <span class="link-dot"></span>
-        </a>
-        <a href="#peaks" class="lusion-nav-link" data-nav="peaks">
-          <span>PEAKS</span>
-          <span class="link-dot"></span>
-        </a>
-        <a href="#shop" class="lusion-nav-link" data-nav="shop">
-          <span>SHOP</span>
-          <span class="link-dot"></span>
-        </a>
-        <a href="/photo/" class="lusion-nav-link" data-nav="photo">
-          <span>PHOTO</span>
-          <span class="link-dot"></span>
-        </a>
-        <a href="#contact" class="lusion-nav-link" data-nav="contact">
-          <span>CONTACT</span>
-          <span class="link-dot"></span>
-        </a>
+        <a href="#hero" class="lusion-nav-link active" data-nav="hero"><span class="lnl-bg" aria-hidden="true"></span><span class="lnl-txt"><span class="lnl-t">HOME</span><span class="lnl-t lnl-t--c" aria-hidden="true">HOME</span></span><svg class="lnl-arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M8.5 3.5 13 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>
+        <a href="#about" class="lusion-nav-link" data-nav="about"><span class="lnl-bg" aria-hidden="true"></span><span class="lnl-txt"><span class="lnl-t">ABOUT</span><span class="lnl-t lnl-t--c" aria-hidden="true">ABOUT</span></span><svg class="lnl-arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M8.5 3.5 13 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>
+        <a href="#route" class="lusion-nav-link" data-nav="route"><span class="lnl-bg" aria-hidden="true"></span><span class="lnl-txt"><span class="lnl-t">ROUTE</span><span class="lnl-t lnl-t--c" aria-hidden="true">ROUTE</span></span><svg class="lnl-arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M8.5 3.5 13 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>
+        <a href="#projects" class="lusion-nav-link" data-nav="projects"><span class="lnl-bg" aria-hidden="true"></span><span class="lnl-txt"><span class="lnl-t">PROJECTS</span><span class="lnl-t lnl-t--c" aria-hidden="true">PROJECTS</span></span><svg class="lnl-arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M8.5 3.5 13 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>
+        <a href="#skills" class="lusion-nav-link" data-nav="skills"><span class="lnl-bg" aria-hidden="true"></span><span class="lnl-txt"><span class="lnl-t">SKILLS</span><span class="lnl-t lnl-t--c" aria-hidden="true">SKILLS</span></span><svg class="lnl-arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M8.5 3.5 13 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>
+        <a href="#peaks" class="lusion-nav-link" data-nav="peaks"><span class="lnl-bg" aria-hidden="true"></span><span class="lnl-txt"><span class="lnl-t">PEAKS</span><span class="lnl-t lnl-t--c" aria-hidden="true">PEAKS</span></span><svg class="lnl-arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M8.5 3.5 13 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>
+        <a href="#shop" class="lusion-nav-link" data-nav="shop"><span class="lnl-bg" aria-hidden="true"></span><span class="lnl-txt"><span class="lnl-t">SHOP</span><span class="lnl-t lnl-t--c" aria-hidden="true">SHOP</span></span><svg class="lnl-arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M8.5 3.5 13 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>
+        <a href="/photo/" class="lusion-nav-link" data-nav="photo"><span class="lnl-bg" aria-hidden="true"></span><span class="lnl-txt"><span class="lnl-t">PHOTO</span><span class="lnl-t lnl-t--c" aria-hidden="true">PHOTO</span></span><svg class="lnl-arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M8.5 3.5 13 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>
+        <a href="#contact" class="lusion-nav-link" data-nav="contact"><span class="lnl-bg" aria-hidden="true"></span><span class="lnl-txt"><span class="lnl-t">CONTACT</span><span class="lnl-t lnl-t--c" aria-hidden="true">CONTACT</span></span><svg class="lnl-arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M8.5 3.5 13 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>
       </div>
     </div>
-
-    <!-- Card 2: GitHub (Replacing newsletter) -->
-    <a href="https://github.com/pilotarbuza" target="_blank" rel="noopener" class="menu-card lusion-card lusion-card--github">
-      <div class="github-left">
+    <a href="#contact" class="lusion-card lusion-card--talk">
+      <span class="lnl-txt"><span class="lnl-t">LET'S TALK</span><span class="lnl-t lnl-t--c" aria-hidden="true">LET'S TALK</span></span>
+      <span class="lusion-dot-garnet" aria-hidden="true"></span>
+    </a>
+    <a href="https://github.com/pilotarbuza" target="_blank" rel="noopener" class="lusion-card lusion-card--github">
+      <span class="github-left">
         <svg class="github-icon-svg" width="22" height="22" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5a9.5 9.5 0 0 0-3 18.5c.5.1.7-.2.7-.5v-1.8c-2.6.6-3.2-1.2-3.2-1.2-.4-1.1-1-1.4-1-1.4-.9-.6 0-.6 0-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.3 1.1 2.9.8.1-.6.3-1.1.6-1.3-2.1-.2-4.3-1-4.3-4.7 0-1 .4-1.9 1-2.6-.1-.2-.4-1.2.1-2.5 0 0 .8-.3 2.6 1a9 9 0 0 1 4.8 0c1.8-1.3 2.6-1 2.6-1 .5 1.3.2 2.3.1 2.5.6.7 1 1.6 1 2.6 0 3.7-2.2 4.5-4.3 4.7.3.3.6.9.6 1.8v2.7c0 .3.2.6.7.5A9.5 9.5 0 0 0 12 2.5z"/></svg>
-        <span class="github-text">GITHUB</span>
-      </div>
-      <svg class="github-arrow" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="7" y1="17" x2="17" y2="7"></line>
-        <polyline points="7 7 17 7 17 17"></polyline>
-      </svg>
+        <span class="lnl-txt"><span class="lnl-t">GITHUB</span><span class="lnl-t lnl-t--c" aria-hidden="true">GITHUB</span></span>
+      </span>
+      <span class="gh-arrows" aria-hidden="true"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5 4h7v7" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5 4h7v7" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></span>
     </a>
   </nav>
 
@@ -359,12 +330,119 @@
 
     <!-- 06 · Проекты -->
     <section class="projects" id="projects">
-      <div class="sec-head" data-reveal>
-        <h2 class="h2" data-i18n="proj.h">Projects</h2>
-        <p><span data-i18n="proj.p">What I do with my hands and head while not flying.</span><span class="only-m" data-i18n="ui.swipe"> Swipe sideways.</span></p>
+      <div class="wk-head">
+        <h2 class="wk-title"><span class="wk-title__mask"><span class="wk-title__in" data-i18n="proj.h">Projects</span></span><span class="wk-title__num doto"><span>05</span></span><svg class="wk-title__arrow" viewBox="0 0 40 40" aria-hidden="true"><path d="M6 6 34 34M34 12v22H12" fill="none" stroke="currentColor" stroke-width="2.4"/></svg></h2>
+        <p class="wk-lead" data-i18n="proj.p">What I do with my hands and head while not flying.</p>
+      </div>
+      <div class="wk-grid">
+          <a class="wk wk--feat" href="https://github.com/pilotarbuza/anemosworks" target="_blank" rel="noopener">
+            <div class="wk__main"><div class="wk__img"><svg class="wk__svg" viewBox="0 0 1600 700" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <defs><pattern id="wkg" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#1B2E35" stroke-width="1"/></pattern></defs>
+  <rect width="1600" height="700" fill="#0C1517"/><rect width="1600" height="700" fill="url(#wkg)"/>
+  <g class="wk-draw" fill="none" stroke="#4FC7C4" stroke-width="2.2" stroke-linejoin="round">
+    <path d="M420 380 C 520 250 760 215 1010 250 C 1130 268 1210 300 1250 330 C 1180 352 1060 372 900 384 C 720 398 540 400 420 380 Z"/>
+    <path d="M560 300 V 392 M700 262 V 398 M840 246 V 390 M980 247 V 380 M1120 272 V 362" stroke-opacity=".55"/>
+    <circle cx="640" cy="342" r="22"/><circle cx="910" cy="330" r="16"/><circle cx="1090" cy="326" r="11"/>
+    <path d="M420 380 L 1250 330" stroke-dasharray="10 8" stroke-opacity=".5"/>
+  </g>
+  <g fill="none" stroke="#97B0B4" stroke-width="1.4" stroke-opacity=".75">
+    <path d="M420 470 V 430 M1250 470 V 380 M420 455 H 1250"/><path d="M432 449 l-12 6 12 6 M1238 449 l12 6 -12 6" />
+    <path d="M1310 330 H 1350 M1310 250 H 1350 M1340 250 V 330"/>
+  </g>
+  <g font-family="JetBrains Mono, monospace" font-size="20" fill="#97B0B4"><text x="790" y="446">830.0</text><text x="1362" y="296">80.0</text><text x="612" y="300">Ø44</text></g>
+  <circle cx="1250" cy="330" r="9" fill="#E8492A"/>
+  <text x="120" y="610" font-family="Unbounded, sans-serif" font-weight="700" font-size="76" fill="#FFF8F0" letter-spacing="-2">AnemosWorks</text>
+  <text x="124" y="122" font-family="JetBrains Mono, monospace" font-size="20" fill="#4FC7C4" letter-spacing="3">SOLIDWORKS · FUSION · MCP</text>
+</svg></div><span class="wk__pill"><span class="lnl-txt"><span class="lnl-t">GitHub</span><span class="lnl-t lnl-t--c" aria-hidden="true">GitHub</span></span><svg class="wk__ext" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5 4h7v7" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></span></div>
+            <div class="wk__foot">
+              <p class="wk__tags" data-i18n="wk.a.t">CAD automation · MCP · SOLIDWORKS · Fusion</p>
+              <h3 class="wk__name"><span class="wk__name-in"><svg class="wk__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h12M8.5 3.5 13 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>AnemosWorks</span></h3>
+              <p class="wk__desc" data-i18n="wk.a.d">An MCP server that gives an AI client tools for sketches, features, assemblies, drawings and geometry checks in SOLIDWORKS and Autodesk Fusion. The engine works (v1.3), the desktop app is in progress.</p>
+            </div>
+          </a>
+          <article class="wk ">
+            <div class="wk__main"><div class="wk__img"><svg class="wk__svg" viewBox="0 0 1000 650" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <rect width="1000" height="650" fill="#1F3A45"/>
+  <g class="wk-cone" fill="none" stroke="#BFE6E4" stroke-width="1.5" stroke-opacity=".45">
+    <path d="M730 325 L 80 40 M730 325 L 80 610"/><path d="M640 325 L 40 90 M640 325 L 40 560" stroke-opacity=".25"/><path d="M560 325 L 10 140 M560 325 L 10 510" stroke-opacity=".15"/>
+  </g>
+  <g class="wk-plane">
+    <path d="M760 325 L 470 255 L 300 140 L 330 268 L 250 300 L 250 350 L 330 382 L 300 510 L 470 395 Z" fill="#FFF8F0"/>
+    <path d="M760 325 L 300 325" stroke="#1F3A45" stroke-width="2" stroke-opacity=".25"/>
+    <circle cx="560" cy="325" r="10" fill="#E8492A"/>
+  </g>
+  <text x="60" y="600" font-family="Unbounded, sans-serif" font-weight="800" font-size="120" fill="none" stroke="#BFE6E4" stroke-width="1.6" letter-spacing="-3">M118</text>
+</svg></div><span class="wk__pill">2022</span></div>
+            <div class="wk__foot">
+              <p class="wk__tags" data-i18n="wk.m.t">Research · UAV · Supersonic</p>
+              <h3 class="wk__name"><span class="wk__name-in"><svg class="wk__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h12M8.5 3.5 13 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span data-i18n="res.2">Supersonic UAV M118</span></span></h3>
+            </div>
+          </article>
+          <article class="wk ">
+            <div class="wk__main"><div class="wk__img"><svg class="wk__svg" viewBox="0 0 1000 650" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <rect width="1000" height="650" fill="#BFE6E4"/>
+  <g class="wk-vortex" fill="none" stroke="#1F3A45" stroke-width="1.6" stroke-opacity=".55" style="transform-origin:700px 350px">
+    <path d="M700 350 m-30 0 a30 30 0 1 1 60 0 a45 45 0 1 1 -90 0 a65 65 0 1 1 130 0 a90 90 0 1 1 -180 0 a120 120 0 1 1 240 0 a155 155 0 1 1 -310 0"/>
+  </g>
+  <path d="M-20 420 L 610 360 C 650 356 672 340 684 300 L 720 160 L 736 166 L 712 330 C 704 380 676 404 620 410 L -20 470 Z" fill="#1F3A45"/>
+  <path d="M684 300 L 720 160 L 736 166 L 712 330" fill="#0B7A85"/>
+  <circle cx="728" cy="163" r="7" fill="#E8492A"/>
+  <text x="60" y="130" font-family="JetBrains Mono, monospace" font-size="22" fill="#1F3A45" letter-spacing="3">2021 · WINGLET</text>
+</svg></div><span class="wk__pill">2021</span></div>
+            <div class="wk__foot">
+              <p class="wk__tags" data-i18n="wk.w.t">Research · Aerodynamics</p>
+              <h3 class="wk__name"><span class="wk__name-in"><svg class="wk__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h12M8.5 3.5 13 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span data-i18n="res.1">Aerodynamic winglets and fuel efficiency</span></span></h3>
+            </div>
+          </article>
+          <article class="wk ">
+            <div class="wk__main"><div class="wk__img"><svg class="wk__svg" viewBox="0 0 1000 650" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <defs>
+    <pattern id="p0" width="14" height="14" patternUnits="userSpaceOnUse"><path d="M0 7H14" stroke="#1F3A45" stroke-width="2"/></pattern>
+    <pattern id="p45" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M0 7H14" stroke="#E8492A" stroke-width="2"/></pattern>
+    <pattern id="p90" width="14" height="14" patternUnits="userSpaceOnUse"><path d="M7 0V14" stroke="#0B7A85" stroke-width="2"/></pattern>
+    <pattern id="pm45" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)"><path d="M0 7H14" stroke="#3F7A45" stroke-width="2"/></pattern>
+  </defs>
+  <rect width="1000" height="650" fill="#FFF8F0"/>
+  <g class="wk-plies">
+    <circle cx="560" cy="325" r="250" fill="url(#p0)"/><circle cx="560" cy="325" r="212" fill="#FFF8F0"/>
+    <circle cx="560" cy="325" r="200" fill="url(#p45)"/><circle cx="560" cy="325" r="162" fill="#FFF8F0"/>
+    <circle cx="560" cy="325" r="150" fill="url(#p90)"/><circle cx="560" cy="325" r="112" fill="#FFF8F0"/>
+    <circle cx="560" cy="325" r="100" fill="url(#pm45)"/><circle cx="560" cy="325" r="62" fill="#FFF8F0"/>
+  </g>
+  <g font-family="JetBrains Mono, monospace" font-size="22" fill="#1F3A45" letter-spacing="2"><text x="60" y="110">0°</text><text x="60" y="146" fill="#E8492A">+45°</text><text x="60" y="182" fill="#0B7A85">90°</text><text x="60" y="218" fill="#3F7A45">−45°</text></g>
+</svg></div><span class="wk__pill">2023</span></div>
+            <div class="wk__foot">
+              <p class="wk__tags" data-i18n="wk.c.t">Research · Composites</p>
+              <h3 class="wk__name"><span class="wk__name-in"><svg class="wk__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h12M8.5 3.5 13 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span data-i18n="res.3">An all-composite aircraft: is it feasible</span></span></h3>
+            </div>
+          </article>
+          <article class="wk ">
+            <div class="wk__main"><div class="wk__img"><svg class="wk__svg" viewBox="0 0 1000 650" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <rect width="1000" height="650" fill="#0B7A85"/>
+  <g class="wk-flow" fill="none" stroke="#BFE6E4" stroke-width="2" stroke-linecap="round" stroke-dasharray="26 18">
+    <path d="M-20 170 C 240 170 330 130 520 140 C 700 150 800 200 1020 230"/>
+    <path d="M-20 235 C 230 235 300 190 500 196 C 690 202 790 250 1020 280"/>
+    <path d="M-20 290 C 200 290 260 252 460 250 C 660 250 780 296 1020 320"/>
+    <path d="M-20 385 C 220 385 330 380 520 372 C 700 366 800 368 1020 380"/>
+    <path d="M-20 445 C 240 445 360 436 540 430 C 720 426 820 428 1020 436"/>
+    <path d="M-20 505 C 260 505 380 498 560 494 C 740 492 840 494 1020 498"/>
+  </g>
+  <path d="M250 330 C 260 300 330 278 450 276 C 600 276 760 312 860 346 C 760 352 600 360 450 362 C 330 364 262 356 250 330 Z" fill="#FFF8F0"/>
+  <path class="wk-arrow" d="M520 300 V 120 M500 145 l20 -28 20 28" fill="none" stroke="#E8492A" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="560" y="140" font-family="Unbounded, sans-serif" font-weight="700" font-size="52" fill="#FFF8F0">L</text>
+</svg></div><span class="wk__pill">2023</span></div>
+            <div class="wk__foot">
+              <p class="wk__tags" data-i18n="wk.l.t">Research · Aerodynamics · Theory</p>
+              <h3 class="wk__name"><span class="wk__name-in"><svg class="wk__arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h12M8.5 3.5 13 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span data-i18n="res.4">How lift really arises and where textbooks go wrong</span></span></h3>
+            </div>
+          </article>
+      </div>
+      <div class="sec-head wk-also" data-reveal>
+        <h3 class="h3" data-i18n="wk.also">Bot, merch and the channel</h3>
+        <p class="only-m" data-i18n="ui.swipe"> Swipe sideways.</p>
       </div>
       <div class="rail" data-rail>
-        <div class="rail__ui only-m"><button type="button" class="rail__btn rail__prev" data-i18n-aria="lb.prev" aria-label="Previous">←</button><span class="rail__count doto">01 / 05</span><span class="rail__dots"></span><button type="button" class="rail__btn rail__next" data-i18n-aria="lb.next" aria-label="Next">→</button></div>
+        <div class="rail__ui only-m"><button type="button" class="rail__btn rail__prev" data-i18n-aria="lb.prev" aria-label="Previous">←</button><span class="rail__count doto">01 / 03</span><span class="rail__dots"></span><button type="button" class="rail__btn rail__next" data-i18n-aria="lb.next" aria-label="Next">→</button></div>
         <div class="rail__track projects__grid">
           <article class="pcard pcard--ann dark" data-reveal>
             <div class="pcard__side">
@@ -387,31 +465,6 @@
             </div>
           </article>
 
-
-          <article class="pcard pcard--research card" data-reveal>
-            <h3 data-i18n="res.h">Research projects</h3>
-            <ol class="rows">
-              <li style="--i:0"><span class="doto">2021</span><span data-i18n="res.1">Aerodynamic winglets and fuel efficiency</span></li>
-              <li style="--i:1"><span class="doto">2022</span><span data-i18n="res.2">Supersonic UAV M118</span></li>
-              <li style="--i:2"><span class="doto">2023</span><span data-i18n="res.3">An all-composite aircraft: is it feasible</span></li>
-              <li style="--i:3"><span class="doto">2023</span><span data-i18n="res.4">How lift really arises and where textbooks go wrong</span></li>
-            </ol>
-          </article>
-
-          <article class="pcard pcard--kart" data-reveal>
-            <div class="kart__side">
-              <div class="pcard__top"><h3 data-i18n="kart.h">City go-kart</h3><span class="stamp" data-i18n="kart.stamp">R&amp;D</span></div>
-              <p data-i18n="kart.p">Own frame, strength calculations and working drawings for the lathe, mill and welding. Budget — up to 50,000 ₽.</p>
-              <dl class="kart__spec">
-                <div><dt data-i18n="kart.s1">Wheelbase</dt><dd>1050 mm</dd></div>
-                <div><dt data-i18n="kart.s2">Track F / R</dt><dd>900 / 1000 mm</dd></div>
-                <div><dt data-i18n="kart.s3">Frame</dt><dd data-i18n="kart.s3v">tube Ø32×2, St 20</dd></div>
-                <div><dt data-i18n="kart.s4">Engine</dt><dd data-i18n="kart.s4v">ICE 6.5 hp, chain drive</dd></div>
-              </dl>
-              <button type="button" class="btn btn--ghost kart__open" data-lb-src="assets/img/kart-gost.svg" data-lb-alt="КГ.01.00.000 СБ" data-i18n="kart.open">Open the drawing</button>
-            </div>
-            <button type="button" class="kart__sheet" data-lb-src="assets/img/kart-gost.svg" data-lb-alt="КГ.01.00.000 СБ" data-i18n-aria="kart.open" aria-label="Open the drawing"><img src="assets/img/kart-gost.svg" alt="Go-kart frame, top view — drawing КГ.01.00.000 СБ" width="840" height="594"></button>
-          </article>
 
           <article class="pcard pcard--brand" data-reveal data-tilt-stickers>
             <div><h3 class="hand">pilot_arbuza</h3><p data-i18n="brand.p">Clothing with aviation memes. Prints in English.</p></div>
@@ -666,6 +719,8 @@
   <script src="assets/three.min.js"></script>
   <script src="assets/hero-balloons.js?v=fluid_v8"></script>
   <script src="assets/cards.js"></script>
+  <script src="assets/works.js"></script>
+  <script src="assets/city-bg.js"></script>
   <script src="assets/end-shapes.js"></script>
   <script src="assets/lusion-ui.js"></script>
 </body>

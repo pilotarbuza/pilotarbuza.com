@@ -375,164 +375,6 @@ main, section, header, footer {
   border-radius: 50%;
   background-color: var(--anemos-night);
 }
-.lusion-menu-btn[aria-expanded="true"] .lusion-menu-dots {
-  transform: rotate(90deg);
-}
-
-/* ============================================================
-   03 · MENU DRAWER (2-Card Stack)
-   ============================================================ */
-.lusion-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(12, 21, 23, 0.65);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  z-index: 90;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.1, 1);
-}
-.lusion-backdrop.open {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.lusion-menu {
-  position: fixed;
-  top: calc(var(--base-padding-y) + 48px + 12px);
-  right: var(--base-padding-x);
-  width: 340px;
-  max-width: calc(100vw - 32px);
-  z-index: 95;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  pointer-events: none;
-  visibility: hidden;
-  transition: visibility 0s linear 0.45s;
-  box-sizing: border-box;
-}
-.lusion-menu.open,
-.lusion-menu.menu--open {
-  visibility: visible;
-  pointer-events: auto;
-  transition-delay: 0s;
-}
-
-.lusion-card {
-  border-radius: 26px;
-  will-change: transform, opacity;
-  transition: transform 0.46s cubic-bezier(0.4, 0, 0.1, 1), opacity 0.46s cubic-bezier(0.4, 0, 0.1, 1);
-  box-sizing: border-box;
-}
-
-/* Card 1: All 9 Navigation Links */
-.lusion-card--nav {
-  background: var(--anemos-ground);
-  color: var(--anemos-deep);
-  padding: 26px 32px 22px;
-  box-shadow: 0 24px 56px rgba(0, 0, 0, 0.45);
-  transform: translate3d(0, 50px, 0) rotate(3deg);
-  opacity: 0;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  border-radius: 28px;
-}
-.lusion-menu.open .lusion-card--nav,
-.lusion-menu.menu--open .lusion-card--nav {
-  transform: translate3d(0, 0, 0) rotate(0deg);
-  opacity: 1;
-}
-
-.lusion-nav-links {
-  display: flex;
-  flex-direction: column;
-}
-.lusion-nav-link {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 0;
-  color: #0C1517;
-  text-decoration: none;
-  font-family: "Aeonik", "Inter", "Manrope", system-ui, sans-serif;
-  font-size: 1.25rem;
-  font-weight: 800;
-  letter-spacing: -0.015em;
-  text-transform: uppercase;
-  border-bottom: 1px solid rgba(12, 21, 23, 0.07);
-  transition: transform 0.2s ease, color 0.2s ease;
-}
-.lusion-nav-link:last-child {
-  border-bottom: none;
-}
-.lusion-nav-link:hover {
-  color: var(--anemos-breeze);
-  transform: translateX(4px);
-}
-.lusion-nav-link .link-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: transparent;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-}
-.lusion-nav-link.active .link-dot {
-  background-color: #0C1517 !important;
-  transform: scale(1.15);
-}
-
-/* Card 2: GitHub (Replacing newsletter) */
-.lusion-card--github {
-  background: var(--anemos-night);
-  color: var(--anemos-ground);
-  padding: 20px 28px;
-  border-radius: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  text-decoration: none;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  transform: translate3d(0, 70px, 0) rotate(-3deg);
-  opacity: 0;
-  transition-delay: 0.08s;
-  cursor: pointer;
-}
-.lusion-menu.open .lusion-card--github,
-.lusion-menu.menu--open .lusion-card--github {
-  transform: translate3d(0, 0, 0) rotate(0deg);
-  opacity: 1;
-}
-.lusion-card--github:hover {
-  background: var(--anemos-surface);
-  border-color: var(--anemos-breeze-light);
-}
-.github-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.github-icon-svg {
-  width: 24px;
-  height: 24px;
-  fill: var(--anemos-ground);
-}
-.github-text {
-  font-family: "Aeonik", "Inter", "Manrope", system-ui, sans-serif;
-  font-size: 1.05rem;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  color: var(--anemos-ground);
-}
-.github-arrow {
-  color: var(--anemos-breeze-light);
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.1, 1);
-}
-.lusion-card--github:hover .github-arrow {
-  transform: translate(5px, -5px);
-  color: var(--anemos-ground);
-}
 
 /* ============================================================
    04 · ФИНАЛ «Let's work together!»: устроен как у lusion.co.
@@ -753,14 +595,6 @@ main, section, header, footer {
     gap: 10px;
   }
 
-  /* Menu Drawer on Mobile */
-  .lusion-menu {
-    top: calc(var(--base-padding-y) + 48px + 8px);
-    right: var(--base-padding-x);
-    left: var(--base-padding-x);
-    width: auto;
-    max-width: 100%;
-  }
 
 }
 
@@ -1067,17 +901,264 @@ main, section, header, footer {
   .cards:not(.cards--scroll) .pc__inner { transition: none; }
 }
 
-/* Меню: без собственной прокрутки (из-за нее при анимации карточек появлялись полосы);
-   прокрутка включается только на очень низких экранах, и тоже без полос */
-.lusion-menu.menu { overflow: visible; max-height: none; padding: 0; }
-@media (max-height: 620px) {
-  .lusion-menu.menu { overflow-y: auto; overflow-x: hidden; max-height: calc(100svh - var(--base-padding-y) - 72px); scrollbar-width: none; padding: 0 0 16px; }
-  .lusion-menu.menu::-webkit-scrollbar { display: none; }
+
+/* ============================================================
+   03 · МЕНЮ, как на lusion.co
+   Карточки выезжают по очереди: снизу, с поворотом, с задержкой index/50 s
+   при открытии и (count-index)/50 s при закрытии. У ссылки текст
+   прокручивается вверх, под ним всплывает плашка, справа стрелка.
+   ============================================================ */
+.lusion-backdrop {
+  position: fixed; top: 0; right: 0; bottom: 0; width: 50vw;
+  z-index: 90; pointer-events: none; opacity: 0;
+  background: linear-gradient(270deg, rgba(12, 21, 23, .5), rgba(12, 21, 23, 0));
+  transition: opacity .4s .4s;
 }
-/* GitHub в меню: светлая карточка в пару к навигации, без темной плашки на темном фоне */
-.lusion-card--github { background: var(--anemos-ground); color: var(--anemos-deep); border: 0; box-shadow: 0 24px 56px rgba(0, 0, 0, .35); }
-.lusion-card--github .github-text { color: var(--anemos-deep); }
-.lusion-card--github .github-icon-svg { fill: var(--anemos-deep); color: var(--anemos-deep); }
-.lusion-card--github .github-arrow { color: var(--anemos-breeze); }
-.lusion-card--github:hover { background: #F1EEE6; border-color: transparent; }
-.lusion-card--github:hover .github-arrow { color: var(--anemos-deep); }
+.lusion-backdrop.open { opacity: .45; transition-delay: 0s; }
+
+.lusion-menu {
+  --mease: cubic-bezier(.4, 0, .1, 1);
+  position: fixed;
+  top: calc(var(--base-padding-y) + 48px + 10px);
+  right: var(--base-padding-x);
+  width: 19.4em; max-width: calc(100vw - 2 * var(--base-padding-x));
+  font-size: 16px;
+  z-index: 95;
+  display: flex; flex-direction: column; gap: .625em;
+  pointer-events: none;
+  visibility: hidden;
+  transition: visibility 0s linear .7s;
+}
+.lusion-menu.open { visibility: visible; pointer-events: auto; transition-delay: 0s; }
+
+.lusion-card {
+  position: relative; display: block; box-sizing: border-box;
+  border-radius: .625em; text-decoration: none;
+  opacity: 0;
+  transform: translate3d(0, 7.75em, 0) rotate(-3.5deg);
+  transform-origin: 0 0;
+  transition: transform .5s var(--mease) var(--close-delay, 0s), opacity .5s var(--mease) var(--close-delay, 0s);
+  will-change: transform, opacity;
+}
+.lusion-card--nav { transform: translate3d(0, 5.5em, 0) rotate(3.5deg); transform-origin: 100% 0; }
+.lusion-menu.open .lusion-card {
+  opacity: 1; transform: none;
+  transition-delay: var(--open-delay, 0s);
+}
+
+/* карточка ссылок */
+.lusion-card--nav {
+  background: var(--anemos-ground); color: var(--anemos-night);
+  padding: 1em .3125em;
+  box-shadow: 0 1.5em 3.5em -1.5em rgba(12, 21, 23, .45);
+}
+.lusion-nav-links { display: flex; flex-direction: column; }
+.lusion-nav-link {
+  --c: var(--anemos-deep);
+  position: relative; display: flex; align-items: center;
+  padding: .72em 1.625em;
+  color: var(--anemos-night); text-decoration: none;
+  font-family: var(--anemos-font-text); font-weight: 500;
+  text-transform: uppercase; letter-spacing: -.01em;
+}
+.lnl-bg {
+  position: absolute; inset: 0; border-radius: 6.25em;
+  background: var(--c); opacity: 0; transform: scale(.85);
+  transition: transform .4s var(--mease), opacity .4s var(--mease);
+}
+.lnl-txt { position: relative; display: block; overflow: hidden; height: 1.1em; line-height: 1.1; }
+.lusion-nav-link .lnl-txt { font-size: 1.5em; }
+.lnl-t { display: block; transition: transform .4s var(--mease); }
+.lnl-t--c { position: absolute; left: 0; top: 100%; }
+.lnl-arrow {
+  position: absolute; right: 1.6em; top: 50%; width: 1.1em; height: 1.1em; margin-top: -.55em;
+  transform: scale(0); transition: transform .3s var(--mease);
+}
+/* точка у текущего раздела */
+.lusion-nav-link::before {
+  content: ""; position: absolute; right: 1.9em; top: 50%; width: .5em; height: .5em; margin-top: -.25em;
+  border-radius: 50%; background: var(--anemos-garnet);
+  transform: scale(0); transition: transform .3s var(--mease);
+}
+.lusion-nav-link.active::before { transform: scale(1); }
+@media (hover: hover) {
+  .lusion-nav-link:hover .lnl-bg { opacity: .08; transform: scale(1); }
+  .lusion-nav-link:hover .lnl-t, .lusion-card--talk:hover .lnl-t, .lusion-card--github:hover .lnl-t { transform: translateY(-100%); }
+  .lusion-nav-link:hover .lnl-arrow { transform: scale(1); transition-delay: .2s; }
+  .lusion-nav-link.active:hover::before { transform: scale(0); }
+}
+
+/* «давай поговорим» */
+.lusion-card--talk {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.15em 1.9em;
+  background: var(--anemos-deep); color: var(--anemos-ground);
+  font-family: var(--anemos-font-text); font-weight: 600; letter-spacing: .02em;
+  box-shadow: 0 1.5em 3.5em -1.5em rgba(12, 21, 23, .5);
+}
+.lusion-card--talk .lusion-dot-garnet { width: .55em; height: .55em; transition: transform .4s var(--mease); }
+.lusion-card--talk:hover .lusion-dot-garnet { transform: scale(1.6); }
+
+/* GitHub: чёрная карточка, стрелка улетает вправо-вверх, на её место прилетает вторая */
+.lusion-card--github {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.15em 1.9em;
+  background: var(--anemos-night); color: var(--anemos-ground);
+  font-family: var(--anemos-font-text); font-weight: 600; letter-spacing: .04em;
+  box-shadow: 0 1.5em 3.5em -1.5em rgba(12, 21, 23, .6);
+}
+.github-left { display: flex; align-items: center; gap: .75em; }
+.github-icon-svg { width: 1.3em; height: 1.3em; color: var(--anemos-ground); }
+.gh-arrows { position: relative; width: 1.1em; height: 1.1em; overflow: hidden; color: var(--anemos-breeze-light); }
+.gh-arrows svg { position: absolute; inset: 0; width: 100%; height: 100%; transition: transform .45s var(--mease); }
+.gh-arrows svg + svg { transform: translate(-110%, 110%); }
+.lusion-card--github:hover .gh-arrows svg:first-child { transform: translate(110%, -110%); }
+.lusion-card--github:hover .gh-arrows svg + svg { transform: none; }
+
+/* кнопка MENU / CLOSE */
+.mbt { position: relative; display: inline-grid; overflow: hidden; height: 1.2em; line-height: 1.2; }
+.mbt__a, .mbt__b { grid-area: 1 / 1; display: block; transition: transform .3s var(--mease, cubic-bezier(.4,0,.1,1)); }
+.mbt__b { transform: translateY(100%); }
+.lusion-menu-btn[aria-expanded="true"] .mbt__a { transform: translateY(-100%); }
+.lusion-menu-btn[aria-expanded="true"] .mbt__b { transform: none; }
+.lusion-menu-dots { transition: transform .4s cubic-bezier(.4, 0, .1, 1); }
+@media (hover: hover) { .lusion-menu-btn:hover .lusion-menu-dots { transform: rotate(90deg); } }
+.lusion-menu-btn[aria-expanded="true"] .lusion-menu-dots { transform: rotate(90deg); }
+
+/* кнопки шапки въезжают снизу по очереди */
+.lusion-header .lusion-brand, .lusion-actions > * { animation: hdrIn .9s cubic-bezier(.35, 0, 0, 1) both; }
+.lusion-actions > :nth-child(1) { animation-delay: .1s; }
+.lusion-actions > :nth-child(2) { animation-delay: .16s; }
+.lusion-actions > :nth-child(3) { animation-delay: .22s; }
+@keyframes hdrIn { from { transform: translateY(4em); opacity: 0; } }
+
+@media (max-width: 768px) {
+  .lusion-backdrop { width: 100vw; }
+  .lusion-backdrop.open { opacity: 1; }
+  .lusion-menu { left: var(--base-padding-x); width: auto; top: calc(var(--base-padding-y) + 44px + 10px); }
+  .lusion-nav-link { padding: .62em 1.4em; }
+}
+@media (max-height: 640px) {
+  .lusion-menu { max-height: calc(100svh - var(--base-padding-y) - 64px); overflow-y: auto; scrollbar-width: none; }
+  .lusion-menu::-webkit-scrollbar { display: none; }
+  .lusion-nav-link { padding-block: .45em; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lusion-card, .lnl-t, .lnl-bg { transition-duration: .01s !important; }
+  .lusion-header .lusion-brand, .lusion-actions > * { animation: none; }
+}
+
+/* ============================================================
+   06 · ПРОЕКТЫ, витрина как на lusion.co/projects
+   Огромный заголовок с номером и стрелкой, сетка 2 колонки с обложками.
+   Обложка открывается снизу вверх, на наведении сжимается к центру
+   и чуть приближается, название сдвигается вправо и выпускает стрелку.
+   ============================================================ */
+.projects { --el: cubic-bezier(.35, 0, 0, 1); }
+.wk-head { position: relative; display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; margin: 2vw 0 clamp(36px, 5vw, 72px); }
+.wk-title {
+  position: relative; margin: 0; width: fit-content;
+  font-family: var(--anemos-font-text); font-weight: 500; text-transform: uppercase;
+  font-size: min(15vw, 210px); line-height: .9; letter-spacing: -.055em; color: var(--anemos-night);
+  padding-right: .62em;
+}
+.wk-title__mask { display: block; overflow: hidden; padding-bottom: .04em; }
+.wk-title__in { display: block; transform: translateY(105%); transition: transform 1.4s var(--el); }
+.wk-title__num { position: absolute; right: 0; top: .02em; font-size: .2em; letter-spacing: 0; overflow: hidden; line-height: 1; }
+.wk-title__num > span { display: block; transform: translateY(100%); transition: transform 1s var(--el) .35s; }
+.wk-title__arrow { position: absolute; right: .02em; bottom: .1em; width: .2em; height: .2em; transform: scale(0) rotate(-90deg); transition: transform 1s var(--el) .5s; }
+.wk-head.is-in .wk-title__in, .wk-head.is-in .wk-title__num > span { transform: none; }
+.wk-head.is-in .wk-title__arrow { transform: none; }
+.wk-lead { max-width: 360px; font-size: 17px; line-height: 1.55; color: var(--ink-2); margin: 0 0 1.4em; opacity: 0; transform: translateY(1em); transition: opacity .9s, transform 1s var(--el); transition-delay: .4s; }
+.wk-head.is-in .wk-lead { opacity: 1; transform: none; }
+
+.wk-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: clamp(16px, 2.2vw, 32px); row-gap: clamp(56px, 6vw, 96px); }
+.wk { position: relative; display: block; color: inherit; text-decoration: none; cursor: pointer; --px: 0px; --py: 0px; }
+.wk--feat { grid-column: 1 / -1; }
+.wk__main { position: relative; padding-top: 65%; }
+.wk--feat .wk__main { padding-top: 43.75%; }
+.wk__img {
+  position: absolute; inset: 0; overflow: hidden; border-radius: 15px; background: var(--anemos-surface);
+  clip-path: inset(100% 0 0 0 round 15px);
+  transition: clip-path 1.3s var(--el);
+}
+.wk.is-in .wk__img { clip-path: inset(0 0 0 0 round 15px); }
+.wk__svg {
+  display: block; width: 100%; height: 100%;
+  translate: var(--px) var(--py); scale: var(--s, 1.25);
+  transition: scale 1.6s var(--el);
+}
+.wk.is-in .wk__svg { --s: 1.02; }
+.wk__pill {
+  position: absolute; right: 10px; bottom: 10px; display: inline-flex; align-items: center; gap: .5em;
+  height: 2em; padding: 0 .9em; border-radius: 1em;
+  background: var(--anemos-ground); color: var(--anemos-night);
+  font-family: var(--anemos-font-mono); font-weight: 500; font-size: 13px; text-transform: uppercase;
+  opacity: 0; transform: scale(.6); transition: opacity .5s, transform .7s var(--el); transition-delay: .7s;
+}
+.wk__pill .lnl-txt { height: 1.2em; line-height: 1.2; }
+.wk__ext { width: 1em; height: 1em; }
+.wk.is-in .wk__pill { opacity: 1; transform: none; }
+.wk__tags {
+  margin: 1.5em 0 .9em; font-family: var(--anemos-font-mono); font-size: 12px; letter-spacing: .04em;
+  text-transform: uppercase; color: var(--muted);
+}
+.wk__name {
+  position: relative; margin: 0; overflow: hidden;
+  font-family: var(--anemos-font-text); font-weight: 500; font-size: clamp(24px, 2.6vw, 42px); line-height: 1.12; letter-spacing: -.03em;
+  color: var(--anemos-night);
+}
+.wk__name-in { display: block; margin-left: -1.05em; padding: 0 1.05em 0 1.05em; transition: transform .6s var(--el); }
+.wk__arrow { position: absolute; width: .72em; height: .72em; margin: .22em 0 0 -1.05em; }
+.wk__desc { max-width: 52ch; margin: .9em 0 0; font-size: 16px; line-height: 1.55; color: var(--ink-2); }
+.wk__foot > * { opacity: 0; transform: translateY(1.2em); transition: opacity .8s, transform 1s var(--el); }
+.wk__foot > :nth-child(2) { transition-delay: .08s; } .wk__foot > :nth-child(3) { transition-delay: .16s; }
+.wk.is-in .wk__foot > * { opacity: 1; transform: none; }
+.wk.is-in .wk__foot > :first-child { transition-delay: .35s; } .wk.is-in .wk__foot > :nth-child(2) { transition-delay: .43s; } .wk.is-in .wk__foot > :nth-child(3) { transition-delay: .51s; }
+
+@media (hover: hover) {
+  .wk.is-in:hover .wk__img { clip-path: inset(1.6% 1.2% round 34px); transition-duration: .8s; }
+  .wk.is-in:hover .wk__svg { --s: 1.09; transition-duration: 1.1s; }
+  .wk:hover .wk__name-in { transform: translateX(1.05em); }
+  .wk:hover .wk__pill .lnl-t { transform: translateY(-100%); }
+}
+.wk:focus-visible { outline: none; }
+.wk:focus-visible .wk__img { outline: 3px solid var(--accent); outline-offset: 4px; }
+
+/* живые обложки: анимации идут, пока карточка на экране */
+.wk-draw path, .wk-draw circle { stroke-dasharray: 2400; stroke-dashoffset: 2400; transition: stroke-dashoffset 2.6s var(--el) .4s; }
+.wk.is-in .wk-draw path, .wk.is-in .wk-draw circle { stroke-dashoffset: 0; }
+.wk-flow path { animation: wkFlow 2.4s linear infinite paused; }
+.wk-vortex { animation: wkSpin 24s linear infinite paused; }
+.wk-plies { transform-origin: 560px 325px; animation: wkSpin 60s linear infinite paused; }
+.wk-cone { animation: wkCone 3.2s ease-in-out infinite paused; }
+.wk-plane { animation: wkFloat 5s ease-in-out infinite paused; }
+.wk-arrow { animation: wkLift 2.4s ease-in-out infinite paused; }
+.wk.is-live :is(.wk-flow path, .wk-vortex, .wk-plies, .wk-cone, .wk-plane, .wk-arrow) { animation-play-state: running; }
+@keyframes wkFlow { to { stroke-dashoffset: -88; } }
+@keyframes wkSpin { to { transform: rotate(-360deg); } }
+@keyframes wkCone { 50% { transform: translateX(-24px); opacity: .6; } }
+@keyframes wkFloat { 50% { transform: translate(-10px, -6px); } }
+@keyframes wkLift { 50% { transform: translateY(-14px); } }
+
+.wk-also { margin-top: clamp(80px, 9vw, 140px); }
+.wk-also .h3 { font-family: var(--anemos-font-text); font-weight: 500; font-size: clamp(26px, 3vw, 40px); letter-spacing: -.03em; margin: 0; }
+
+@media (max-width: 812px) {
+  .wk-head { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .wk-title { font-size: 17vw; }
+  .wk-lead { margin: 0; }
+  .wk-grid { grid-template-columns: 1fr; row-gap: 48px; }
+  .wk__name { font-size: 6.4vw; }
+  .wk__tags { font-size: 11px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wk-title__in, .wk-title__num > span, .wk-title__arrow, .wk-lead, .wk__foot > *, .wk__pill { transform: none !important; opacity: 1 !important; transition: none !important; }
+  .wk__img { clip-path: none !important; transition: none !important; }
+  .wk__svg { scale: 1 !important; transition: none !important; }
+  .wk-draw path, .wk-draw circle { stroke-dashoffset: 0 !important; transition: none; }
+  .wk.is-live :is(.wk-flow path, .wk-vortex, .wk-plies, .wk-cone, .wk-plane, .wk-arrow) { animation-play-state: paused; }
+}
+
+/* Фон секции с глобусом: контуры названий городов (city-bg.js) */
+.city-bg { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; display: block; }
