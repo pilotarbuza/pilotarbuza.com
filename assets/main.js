@@ -58,83 +58,18 @@
     }
   }
 
-  /* ---------- альтиметр ---------- */
-  const altVal = $('#alt-val');
-  let scrollP = 0, lastY = scrollY, vel = 0;
-  const onScroll = () => {
-    const max = document.documentElement.scrollHeight - innerHeight;
-    scrollP = max > 0 ? scrollY / max : 0;
-    if (altVal) altVal.textContent = 'FL' + String(Math.round(scrollP * 410)).padStart(3, '0');
-    vel = scrollY - lastY; lastY = scrollY;
-  };
-  addEventListener('scroll', onScroll, { passive: true }); onScroll();
+  /* ---------- скорость скролла (для бегущей строки) ---------- */
+  let lastY = scrollY, vel = 0;
+  addEventListener('scroll', () => { vel = scrollY - lastY; lastY = scrollY; }, { passive: true });
 
-  /* ---------- hero: точечное табло ---------- */
-  const canvas = $('#dots');
-  const ctx = canvas && canvas.getContext('2d');
-  if (ctx) {
-    const CREAM = '#F3EDE4', ACCENT = '#0B7A85';
-    let dots = [], W = 0, H = 0, step = 14, raf = 0, t = 0;
-    const mouse = { x: -9e3, y: -9e3, on: false };
-    const linesFor = () => (W < 640 ? ['pilot', 'arbuza'] : ['pilotarbuza']);
-
-    function layout() {
-      const r = canvas.getBoundingClientRect();
-      const dpr = Math.min(devicePixelRatio || 1, 2);
-      W = Math.max(1, Math.floor(r.width)); H = Math.max(1, Math.floor(r.height));
-      canvas.width = W * dpr; canvas.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      step = W < 480 ? 9 : W < 900 ? 12 : W < 1300 ? 14 : 16;
-      const LINES = linesFor();
-      const off = document.createElement('canvas'); off.width = W; off.height = H;
-      const o = off.getContext('2d');
-      o.fillStyle = '#000'; o.textAlign = 'center'; o.textBaseline = 'alphabetic';
-      const fontFor = s => `700 ${s}px "Geologica", "Inter", system-ui, sans-serif`;
-      const longest = LINES.reduce((a, b) => (a.length > b.length ? a : b));
-      const GAP = 1.18;
-      let size = Math.floor(H / LINES.length); o.font = fontFor(size);
-      const capOf = () => { const m = o.measureText('pb'); return (m.actualBoundingBoxAscent || 0) + (m.actualBoundingBoxDescent || 0) || size * .8; };
-      let cap = capOf();
-      while (size > 20 && (o.measureText(longest).width > W * .98 || cap * GAP * LINES.length > H * .96)) { size -= 4; o.font = fontFor(size); cap = capOf(); }
-      const asc = o.measureText('pb').actualBoundingBoxAscent || cap * .75;
-      const lineH = cap * GAP, total = lineH * (LINES.length - 1) + cap, topY = (H - total) / 2;
-      LINES.forEach((s, i) => o.fillText(s, W / 2, topY + asc + i * lineH));
-      const data = o.getImageData(0, 0, W, H).data;
-      dots = [];
-      for (let yy = step / 2; yy < H; yy += step) for (let xx = step / 2; xx < W; xx += step) {
-        if (data[((yy | 0) * W + (xx | 0)) * 4 + 3] > 90) dots.push({ x: xx, y: yy, ox: xx, oy: yy, r: step * .33, ph: Math.random() * 6.28, acc: Math.random() < .04, fall: .4 + Math.random(), born: Math.random() * .6 });
-      }
-    }
-    let heroP = 0; // 0..1 — насколько hero ушёл вверх
-    function draw() {
-      t += .016;
-      ctx.clearRect(0, 0, W, H);
-      const R = Math.max(90, W * .11);
-      const intro = clamp((t - .2) / 1.2, 0, 1);
-      for (const d of dots) {
-        let tx = d.ox, ty = d.oy + heroP * heroP * 900 * d.fall; // разлетаются вниз при скролле
-        if (mouse.on) {
-          const dx = d.ox - mouse.x, dy = d.oy - mouse.y, dist = Math.hypot(dx, dy);
-          if (dist < R) { const f = (1 - dist / R) ** 2 * R * .55; tx += dx / (dist || 1) * f; ty += dy / (dist || 1) * f; }
-        }
-        d.x += (tx - d.x) * .14; d.y += (ty - d.y) * .14;
-        const appear = clamp((intro - d.born) / .4, 0, 1);
-        if (appear <= 0) continue;
-        const breathe = reduce ? 1 : .86 + .14 * Math.sin(t * 1.6 + d.ph);
-        const near = mouse.on ? Math.max(0, 1 - Math.hypot(d.ox - mouse.x, d.oy - mouse.y) / R) : 0;
-        ctx.globalAlpha = appear * (1 - heroP * .9);
-        ctx.fillStyle = d.acc || near > .6 ? ACCENT : CREAM;
-        ctx.beginPath(); ctx.arc(d.x, d.y, d.r * breathe * (1 + near * .6) * appear, 0, 6.2832); ctx.fill();
-      }
-      ctx.globalAlpha = 1;
-      raf = requestAnimationFrame(draw);
-    }
-    const local = e => { const r = canvas.getBoundingClientRect(); const p = e.touches ? e.touches[0] : e; mouse.x = p.clientX - r.left; mouse.y = p.clientY - r.top; mouse.on = true; };
-    hero.addEventListener('pointermove', local);
-    hero.addEventListener('pointerleave', () => { mouse.on = false; });
-    addEventListener('scroll', () => { heroP = clamp(scrollY / (hero.offsetHeight || innerHeight), 0, 1); }, { passive: true });
-    let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(layout, 120); });
-    const start = () => { layout(); if (!raf) draw(); };
-    if (document.fonts && document.fonts.load) Promise.all([document.fonts.load('700 64px "Geologica"'), document.fonts.ready]).then(start).catch(start); else start();
+  /* ---------- цикл анимации, который спит, пока элемент вне экрана или вкладка скрыта ---------- */
+  function liveLoop(el, step, margin = '120px') {
+    let raf = 0, onScreen = false;
+    const tick = () => { raf = 0; if (!onScreen || document.hidden) return; step(); raf = requestAnimationFrame(tick); };
+    const wake = () => { if (!raf && onScreen && !document.hidden) raf = requestAnimationFrame(tick); };
+    new IntersectionObserver(([e]) => { onScreen = e.isIntersecting; wake(); }, { rootMargin: margin }).observe(el);
+    document.addEventListener('visibilitychange', wake);
+    return wake;
   }
 
   /* ---------- перещёлкивание, как на табло Solari ---------- */
@@ -235,8 +170,9 @@
       pathEl.style.strokeDashoffset = L * (1 - p);
       wps.forEach(w => w.classList.toggle('passed', !w.classList.contains('wp--future') && p >= +w.dataset.at - .01));
     }
-    const loop = () => { target = progress(); cur += (target - cur) * (reduce ? 1 : .1); render(cur); requestAnimationFrame(loop); };
-    fit(); render(0); loop();
+    // самолет догоняет позицию скролла; цикл работает, только пока карта видна
+    fit(); render(0);
+    liveLoop(route, () => { target = progress(); cur += (target - cur) * (reduce ? 1 : .1); render(cur); });
     addEventListener('resize', fit);
     if (mobile.matches) wrap.scrollLeft = 0;
   }
@@ -269,13 +205,16 @@
     let x = 0, speed = 1, hover = false;
     mq.parentElement.addEventListener('pointerenter', () => { hover = true; });
     mq.parentElement.addEventListener('pointerleave', () => { hover = false; });
-    const loop = () => {
+    // ширину считаем один раз и на resize, а не в каждом кадре: scrollWidth заставляет браузер пересчитывать раскладку
+    let half = mq.scrollWidth / 2;
+    addEventListener('resize', () => { half = mq.scrollWidth / 2; });
+    if (document.fonts) document.fonts.ready.then(() => { half = mq.scrollWidth / 2; });
+    liveLoop(mq.parentElement, () => {
       const want = hover ? .08 : 1 + Math.min(2, Math.abs(vel) / 12);
       speed += (want - speed) * .06; vel *= .9;
-      x -= speed * .9; const half = mq.scrollWidth / 2; if (-x >= half) x += half;
-      mq.style.transform = `translateX(${x}px)`; requestAnimationFrame(loop);
-    };
-    loop();
+      x -= speed * .9; if (-x >= half) x += half;
+      mq.style.transform = `translateX(${x}px)`;
+    });
   }
 
   /* ---------- кнопка магазина, копирование почты ---------- */

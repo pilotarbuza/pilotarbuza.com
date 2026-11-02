@@ -3,7 +3,6 @@
    - Menu open/close with capsule morphing (MENU •• <-> CLOSE :)
    - 3-card stack interactions
    - Web Audio ambient sound toggle
-   - Newsletter submit feedback
    ============================================================ */
 
 (() => {
@@ -104,23 +103,6 @@
               masterGain.gain.linearRampToValueAtTime(0.0001, now + 0.5);
             }
           }
-        }
-      });
-    }
-
-    // 3. Newsletter Feedback
-    const newsForm = document.getElementById('lusion-newsletter-form');
-    if (newsForm) {
-      newsForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const input = document.getElementById('lusion-newsletter-input');
-        if (input && input.value.trim()) {
-          input.value = 'Thanks for subscribing!';
-          input.disabled = true;
-          setTimeout(() => {
-            input.value = '';
-            input.disabled = false;
-          }, 3500);
         }
       });
     }

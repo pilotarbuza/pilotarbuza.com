@@ -127,16 +127,21 @@
     }
 
     // Performance Visibility Culling
-    let isVisible = false;
+    // цикл не крутится, пока секция вне экрана или вкладка скрыта
+    let isVisible = false, raf = 0;
+    const wake = () => { if (!raf && isVisible && !document.hidden) raf = requestAnimationFrame(loop); };
     const observer = new IntersectionObserver((entries) => {
       isVisible = entries[0].isIntersecting;
+      wake();
     }, { threshold: 0.05 });
     observer.observe(section);
+    document.addEventListener('visibilitychange', wake);
 
     let time = 0;
     function loop() {
-      requestAnimationFrame(loop);
-      if (!isVisible) return;
+      raf = 0;
+      if (!isVisible || document.hidden) return;
+      raf = requestAnimationFrame(loop);
 
       time += 0.016;
       ctx.clearRect(0, 0, width, height);
@@ -205,7 +210,7 @@
       mouse.vy *= 0.6;
     }
 
-    loop();
+    wake();
 
     window.addEventListener('resize', () => {
       resize();
