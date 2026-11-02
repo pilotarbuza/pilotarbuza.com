@@ -2,13 +2,14 @@
 
 [ English | [Русский](README.ru.md) ]
 
-Personal portfolio and brand website for Maksim Akhmadulin (pilot_arbuza) — mechanical engineering, CAD automation, and aviation.
-Zero-build static architecture: `index.html`, `404.html`, `assets/`.
+Personal site of Maksim Akhmadulin (pilot_arbuza). I study mechanical engineering, write CAD automation tools and spend the rest of my time around aviation.
 
-- Main Website: https://pilotarbuza.com
-- Cloud Storage: https://m.pilotarbuza.com
+The site is plain static files with no build step: `index.html`, `404.html` and `assets/`.
 
-## Local Development
+- Site: https://pilotarbuza.com
+- Cloud storage: https://m.pilotarbuza.com
+
+## Running locally
 
 ```sh
 python3 -m http.server 8080
@@ -17,4 +18,4 @@ python3 -m http.server 8080
 
 ## Deployment
 
-Automated via Cloudflare Pages / GitHub Pages on commit to `main`.
+Every commit to `main` is published by Cloudflare Pages / GitHub Pages.
