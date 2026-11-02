@@ -45,8 +45,6 @@ img { max-width: 100%; display: block; }
 section { position: relative; }
 
 /* ---------- зерно, альтиметр ---------- */
-.grain { position: fixed; inset: 0; pointer-events: none; z-index: 90; opacity: .5; mix-blend-mode: overlay; background: url(img/grain.png) 0 0 / 220px 220px; animation: boil 1s steps(8) infinite; }
-@keyframes boil { 0%{background-position:0 0} 12.5%{background-position:-8px 6px} 25%{background-position:6px -9px} 37.5%{background-position:-4px -4px} 50%{background-position:9px 7px} 62.5%{background-position:-9px 2px} 75%{background-position:3px 9px} 87.5%{background-position:-2px -7px} 100%{background-position:0 0} }
 
 /* ---------- шапка ---------- */
 .top { position: fixed; top: 0; left: 0; right: 0; z-index: 70; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; padding: 14px var(--gutter); color: var(--cream); transform: translateY(-24px); opacity: 0; animation: nav-in .5s var(--ease) .9s forwards; transition: color .3s, background .3s; }

@@ -67,7 +67,7 @@ window.I18N = {
     'shop.note': 'Next — a second line with prints about aviation professions: PUT YOUR OWN MASK ON FIRST, LET’S SPOOL UP TOGETHER, IT’S NOT BROKEN, IT’S DEFERRED, FOLLOW ME and DELAYED.',
     'foot.top': 'Back to top', 'toast.copied': 'ADDRESS COPIED',
     'end.kicker': 'Is your idea ready for takeoff?', 'end.more': 'Continue to scroll',
-    'cards.h': 'What I work with', 'cards.1': 'Design', 'cards.2': 'Analysis', 'cards.3': 'Code', 'cards.4': 'Workshop', 'cards.flip': 'Flip card', 'cards.tap': 'Tap a card to turn it over.',
+    'cards.h': 'What I work with', 'cards.h1': 'What I', 'cards.h2': 'work with', 'cards.1': 'Design', 'cards.2': 'Analysis', 'cards.3': 'Code', 'cards.4': 'Workshop', 'cards.flip': 'Flip card', 'cards.tap': 'Tap a card to turn it over.',
     'nf.hand': 'I’M NOT LOST, I’M HOLDING.', 'nf.p': 'No such page. Circling in the holding pattern while you pick a new course.', 'nf.home': 'Home', 'nf.write': 'Write me'
   },
   ru: {
@@ -137,7 +137,7 @@ window.I18N = {
     'shop.note': 'Следом — вторая линейка с принтами по авиационным профессиям: PUT YOUR OWN MASK ON FIRST, LET’S SPOOL UP TOGETHER, IT’S NOT BROKEN, IT’S DEFERRED, FOLLOW ME и DELAYED.',
     'foot.top': 'Наверх', 'toast.copied': 'АДРЕС СКОПИРОВАН',
     'end.kicker': 'Ваша идея готова к взлету?', 'end.more': 'Листайте дальше',
-    'cards.h': 'С чем работаю', 'cards.1': 'Модели', 'cards.2': 'Расчеты', 'cards.3': 'Код', 'cards.4': 'Мастерская', 'cards.flip': 'Перевернуть карту', 'cards.tap': 'Нажмите на карту, чтобы перевернуть.',
+    'cards.h': 'С чем работаю', 'cards.h1': 'С чем', 'cards.h2': 'работаю', 'cards.1': 'Модели', 'cards.2': 'Расчеты', 'cards.3': 'Код', 'cards.4': 'Мастерская', 'cards.flip': 'Перевернуть карту', 'cards.tap': 'Нажмите на карту, чтобы перевернуть.',
     'nf.hand': 'I’M NOT LOST, I’M HOLDING.', 'nf.p': 'Такой страницы нет. Кружим в зоне ожидания, пока вы выбираете новый курс.', 'nf.home': 'На главную', 'nf.write': 'Написать мне'
   },
   tr: {
@@ -207,7 +207,7 @@ window.I18N = {
     'shop.note': 'Sırada — havacılık meslekleri temalı ikinci seri: PUT YOUR OWN MASK ON FIRST, LET’S SPOOL UP TOGETHER, IT’S NOT BROKEN, IT’S DEFERRED, FOLLOW ME ve DELAYED.',
     'foot.top': 'Yukarı', 'toast.copied': 'ADRES KOPYALANDI',
     'end.kicker': 'Fikriniz kalkışa hazır mı?', 'end.more': 'Kaydırmaya devam edin',
-    'cards.h': 'Neyle çalışıyorum', 'cards.1': 'Tasarım', 'cards.2': 'Analiz', 'cards.3': 'Kod', 'cards.4': 'Atölye', 'cards.flip': 'Kartı çevir', 'cards.tap': 'Çevirmek için karta dokunun.',
+    'cards.h': 'Neyle çalışıyorum', 'cards.h1': 'Neyle', 'cards.h2': 'çalışıyorum', 'cards.1': 'Tasarım', 'cards.2': 'Analiz', 'cards.3': 'Kod', 'cards.4': 'Atölye', 'cards.flip': 'Kartı çevir', 'cards.tap': 'Çevirmek için karta dokunun.',
     'nf.hand': 'I’M NOT LOST, I’M HOLDING.', 'nf.p': 'Böyle bir sayfa yok. Siz yeni rotayı seçerken bekleme paterninde tur atıyoruz.', 'nf.home': 'Ana sayfa', 'nf.write': 'Yaz bana'
   }
 };

@@ -46,23 +46,20 @@ main, section, header, footer {
   max-width: 100vw !important;
   overflow-x: clip !important;
 }
-.rail {
-  overflow: hidden !important;
-  max-width: 100% !important;
-}
-.rail__track {
-  overflow-x: auto !important;
-  max-width: 100% !important;
-  -webkit-overflow-scrolling: touch;
+/* Ленты листаются пальцем только на телефоне; на десктопе это сетка, прокрутка ей не нужна.
+   Полосы прокрутки скрыты везде: иначе Windows рисует их поверх карточек. */
+.rail__track, .map-wrap, .cards__stage { scrollbar-width: none; }
+.rail__track::-webkit-scrollbar, .map-wrap::-webkit-scrollbar, .cards__stage::-webkit-scrollbar { display: none; }
+@media (max-width: 900px) {
+  .rail { overflow: hidden !important; max-width: 100% !important; }
+  .rail__track { overflow-x: auto !important; overflow-y: hidden !important; max-width: 100% !important; -webkit-overflow-scrolling: touch; }
 }
 .route, .route__sticky {
   overflow: clip !important;
   max-width: 100vw !important;
 }
-.map-wrap {
-  overflow-x: auto !important;
-  max-width: 100vw !important;
-  -webkit-overflow-scrolling: touch;
+@media (max-width: 900px) {
+  .map-wrap { overflow-x: auto !important; overflow-y: hidden !important; max-width: 100vw !important; -webkit-overflow-scrolling: touch; }
 }
 
 /* ============================================================
@@ -810,11 +807,142 @@ main, section, header, footer {
   }
 }
 
-/* Keep the particle material clean; the heavy page grain hides its curvature. */
-body:has(#hero[data-visible="true"]) .grain {
-  opacity: .07;
-  animation: none;
+
+/* Header on light sections: main.js adds .top--light once the hero is scrolled away */
+.lusion-header.top--light .lusion-brand-name { color: var(--anemos-deep); }
+.lusion-btn-sound:focus-visible,
+.lusion-capsule:focus-visible,
+.lusion-nav-link:focus-visible,
+.lusion-card:focus-visible { outline: 2px solid var(--anemos-breeze-light); outline-offset: 3px; }
+
+/* ============================================================
+   06b · Карты «С чем работаю»
+   ============================================================ */
+.cards {
+  position: relative;
+  background: var(--anemos-breeze);
+  color: var(--anemos-ground);
+  --cw: min(21vw, 45vh, 420px);
 }
+.cards--scroll { height: 420vh; }
+.cards__sticky { position: relative; min-height: 100svh; overflow: clip; }
+.cards--scroll .cards__sticky { position: sticky; top: 0; height: 100vh; height: 100svh; display: grid; place-items: center; }
+.cards__h {
+  position: absolute;
+  z-index: 0;
+  top: clamp(120px, 15vh, 170px);
+  left: var(--base-padding-x);
+  right: var(--base-padding-x);
+  margin: 0;
+  font: 500 clamp(3.4rem, 10.4vw, 12rem)/.9 var(--anemos-font-text);
+  letter-spacing: -.035em;
+  text-transform: uppercase;
+  color: var(--anemos-ground);
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+.cards__h1, .cards__h2 { display: block; white-space: nowrap; }
+.cards__h2 { text-align: right; padding-right: 6vw; }
+.cards__ribbon { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; overflow: visible; }
+.cards__ribbon .rb { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.cards__ribbon-g { will-change: transform; filter: drop-shadow(0 22px 26px rgba(8, 40, 44, .28)); }
+.cards__stage {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: calc(var(--cw) * 1.4);
+  perspective: 2200px;
+  perspective-origin: 50% 45%;
+}
+.cards--scroll .cards__stage { margin-top: 6vh; }
+.pc {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: var(--cw);
+  height: calc(var(--cw) * 1.4);
+  margin-left: calc(var(--cw) / -2);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.pc__inner {
+  all: unset;
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  will-change: transform;
+  cursor: default;
+  -webkit-tap-highlight-color: transparent;
+}
+.pc__face {
+  position: absolute;
+  inset: 0;
+  border-radius: calc(var(--cw) * .05);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+  box-shadow: 0 30px 60px -12px rgba(8, 40, 44, .45), 0 2px 6px rgba(8, 40, 44, .2);
+  transform: translateZ(.5px);
+}
+.pc__back { background: var(--anemos-breeze); border: calc(var(--cw) * .016) solid var(--anemos-ground); }
+.pc__back svg { width: 100%; height: 100%; display: block; }
+.pc__front {
+  transform: rotateY(180deg) translateZ(.5px);
+  background: #FFFDF9;
+  color: #14232A;
+  display: flex;
+  flex-direction: column;
+  padding: calc(var(--cw) * .12) calc(var(--cw) * .115) calc(var(--cw) * .1);
+  font-family: var(--anemos-font-text);
+}
+.pc__head, .pc__foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.pc__title {
+  font-size: calc(var(--cw) * .088);
+  font-weight: 500;
+  letter-spacing: -.01em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.pc__glyph { width: calc(var(--cw) * .1); height: calc(var(--cw) * .1); flex: 0 0 auto; fill: #14232A; shape-rendering: crispEdges; }
+.pc__list {
+  margin: calc(var(--cw) * .085) 0 auto;
+  padding: 0;
+  list-style: none;
+  font-size: calc(var(--cw) * .05);
+  font-weight: 500;
+  color: #1F3A45;
+}
+.pc__list li {
+  padding: calc(var(--cw) * .038) 0;
+  background: radial-gradient(circle, rgba(11, 122, 133, .38) 1px, transparent 1.5px) 0 100% / 8px 3px repeat-x;
+}
+.pc__list li:last-child { background: none; }
+.pc__foot { transform: rotate(180deg); }
+
+/* Без сцены по скроллу (телефон, reduced motion): заголовок сверху, карты лентой, переворот классом */
+.cards:not(.cards--scroll) .cards__sticky { padding: 96px 0 64px; }
+.cards:not(.cards--scroll) .cards__h { position: relative; top: auto; left: auto; right: auto; padding: 0 var(--base-padding-x); margin-bottom: 28px; font-size: clamp(2.6rem, 13vw, 5rem); }
+.cards:not(.cards--scroll) .cards__h2 { padding-right: 0; }
+.cards:not(.cards--scroll) .cards__stage {
+  height: auto;
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 20px max(24px, calc(50vw - var(--cw) / 2)) 28px;
+}
+.cards:not(.cards--scroll) .pc { position: relative; left: auto; margin: 0; flex: 0 0 var(--cw); scroll-snap-align: center; }
+.cards:not(.cards--scroll) .pc__inner { cursor: pointer; transition: transform .9s cubic-bezier(.65, 0, .25, 1); }
+.cards:not(.cards--scroll) .pc.is-flipped .pc__inner { transform: rotateY(180deg); }
+.cards:not(.cards--scroll) .pc__inner:focus-visible .pc__face { outline: 3px solid var(--anemos-ground); outline-offset: 3px; }
+.cards__hint { display: none; }
+@media (max-width: 900px) {
+  .cards { --cw: min(70vw, 320px); }
+  .cards__hint { display: block; text-align: center; margin: 4px 0 0; font-size: 12px; opacity: .75; letter-spacing: .08em; }
+}
+@media (prefers-reduced-motion: reduce) { .cards:not(.cards--scroll) .pc__inner { transition: none; } }
 
 /* Header on light sections: main.js adds .top--light once the hero is scrolled away */
 .lusion-header.top--light .lusion-brand-name { color: var(--anemos-deep); }
@@ -956,3 +1084,18 @@ body:has(#hero[data-visible="true"]) .grain {
 @media (prefers-reduced-motion: reduce) {
   .cards:not(.cards--scroll) .pc__inner { transition: none; }
 }
+
+/* Меню: без собственной прокрутки (из-за нее при анимации карточек появлялись полосы);
+   прокрутка включается только на очень низких экранах, и тоже без полос */
+.lusion-menu.menu { overflow: visible; max-height: none; padding: 0; }
+@media (max-height: 620px) {
+  .lusion-menu.menu { overflow-y: auto; overflow-x: hidden; max-height: calc(100svh - var(--base-padding-y) - 72px); scrollbar-width: none; padding: 0 0 16px; }
+  .lusion-menu.menu::-webkit-scrollbar { display: none; }
+}
+/* GitHub в меню: светлая карточка в пару к навигации, без темной плашки на темном фоне */
+.lusion-card--github { background: var(--anemos-ground); color: var(--anemos-deep); border: 0; box-shadow: 0 24px 56px rgba(0, 0, 0, .35); }
+.lusion-card--github .github-text { color: var(--anemos-deep); }
+.lusion-card--github .github-icon-svg { fill: var(--anemos-deep); color: var(--anemos-deep); }
+.lusion-card--github .github-arrow { color: var(--anemos-breeze); }
+.lusion-card--github:hover { background: #F1EEE6; border-color: transparent; }
+.lusion-card--github:hover .github-arrow { color: var(--anemos-deep); }
