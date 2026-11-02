@@ -1,29 +1,12 @@
 /**
- * pilotarbuza — particle flight.
- * GPU advection, instanced beads, depth of field and a separate bloom pass.
- * Everything is generated locally; no runtime requests to the reference site.
+ * pilotarbuza — шары на первом экране.
+ * 22 шара тянутся к центру, сталкиваются и медленно вращаются вокруг общей оси.
+ * Курсор — луч из камеры: он расталкивает шары и передаёт им свою скорость,
+ * а за курсором по картинке тянется смазанный след (буфер скорости).
+ * Клик по сцене разбрасывает шары и меняет цвет акцентных.
+ * Геометрия, свет и шейдеры свои, никаких внешних моделей.
  */
-/* Simplex noise adapted from https://github.com/ashima/webgl-noise
- * Copyright (C) 2011 by Ashima Arts (Simplex noise)
- * Copyright (C) 2011-2016 by Stefan Gustavson (Classic noise and others)
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
-(async function () {
+(function () {
   'use strict';
   const hero = document.getElementById('hero');
   const canvas = document.getElementById('hero-balloons-canvas');
@@ -31,476 +14,430 @@
   const motion = document.getElementById('hero-motion-toggle');
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
   let renderer, stopped = false, paused = reducedMotion.matches;
-  let frame = 0, visible = true, previousTime = 0, elapsed = 0, accumulator = 0;
-  const simulationStep = 1 / 90;
-  let width = 1, height = 1, pixelRatio = 1;
-  let isDown = false, speed = 1;
-  const pointer = { x: 0, y: 0, targetX: 0, targetY: 0 };
+  let raf = 0, visible = true, last = 0, time = 0;
   const resources = [];
-  const track = resource => { resources.push(resource); return resource; };
+  const track = r => (resources.push(r), r);
 
   function fallback() {
     stopped = true;
-    cancelAnimationFrame(frame);
+    cancelAnimationFrame(raf);
     hero.classList.add('hero-static');
     hero.dataset.renderState = 'fallback';
     if (motion) motion.hidden = true;
-    resources.forEach(resource => resource.dispose());
+    resources.forEach(r => r.dispose && r.dispose());
     if (renderer) renderer.dispose();
   }
 
   try {
     if (!window.THREE) throw new Error('WebGL library unavailable');
-    renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: false, powerPreference: 'high-performance' });
-    const gl = renderer.getContext();
-    // Float simulation targets must be renderable, not merely sampleable.
-    const capable = renderer.capabilities.isWebGL2 && gl.getExtension('EXT_color_buffer_float');
-    if (!capable || renderer.capabilities.maxVertexTextures === 0) throw new Error('Float render targets unavailable');
-    renderer.setClearColor(0x020304, 1);
+    const T = THREE;
+    renderer = new T.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
+    renderer.setClearColor(0x0b1214, 1);
+    renderer.autoClear = true;
     const small = matchMedia('(max-width: 700px), (pointer: coarse)').matches;
-    const grid = small ? 80 : 128;
-    const count = grid * grid;
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(39, 1, 0.1, 40);
-    const simScene = new THREE.Scene();
-    const screenCamera = new THREE.Camera();
-    const screenGeometry = track(new THREE.PlaneGeometry(2, 2));
-    const screenVertex = `varying vec2 vUv; void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}`;
-    const targetOptions = { type: THREE.FloatType, minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, depthBuffer: false, stencilBuffer: false };
-    let readTarget = track(new THREE.WebGLRenderTarget(grid, grid, targetOptions));
-    let writeTarget = track(readTarget.clone());
-    renderer.setRenderTarget(readTarget);
-    if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) throw new Error('Incomplete simulation target');
-    renderer.setRenderTarget(null);
 
-    // Stable seeded distribution makes the first frame useful even with motion disabled.
-    let seed = 48173;
-    function random() { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; }
-    const initial = new Float32Array(count * 4);
-    const samples = new Float32Array(count * 2);
-    const variants = new Float32Array(count * 4);
-    for (let i = 0; i < count; i++) {
-      const u = random() * 2 - 1, v = random() * 2 - 1;
-      const angle = v * 3.1 + .4 * Math.sin(v * 2.7);
-      const ribbonWidth = .28 + .16 * Math.cos(v * 2.2);
-      const thickness = (random() + random() + random() - 1.5) * .035;
-      let x = .72 * Math.sin(angle) + u * ribbonWidth * Math.cos(angle);
-      let y = 1.6 * v + .12 * u;
-      let z = .6 * Math.cos(angle) - u * ribbonWidth * Math.sin(angle) + thickness;
-      const tail = random() > .89;
-      if (tail) { x *= 1.25; y *= 1.2; z += (random() - .5) * 1.45; }
-      // Adjacent particles share an age so a folding sheet remains a sheet.
-      // A small diffuse population supplies the drifting fringe between folds.
-      const life = tail ? random() : (i % 3) / 3 + random() * .006;
-      initial.set([x, y + .62, z, life], i * 4);
-      samples.set([(i % grid + 0.5) / grid, (Math.floor(i / grid) + 0.5) / grid], i * 2);
-      // Sparse luminous pearls; ordinary beads remain slate grey.
-      variants.set([random(), random(), random(), i % 2017 === 0 ? 1 : 0], i * 4);
-    }
-    const initialTexture = track(new THREE.DataTexture(initial, grid, grid, THREE.RGBAFormat, THREE.FloatType));
-    initialTexture.needsUpdate = true;
-    const simUniforms = {
-      positions: {value: initialTexture}, origins: {value: initialTexture},
-      dt: {value: 1 / 60}, time: {value: 0}, pointer: {value: new THREE.Vector3()}, press: {value: 0}
-    };
-    const simMaterial = track(new THREE.ShaderMaterial({
-      uniforms: simUniforms, vertexShader: screenVertex,
-      fragmentShader: `
-        precision highp float;
-        uniform sampler2D positions, origins;
-        uniform float dt, time, press;
-        uniform vec3 pointer;
-        varying vec2 vUv;
-        vec4 mod289(vec4 x){return x-floor(x*(1.0/289.0))*289.0;}
-float mod289(float x){return x-floor(x*(1.0/289.0))*289.0;}
-vec4 permute(vec4 x){return mod289(((x*34.0)+1.0)*x);}
-float permute(float x){return mod289(((x*34.0)+1.0)*x);}
-vec4 taylorInvSqrt(vec4 r){return 1.79284291400159-0.85373472095314*r;}
-float taylorInvSqrt(float r){return 1.79284291400159-0.85373472095314*r;}
-vec4 grad4(float j,vec4 ip){
-    const vec4 ones=vec4(1.0,1.0,1.0,-1.0);
-    vec4 p,s;
-    p.xyz=floor(fract(vec3(j)*ip.xyz)*7.0)*ip.z-ones.xyz;
-    p.w=1.5-dot(abs(p.xyz),ones.xyz);
-    s=vec4(lessThan(p,vec4(0.0)));
-    p.xyz=p.xyz+(s.xyz*2.0-1.0)*s.www;
-    return p;
-}
-#define F4 0.309016994374947451
-vec4 snoiseGradient(vec4 v,out float value){
-    const vec4 C=vec4(0.138196601125011,0.276393202250021,0.414589803375032,-0.447213595499958);
-    vec4 i=floor(v+dot(v,vec4(F4)));
-    vec4 x0=v-i+dot(i,C.xxxx);
-    vec4 i0;
-    vec3 isX=step(x0.yzw,x0.xxx);
-    vec3 isYZ=step(x0.zww,x0.yyz);
-    i0.x=isX.x+isX.y+isX.z;
-    i0.yzw=1.0-isX;
-    i0.y+=isYZ.x+isYZ.y;
-    i0.zw+=1.0-isYZ.xy;
-    i0.z+=isYZ.z;
-    i0.w+=1.0-isYZ.z;
-    vec4 i3=clamp(i0,0.0,1.0);
-    vec4 i2=clamp(i0-1.0,0.0,1.0);
-    vec4 i1=clamp(i0-2.0,0.0,1.0);
-    vec4 x1=x0-i1+C.xxxx;
-    vec4 x2=x0-i2+C.yyyy;
-    vec4 x3=x0-i3+C.zzzz;
-    vec4 x4=x0+C.wwww;
-    i=mod289(i);
-    float j0=permute(permute(permute(permute(i.w)+i.z)+i.y)+i.x);
-    vec4 j1=permute(permute(permute(permute(
-        i.w+vec4(i1.w,i2.w,i3.w,1.0))
-        +i.z+vec4(i1.z,i2.z,i3.z,1.0))
-        +i.y+vec4(i1.y,i2.y,i3.y,1.0))
-        +i.x+vec4(i1.x,i2.x,i3.x,1.0));
-    vec4 ip=vec4(1.0/294.0,1.0/49.0,1.0/7.0,0.0);
-    vec4 p0=grad4(j0,ip);
-    vec4 p1=grad4(j1.x,ip);
-    vec4 p2=grad4(j1.y,ip);
-    vec4 p3=grad4(j1.z,ip);
-    vec4 p4=grad4(j1.w,ip);
-    vec4 norm=taylorInvSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));
-    p0*=norm.x; p1*=norm.y; p2*=norm.z; p3*=norm.w;
-    p4*=taylorInvSqrt(dot(p4,p4));
-    vec3 values0=vec3(dot(p0,x0),dot(p1,x1),dot(p2,x2));
-    vec2 values1=vec2(dot(p3,x3),dot(p4,x4));
-    vec3 m0=max(0.5-vec3(dot(x0,x0),dot(x1,x1),dot(x2,x2)),0.0);
-    vec2 m1=max(0.5-vec2(dot(x3,x3),dot(x4,x4)),0.0);
-    vec3 m03=m0*m0*m0, m04=m03*m0;
-    vec2 m13=m1*m1*m1, m14=m13*m1;
-    value=49.0*(dot(m04,values0)+dot(m14,values1));
-    return 49.0*(
-       m04.x*p0+m04.y*p1+m04.z*p2+m14.x*p3+m14.y*p4
-       -8.0*(m03.x*values0.x*x0+m03.y*values0.y*x1+m03.z*values0.z*x2
-             +m13.x*values1.x*x3+m13.y*values1.y*x4));
-}
+    /* ---------- шары: состав как у студийной сцены — акцентные, светлые, тёмные ---------- */
+    const ACCENTS = ['#0B7A85', '#E8492A', '#4FC7C4', '#3F7A45', '#F4B860'];
+    let accent = 0;
+    const KINDS = [];
+    for (let i = 0; i < 6; i++) KINDS.push({ kind: 'accent', rough: i === 2 ? .12 : .75 });
+    for (let i = 0; i < 8; i++) KINDS.push({ kind: 'light', rough: i === 3 ? .12 : .75, color: '#FFF8F0' });
+    for (let i = 0; i < 8; i++) KINDS.push({ kind: 'dark', rough: i % 3 === 0 ? .15 : .6, color: '#101A1D' });
+    const N = KINDS.length;
 
-// p is relative to cloud centre. Use directly as velocity with dt seconds.
-// Three derivative-noise evaluations versus the original eight scalar evaluations.
-vec3 foldedFlow(vec3 p,float time){
-    const float frequency=.93;
-    const float strength=.26;
-    float n0,n1,n2;
-    vec4 q=vec4(p*frequency,time*.115);
-    vec4 g0=snoiseGradient(q,n0);
-    vec4 g1=snoiseGradient(q+vec4(31.42,17.73,-11.67,9.21),n1);
-    vec4 g2=snoiseGradient(q+vec4(-21.16,8.39,43.51,-17.31),n2);
-    vec3 potential=vec3(n0,n1,n2)*strength;
-    vec3 velocity=vec3(g2.y-g1.z,g0.z-g2.x,g1.x-g0.y)*frequency*strength;
+    let seed = 2511;
+    const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
 
-    // Weak changing rotation supplies large-scale twisting; noise remains dominant.
-    // A = -.5*dot(p,p)*omega gives curl(A)=cross(omega,p).
-    vec3 omega=vec3(.06*sin(time*.13),.18,.04*cos(time*.17));
-    potential-=.5*dot(p,p)*omega;
-    velocity+=cross(omega,p);
+    const bodies = KINDS.map((k, i) => {
+      const r = 1.05;
+      const p0 = new T.Vector3((rnd() - .5) * 12, (rnd() - .5) * 12, (rnd() - .5) * 6);
+      const vol = Math.PI * r * 1.3333;
+      const mass = vol * r * r;
+      return {
+        i, r, mass, inertia: mass * r * r * .4, friction: 2, rest: .8, fr: 0,
+        p0, pos: p0.clone(), vel: p0.clone().multiplyScalar(-2),
+        q: new T.Quaternion().setFromEuler(new T.Euler(rnd() * 6, rnd() * 6, rnd() * 6))
+      };
+    });
+    const resetBodies = () => bodies.forEach(b => { b.pos.copy(b.p0); b.vel.copy(b.p0).multiplyScalar(-2); });
 
-    // Apply a broad smooth envelope to the potential, then take its curl.
-    // Multiplying velocity by an envelope alone would introduce compression.
-    vec3 invRadius2=1./vec3(1.6*1.6,2.1*2.1,1.3*1.3);
-    float radius2=dot(p*p,invRadius2);
-    float envelope=exp(-radius2*.32);
-    vec3 envelopeGradient=-.64*envelope*p*invRadius2;
-    return envelope*velocity+cross(envelopeGradient,potential);
-}
+    /* ---------- физика ---------- */
+    const GRAVITY = 40, MOUSE_R = .025, MOUSE_INF = .1, MOUSE_PUSH = .12;
+    const AXIS = new T.Vector3(1, 1, 1).normalize();
+    const mouse = new T.Vector3(), mousePrev = new T.Vector3(), mouseVel = new T.Vector3();
+    const ray = new T.Vector3(), tmp = new T.Vector3(), tmp2 = new T.Vector3(), nrm = new T.Vector3(), qt = new T.Quaternion();
+    let pointerIn = false, mouseReady = false;
+    const ndc = new T.Vector2(0, 0);
 
-        vec3 velocityAt(vec3 p, float t) {
-          vec3 velocity = foldedFlow(p, t);
-          vec3 relative = p - (pointer - vec3(0., .62, 0.));
-          float influence = exp(-dot(relative, relative) * 1.6);
-          velocity += cross(vec3(0., 0., 1.), relative) * influence * press * .8;
-          return velocity;
-        }
-        void main(){
-          vec4 state=texture2D(positions,vUv);
-          float nextLife=state.w+dt/11.;
-          if(nextLife>=1.){
-            state=texture2D(origins,vUv);
-            // Slowly turn the emitting sheet, so successive folds do not stack.
-            float angle=.24*sin(time*.19);
-            state.xz=mat2(cos(angle),-sin(angle),sin(angle),cos(angle))*state.xz;
-          }
-          state.w=fract(nextLife);
-          vec3 p=state.xyz-vec3(0.,.62,0.);
-          vec3 first=velocityAt(p,time);
-          vec3 velocity=velocityAt(p+first*dt*.5,time+dt*.5);
-          state.xyz+=velocity*dt;
-          gl_FragColor=state;
-        }`
-    }));
-    simScene.add(new THREE.Mesh(screenGeometry, simMaterial));
-    function simulate(dt, time) {
-      simUniforms.dt.value = dt;
-      simUniforms.time.value = time;
-      renderer.setRenderTarget(writeTarget);
-      renderer.render(simScene, screenCamera);
-      const swap = readTarget; readTarget = writeTarget; writeTarget = swap;
-      simUniforms.positions.value = readTarget.texture;
-    }
-    // Complete one lifetime so all three sheets have distinct physical ages.
-    // Yield between batches to keep navigation responsive during initialization.
-    for (let step = 0; step < 540; step++) {
-      simulate(1 / 45, step / 45);
-      if (step % 36 === 35) {
-        renderer.setRenderTarget(null);
-        await new Promise(resolve => setTimeout(resolve, 0));
-      }
-    }
-    elapsed = 12;
-    renderer.setRenderTarget(null);
+    function step(dt) {
+      // луч мыши: из камеры через курсор до плоскости z = 0
+      tmp.set(ndc.x, ndc.y, .5).unproject(camera).sub(camera.position).normalize();
+      const k = -camera.position.z / tmp.z;
+      mouse.copy(camera.position).addScaledVector(tmp, k);
+      if (!mouseReady) { mousePrev.copy(mouse); mouseReady = true; }
+      mouseVel.copy(mouse).sub(mousePrev).multiplyScalar(MOUSE_PUSH / dt);
+      mousePrev.copy(mouse);
+      ray.copy(mouse).sub(camera.position);
+      const rayLen2 = ray.lengthSq();
 
-    // Reuse the compact dome geometry already shipped with the site. Camera-facing
-    // hemispheres retain the reference bead outline at a fraction of full-sphere cost.
-    function decodeBead(buffer) {
-      const length = new DataView(buffer).getUint32(0, true);
-      const metadata = JSON.parse(new TextDecoder().decode(new Uint8Array(buffer, 4, length)));
-      const result = new THREE.BufferGeometry();
-      let offset = 4 + length;
-      for (const attribute of metadata.attributes) {
-        const type = {Int16Array, Uint16Array, Uint8Array}[attribute.storageType];
-        if (!type) throw new Error('Unsupported bead attribute');
-        const count = (attribute.id === 'indices' ? metadata.indexCount : metadata.vertexCount) * attribute.componentSize;
-        const bytes = count * type.BYTES_PER_ELEMENT;
-        const raw = new type(buffer.slice(offset, offset + bytes));
-        offset += bytes;
-        let values = raw;
-        if (attribute.needsPack) {
-          values = new Float32Array(count);
-          const signedOffset = type === Int16Array ? 32768 : 0;
-          for (let i = 0; i < count; i++) {
-            const component = attribute.packedComponents[i % attribute.componentSize];
-            values[i] = (raw[i] + signedOffset) / 65536 * component.delta + component.from;
+      for (let a = 0; a < N; a++) {
+        const A = bodies[a];
+        // притяжение к центру, ослабленное трением в толпе
+        tmp.copy(A.pos).multiplyScalar(-GRAVITY / A.mass / (1 + A.fr));
+        A.vel.addScaledVector(tmp, dt);
+        A.fr *= .5;
+
+        for (let b = a + 1; b < N; b++) {
+          const B = bodies[b];
+          nrm.copy(A.pos).sub(B.pos);
+          const d = nrm.length(), min = A.r + B.r;
+          if (d < min && d > 1e-5) {
+            const f = Math.sqrt(A.friction * B.friction);
+            A.fr += f; B.fr += f;
+            nrm.multiplyScalar(1 / d);
+            const push = .5 * (min - d);
+            A.pos.addScaledVector(nrm, push); B.pos.addScaledVector(nrm, -push);
+            const va = A.vel.dot(nrm), vb = B.vel.dot(nrm);
+            const ma = A.mass, mb = B.mass;
+            const na = (ma * va + mb * vb - mb * (va - vb) * A.rest) / (ma + mb);
+            const nb = (ma * va + mb * vb - ma * (vb - va) * B.rest) / (ma + mb);
+            A.vel.addScaledVector(nrm, (na - va) / (1 + f));
+            B.vel.addScaledVector(nrm, (nb - vb) / (1 + f));
           }
         }
-        if (attribute.id === 'indices') result.setIndex(new THREE.BufferAttribute(values, 1));
-        else result.setAttribute(attribute.id, new THREE.BufferAttribute(values, attribute.componentSize));
+
+        // курсор: расстояние от центра шара до луча
+        if (pointerIn) {
+          tmp.copy(A.pos).sub(camera.position);
+          const t = tmp.dot(ray) / rayLen2;
+          tmp2.copy(ray).multiplyScalar(t);
+          const perp = tmp.sub(tmp2);                 // от луча к шару
+          const gap = perp.length() - A.r - MOUSE_R;
+          if (gap < 0) {
+            perp.normalize();
+            A.pos.addScaledVector(perp, -MOUSE_INF * gap);
+            A.vel.addScaledVector(perp, -MOUSE_INF * gap * MOUSE_PUSH / dt);
+            A.vel.add(mouseVel);
+          }
+        }
+
+        // медленный хоровод вокруг диагональной оси, соседние шары в разные стороны
+        const len = A.pos.length();
+        if (len > 0) {
+          let ang = 1 - Math.abs(AXIS.dot(tmp.copy(A.pos).normalize()));
+          ang *= dt * Math.min(1, len / 2) * .5 * (a % 2 ? 1 : -1);
+          qt.setFromAxisAngle(AXIS, ang);
+          tmp.copy(A.pos).applyQuaternion(qt).sub(A.pos);
+          A.vel.add(tmp);
+        }
+
+        // вращение от движения
+        tmp.copy(A.pos).sub(camera.position).cross(A.vel);
+        const w = tmp.length() / A.inertia;
+        if (w > 0) { qt.setFromAxisAngle(tmp.normalize(), w * dt); A.q.premultiply(qt); }
+
+        A.pos.addScaledVector(A.vel, dt);
+        A.vel.multiplyScalar(Math.pow(.2, dt));
       }
-      return result;
     }
-    const beadResponse = await fetch('assets/models/sphere_m.buf');
-    if (!beadResponse.ok) throw new Error('Bead geometry unavailable');
-    const bead = track(decodeBead(await beadResponse.arrayBuffer()));
-    const geometry = track(new THREE.InstancedBufferGeometry());
-    geometry.index = bead.index;
-    Object.keys(bead.attributes).forEach(name => geometry.setAttribute(name, bead.attributes[name]));
-    geometry.setAttribute('sampleUV', new THREE.InstancedBufferAttribute(samples, 2));
-    geometry.setAttribute('variant', new THREE.InstancedBufferAttribute(variants, 4));
-    geometry.instanceCount = count;
-    const beadUniforms = {
-      positions: {value: readTarget.texture}, previousPositions: {value: writeTarget.texture},
-      interpolation: {value: 1}, fogStart: {value: 6.6},
-      lightA: {value: new THREE.Vector3()}, lightB: {value: new THREE.Vector3()}
-    };
-    const beadMaterial = track(new THREE.ShaderMaterial({
-      uniforms: beadUniforms,
-      side: THREE.DoubleSide,
-      vertexShader: `
-        attribute vec2 sampleUV;
-        attribute vec4 variant;
-        uniform sampler2D positions, previousPositions;
-        uniform float interpolation;
-        varying vec3 vNormal, vWorld;
-        varying vec4 vVariant;
-        varying float vDepth;
-        void main(){
-          vec4 state=texture2D(positions,sampleUV);
-          vec4 previous=texture2D(previousPositions,sampleUV);
-          // Never interpolate across respawn: that would draw a streak back to the emitter.
-          if(state.w>=previous.w) state=mix(previous,state,interpolation);
-          float life=smoothstep(0.,.06,state.w)*(1.-smoothstep(.94,1.,state.w));
-          float size=mix(.018,.062,pow(variant.x,2.2));
-          size=mix(size,.095+variant.x*.025,variant.w);
-          vec3 center=vec3(0.,.62,0.);
-          vec3 cloud=state.xyz-center;
 
-          float fringe=smoothstep(.985,1.,variant.z);
-          cloud*=1.+fringe*.35;
-          cloud.z+=fringe*1.3;
-          cloud.z+=variant.w*.42;
-          vec3 beadPosition=vec3(position.xy,-position.z);
+    function explode() {
+      accent = (accent + 1) % ACCENTS.length;
+      bodies.forEach(b => {
+        tmp.copy(b.pos).multiplyScalar(-10);
+        tmp2.set(Math.random() - .5, Math.random() - .5, Math.random() - .5).multiplyScalar(80);
+        tmp.add(tmp2).multiplyScalar(1 / b.mass);
+        b.vel.negate().add(tmp);
+      });
+      accentColor.set(ACCENTS[accent]);
+    }
 
-          vec3 world=center+cloud+(vec4(beadPosition*size*life,0.)*viewMatrix).xyz;
-          vec4 view=modelViewMatrix*vec4(world,1.);
-          vNormal=(vec4(normal.xy,-normal.z,0.)*viewMatrix).xyz;
-          vWorld=world;
-          vVariant=variant;
-          vDepth=-view.z;
-          gl_Position=projectionMatrix*view;
-        }`,
-      fragmentShader: `
-        uniform vec3 lightA, lightB;
-        uniform float fogStart;
-        varying vec3 vNormal, vWorld;
-        varying vec4 vVariant;
-        varying float vDepth;
-        void main(){
-          vec3 N=normalize(vNormal), V=normalize(cameraPosition-vWorld);
-          vec3 deltaA=lightA-vWorld, deltaB=lightB-vWorld;
-          vec3 L=normalize(deltaA), L2=normalize(deltaB);
-          float a=1./(1.+dot(deltaA,deltaA)*1.7);
-          float b=1./(1.+dot(deltaB,deltaB)*2.1);
-          float diffuse=max(dot(N,normalize(vec3(-.35,.8,1.))),0.);
-          float local=max(dot(N,L),0.)*a+max(dot(N,L2),0.)*b*.8;
-          float spec=pow(max(dot(N,normalize(L+V)),0.),28.)*a;
-          float rim=pow(1.-max(dot(N,V),0.),3.);
+    /* ---------- сцена ---------- */
+    const scene = new T.Scene();
+    const camera = new T.PerspectiveCamera(25, 1, .5, 120);
+    const geo = track(new T.SphereGeometry(1, small ? 40 : 64, small ? 28 : 48));
+    const spheres = [];                                    // xyz + r, общие для всех шейдеров
+    for (let i = 0; i < N; i++) spheres.push(new T.Vector4(0, 0, 0, 1.05));
+    const colors = [];
+    for (let i = 0; i < N; i++) colors.push(new T.Color());
+    const accentColor = new T.Color(ACCENTS[0]);
 
-          vec3 slate=mix(vec3(.10,.12,.135),vec3(.22,.255,.27),vVariant.y);
-          vec3 color=slate*(.28+diffuse*.75+local*1.8);
-          color+=vec3(.32,.38,.40)*spec*.75;
-          color+=vec3(.08,.13,.14)*rim*.30;
-          if(vVariant.w>.5) color=vec3(1.85,2.1,2.15)*(.16+.84*sqrt(max(dot(N,V),0.)));
-          float fog=exp(-max(vDepth-fogStart,0.)*.28);
-          color=mix(vec3(.008,.012,.016),color,fog);
-          gl_FragColor=vec4(color,1.);
-        }`
-    }));
-    const beads = new THREE.Mesh(geometry, beadMaterial);
-    beads.frustumCulled = false;
-    scene.add(beads);
-
-    // Half-float colour retains luminous cores until bloom and tone mapping.
-    const sceneTarget=track(new THREE.WebGLRenderTarget(1,1,{type:THREE.HalfFloatType, minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter,depthBuffer:true}));
-    sceneTarget.depthTexture=track(new THREE.DepthTexture(1,1));
-    const bloomA=track(new THREE.WebGLRenderTarget(1,1,{type:THREE.HalfFloatType,depthBuffer:false}));
-    const bloomB=track(bloomA.clone());
-    const postScene=new THREE.Scene();
-    const quad=new THREE.Mesh(screenGeometry,new THREE.MeshBasicMaterial());
-    quad.material.dispose();
-    postScene.add(quad);
-    const brightMaterial=track(new THREE.ShaderMaterial({vertexShader:screenVertex,uniforms:{source:{value:sceneTarget.texture}},fragmentShader:`
-      varying vec2 vUv;uniform sampler2D source;
-      void main(){vec3 c=texture2D(source,vUv).rgb;float l=max(c.r,max(c.g,c.b));gl_FragColor=vec4(c*smoothstep(.65,1.4,l),1.);}` }));
-    const blurMaterial=track(new THREE.ShaderMaterial({vertexShader:screenVertex,uniforms:{source:{value:null},direction:{value:new THREE.Vector2()}},fragmentShader:`
-      varying vec2 vUv;uniform sampler2D source;uniform vec2 direction;
-      void main(){vec3 c=texture2D(source,vUv).rgb*.227027;
-      c+=texture2D(source,vUv+direction*1.384615).rgb*.316216;
-      c+=texture2D(source,vUv-direction*1.384615).rgb*.316216;
-      c+=texture2D(source,vUv+direction*3.230769).rgb*.070270;
-      c+=texture2D(source,vUv-direction*3.230769).rgb*.070270;
-      gl_FragColor=vec4(c,1.);}` }));
-    const compositeUniforms={source:{value:sceneTarget.texture},depth:{value:sceneTarget.depthTexture},bloom:{value:bloomA.texture},resolution:{value:new THREE.Vector2()},focus:{value:6.5},time:{value:0}};
-    const compositeMaterial=track(new THREE.ShaderMaterial({vertexShader:screenVertex,uniforms:compositeUniforms,fragmentShader:`
-      varying vec2 vUv;uniform sampler2D source,depth,bloom;uniform vec2 resolution;uniform float focus,time;
-      float viewDepth(vec2 uv){float d=texture2D(depth,uv).x;return 4./(40.-d*39.9);}
+    const vert = `
+      varying vec3 vN; varying vec3 vW; varying vec3 vLocalN;
       void main(){
-        vec3 color=texture2D(source,vUv).rgb;
-        float z=viewDepth(vUv);
-        float blur=clamp(abs(z-focus)*2.6-.35,0.,5.5);
-        // Spiral aperture samples: out-of-focus beads get soft edges, focal beads stay crisp.
-        float weight=1.;
-        for(int i=0;i<12;i++){
-          float f=float(i)+.5;
-          float angle=f*2.399963;
-          vec2 offset=vec2(cos(angle),sin(angle))*sqrt(f/12.)*blur/resolution;
-          vec2 uv=vUv+offset;
-          float neighbour=viewDepth(uv);
-          float w=neighbour<z-.35?.35:1.;
-          color+=texture2D(source,uv).rgb*w;weight+=w;
+        vec4 w = modelMatrix * vec4(position,1.);
+        vW = w.xyz;
+        vN = normalize(mat3(modelMatrix) * normal);
+        vLocalN = normal;
+        gl_Position = projectionMatrix * viewMatrix * w;
+      }`;
+    const frag = `
+      #define N ${N}
+      uniform vec3 uColor; uniform float uRough; uniform int uSelf;
+      uniform vec4 uSpheres[N]; uniform vec3 uColors[N];
+      uniform vec3 uCam; uniform float uTime;
+      varying vec3 vN; varying vec3 vW; varying vec3 vLocalN;
+      // студийное окружение: большой софтбокс сверху, полоса сбоку, слабый контровой
+      vec3 env(vec3 d, float rough){
+        float top = smoothstep(.55 - rough*.5, .95, d.y) * (1. - smoothstep(.0, 1.2, abs(d.x + .25)) * .35);
+        float side = smoothstep(.45 + rough*.3 - .2, .9, -d.x) * smoothstep(-.4, .3, d.y) * smoothstep(-.6, .4, d.z);
+        float rim = smoothstep(.5 - rough*.3, 1., d.x) * smoothstep(-.2, .6, -d.z) * .6;
+        float floorDark = smoothstep(.1, -.8, d.y);
+        vec3 c = vec3(.05,.07,.075);
+        c += vec3(1.0,.98,.95) * top * 1.6;
+        c += vec3(.75,.85,.88) * side * .9;
+        c += vec3(.55,.75,.8) * rim;
+        c *= 1. - floorDark * .7;
+        return c;
+      }
+      void main(){
+        vec3 n = normalize(vN);
+        vec3 v = normalize(uCam - vW);
+        // мягкая тень и затенение от соседних шаров (аналитическая окклюзия сферы)
+        float ao = 1.; vec3 bleed = vec3(0.);
+        for (int i = 0; i < N; i++){
+          if (i == uSelf) continue;
+          vec3 d = uSpheres[i].xyz - vW;
+          float l = length(d); float r = uSpheres[i].w;
+          float o = r*r * clamp(dot(n, d/l), 0., 1.) / (l*l);
+          ao *= 1. - clamp(o * 1.15, 0., .95);
+          bleed += uColors[i] * o * .35;
         }
-        color/=weight;
-        color+=texture2D(bloom,vUv).rgb*.8;
-        // Mild filmic curve preserves grey beads and rolls off bright pearls.
-        color=vec3(1.)-exp(-color*1.45);
-        color=pow(color,vec3(.82));
-        float vignette=1.-smoothstep(.25,.82,length((vUv-.5)*vec2(1.,.8)))*.50;
-        color*=vignette;
-        gl_FragColor=vec4(color,1.);
-      }` }));
-    function post(material,target){quad.material=material;renderer.setRenderTarget(target);renderer.render(postScene,screenCamera);}
-    function render(){
-      beadUniforms.positions.value=readTarget.texture;
-      beadUniforms.previousPositions.value=writeTarget.texture;
-      beadUniforms.interpolation.value=paused||!previousTime?1:accumulator/simulationStep;
-      beadUniforms.lightA.value.set(Math.sin(elapsed*.24)*.65,.8+Math.cos(elapsed*.31)*.55,.9);
-      beadUniforms.lightB.value.set(Math.cos(elapsed*.19)*.7,.25, -.15);
-      camera.position.x=pointer.x*.22;
-      camera.position.y=pointer.y*.15;
-      camera.lookAt(0,.14,0);
-      renderer.setRenderTarget(sceneTarget);renderer.render(scene,camera);
-      post(brightMaterial,bloomA);
-      for(let i=0;i<3;i++){
-        blurMaterial.uniforms.source.value=bloomA.texture;
-        blurMaterial.uniforms.direction.value.set((1+i*1.8)/bloomA.width,0);post(blurMaterial,bloomB);
-        blurMaterial.uniforms.source.value=bloomB.texture;
-        blurMaterial.uniforms.direction.value.set(0,(1+i*1.8)/bloomA.height);post(blurMaterial,bloomA);
+        vec3 L = normalize(vec3(-.45, .85, .6));
+        float wrap = clamp((dot(n, L) + .35) / 1.35, 0., 1.);
+        float hemi = n.y * .5 + .5;
+        vec3 diffuse = uColor * (wrap * .95 + .18 + hemi * .12);
+        vec3 r = reflect(-v, n);
+        float fres = pow(1. - clamp(dot(n, v), 0., 1.), 4.);
+        float lum = dot(uColor, vec3(.299,.587,.114));
+        float specAmt = mix(.85, .32, uRough) * (.35 + .65 * fres) + mix(.05, .0, uRough);
+        vec3 spec = env(r, uRough) * specAmt;
+        vec3 h = normalize(L + v);
+        float gl = pow(max(dot(n, h), 0.), mix(220., 18., uRough)) * mix(1.4, .25, uRough);
+        vec3 col = diffuse * ao + bleed * uColor * .6 + spec * mix(ao, 1., .35) + gl * ao;
+        col += fres * vec3(.35,.5,.55) * .25 * (1. - lum * .6);
+        // плёночная кривая
+        col = 1. - exp(-col * 1.55);
+        col = pow(col, vec3(.92));
+        gl_FragColor = vec4(col, 1.);
+      }`;
+    const meshes = bodies.map((b, i) => {
+      const k = KINDS[i];
+      const mat = track(new T.ShaderMaterial({
+        uniforms: {
+          uColor: { value: k.kind === 'accent' ? accentColor : new T.Color(k.color) },
+          uRough: { value: k.rough }, uSelf: { value: i },
+          uSpheres: { value: spheres }, uColors: { value: colors },
+          uCam: { value: camera.position }, uTime: { value: 0 }
+        },
+        vertexShader: vert, fragmentShader: frag
+      }));
+      const m = new T.Mesh(geo, mat);
+      m.scale.setScalar(1.05);
+      scene.add(m);
+      return m;
+    });
+
+    /* ---------- след курсора: буфер скорости, смазывающий картинку ---------- */
+    const rtOpt = { minFilter: T.LinearFilter, magFilter: T.LinearFilter, depthBuffer: false, stencilBuffer: false, type: T.UnsignedByteType };
+    const sceneRT = track(new T.WebGLRenderTarget(4, 4, { minFilter: T.LinearFilter, magFilter: T.LinearFilter }));
+    let paintA = track(new T.WebGLRenderTarget(4, 4, rtOpt)), paintB = track(new T.WebGLRenderTarget(4, 4, rtOpt));
+    const quadCam = new T.Camera();
+    const quadGeo = track(new T.PlaneGeometry(2, 2));
+    const quadVert = 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0., 1.); }';
+    const paintMat = track(new T.ShaderMaterial({
+      uniforms: { uPrev: { value: null }, uFrom: { value: new T.Vector2() }, uTo: { value: new T.Vector2() }, uVel: { value: new T.Vector2() }, uRadius: { value: .06 }, uAspect: { value: 1 }, uOn: { value: 0 } },
+      vertexShader: quadVert,
+      fragmentShader: `
+        uniform sampler2D uPrev; uniform vec2 uFrom, uTo, uVel; uniform float uRadius, uAspect, uOn;
+        varying vec2 vUv;
+        void main(){
+          vec4 prev = texture2D(uPrev, vUv);
+          vec2 vel = (prev.xy - .5) * 2.;
+          // перенос по собственной скорости: след течёт, а не просто гаснет
+          prev = texture2D(uPrev, vUv - vel * .012);
+          vel = (prev.xy - .5) * 2. * .955;
+          float w = prev.z * .955;
+          vec2 p = vUv; p.x *= uAspect;
+          vec2 a = uFrom; a.x *= uAspect; vec2 b = uTo; b.x *= uAspect;
+          vec2 pa = p - a, ba = b - a;
+          float h = clamp(dot(pa, ba) / max(dot(ba, ba), 1e-6), 0., 1.);
+          float d = 1. - smoothstep(0., uRadius, length(pa - ba * h));
+          d *= uOn;
+          vel = mix(vel, uVel, d);
+          w = max(w, d * clamp(length(uVel) * 3., 0., 1.));
+          gl_FragColor = vec4(clamp(vel * .5 + .5, 0., 1.), w, 1.);
+        }`
+    }));
+    const finalMat = track(new T.ShaderMaterial({
+      uniforms: { uScene: { value: sceneRT.texture }, uPaint: { value: null }, uRes: { value: new T.Vector2(1, 1) } },
+      vertexShader: quadVert,
+      fragmentShader: `
+        uniform sampler2D uScene, uPaint; uniform vec2 uRes;
+        varying vec2 vUv;
+        void main(){
+          vec4 p = texture2D(uPaint, vUv);
+          vec2 vel = (p.xy - .5) * 2. * p.z;
+          vec2 off = -vel * .075;
+          vec3 c = vec3(0.); float tw = 0.;
+          for (int i = 0; i < 9; i++){
+            float t = float(i) / 8.; float w = 1. - t * .6;
+            c += texture2D(uScene, vUv + off * t).rgb * w; tw += w;
+          }
+          c /= tw;
+          // мягкая виньетка
+          vec2 q = vUv - .5; q.x *= uRes.x / uRes.y;
+          c *= 1. - smoothstep(.45, 1.15, length(q)) * .45;
+          gl_FragColor = vec4(c, 1.);
+        }`
+    }));
+    const quad = new T.Mesh(quadGeo, paintMat);
+    const quadScene = new T.Scene(); quadScene.add(quad);
+    const mUv = new T.Vector2(.5, .5), mUvPrev = new T.Vector2(.5, .5);
+
+    /* ---------- раскладка ---------- */
+    let W = 1, H = 1, fovBase = 25, dist = 22, intro = 0;
+    function resize() {
+      if (stopped) return;
+      W = Math.max(1, hero.clientWidth); H = Math.max(1, hero.clientHeight);
+      const pr = Math.min(devicePixelRatio || 1, small ? 1.5 : 1.75);
+      renderer.setPixelRatio(pr); renderer.setSize(W, H, false);
+      const w = Math.round(W * pr), h = Math.round(H * pr);
+      sceneRT.setSize(w, h);
+      paintA.setSize(w >> 2, h >> 2); paintB.setSize(w >> 2, h >> 2);
+      finalMat.uniforms.uRes.value.set(w, h);
+      paintMat.uniforms.uAspect.value = W / H;
+      paintMat.uniforms.uRadius.value = Math.max(.035, 60 / H);
+      const aspect = W / H;
+      fovBase = aspect >= 2.2 ? 18 : aspect <= 2 / 3 ? 30 : 18 + (2.2 - aspect) / (2.2 - 2 / 3) * 12;
+      camera.aspect = aspect;
+      const half = Math.tan(fovBase * Math.PI / 360);
+      // кучка радиусом ~3.6 занимает примерно 70% высоты и не вылезает по ширине
+      dist = Math.max(5.3 / half, 4.6 / (half * aspect));
+      camera.updateProjectionMatrix();
+      if (paused) render();
+    }
+
+    function updateCamera() {
+      // вход: «долли-зум» — поле зрения сужается, камера отъезжает, кучка будто проявляется
+      const e = intro >= 1 ? 1 : backOut(Math.min(1, intro));
+      const fov = fovBase + (1 - e) * 45;
+      camera.fov = fov;
+      const d = dist * Math.tan(fovBase * Math.PI / 360) / Math.tan(fov * Math.PI / 360);
+      const lift = H > W ? .5 : .95;                     // кучка выше заголовка
+      camera.position.set(pointerSmooth.x * .6, -lift + pointerSmooth.y * .4, d);
+      camera.lookAt(0, -lift, 0);
+      camera.updateProjectionMatrix();
+    }
+    const backOut = t => { const s = 1.4; t -= 1; return t * t * ((s + 1) * t + s) + 1; };
+    const pointerSmooth = new T.Vector2();
+
+    function render() {
+      for (let i = 0; i < N; i++) {
+        const b = bodies[i];
+        meshes[i].position.copy(b.pos);
+        meshes[i].quaternion.copy(b.q);
+        spheres[i].set(b.pos.x, b.pos.y, b.pos.z, b.r);
+        colors[i].copy(meshes[i].material.uniforms.uColor.value);
       }
-      post(compositeMaterial,null);
-      hero.dataset.renderState='ready';
+      renderer.setRenderTarget(sceneRT);
+      renderer.render(scene, camera);
+      // след
+      paintMat.uniforms.uPrev.value = paintA.texture;
+      paintMat.uniforms.uFrom.value.copy(mUvPrev);
+      paintMat.uniforms.uTo.value.copy(mUv);
+      const vx = (mUv.x - mUvPrev.x) * 14, vy = (mUv.y - mUvPrev.y) * 14;
+      const vl = Math.hypot(vx, vy), cl = vl > 1 ? 1 / vl : 1;
+      paintMat.uniforms.uVel.value.set(vx * cl, vy * cl);
+      paintMat.uniforms.uOn.value = pointerIn ? 1 : 0;
+      quad.material = paintMat;
+      renderer.setRenderTarget(paintB); renderer.render(quadScene, quadCam);
+      const t = paintA; paintA = paintB; paintB = t;
+      mUvPrev.copy(mUv);
+      finalMat.uniforms.uPaint.value = paintA.texture;
+      quad.material = finalMat;
+      renderer.setRenderTarget(null); renderer.render(quadScene, quadCam);
+      hero.dataset.renderState = 'ready';
     }
-    function resize(){
-      if(stopped)return;
-      width=Math.max(1,hero.clientWidth);height=Math.max(1,hero.clientHeight);
-      pixelRatio=Math.min(devicePixelRatio||1,small?1.35:1.6);
-      renderer.setPixelRatio(pixelRatio);renderer.setSize(width,height,false);
-      const w=Math.round(width*pixelRatio),h=Math.round(height*pixelRatio);
-      sceneTarget.setSize(w,h);bloomA.setSize(Math.max(1,w>>2),Math.max(1,h>>2));bloomB.setSize(bloomA.width,bloomA.height);
-      compositeUniforms.resolution.value.set(w,h);
-      camera.aspect=width/height;
-      camera.position.z=width<700?9.1:6.5;
-      beadUniforms.fogStart.value=camera.position.z+.1;
-      camera.fov=width<700?46:39;camera.updateProjectionMatrix();
-      compositeUniforms.focus.value=camera.position.z-.2;
-      if(paused&&!stopped)render();
-    }
-    function syncMotion(){
-      if(!motion)return;
-      motion.hidden=false;
-      motion.setAttribute('aria-pressed',String(paused));
-      motion.setAttribute('aria-label',paused?'Resume motion':'Pause motion');
-      const label=motion.querySelector('.hero-motion-label');
-      if(label)label.textContent=paused?'RESUME MOTION':'PAUSE MOTION';
-      else motion.textContent=paused?'RESUME MOTION':'PAUSE MOTION';
-      hero.dataset.motion=paused?'paused':'running';
-    }
-    function animate(now){
-      frame=0;
-      if(stopped||paused||!visible||document.hidden)return;
-      const dt=previousTime?Math.min((now-previousTime)/1000,.1):1/60;
-      previousTime=now;
-      const ease=1-Math.exp(-dt*5);
-      const stirring=Math.min(1,Math.hypot(pointer.targetX-pointer.x,pointer.targetY-pointer.y)*2);
-      pointer.x+=(pointer.targetX-pointer.x)*ease;pointer.y+=(pointer.targetY-pointer.y)*ease;
-      speed+=((isDown?.10:1)-speed)*ease;
-      simUniforms.pointer.value.set(pointer.x*2,pointer.y*1.8+.3,.35);
-      simUniforms.press.value=stirring;
-      accumulator+=dt*speed;
-      while(accumulator>=simulationStep){
-        simulate(simulationStep,elapsed);
-        elapsed+=simulationStep;
-        accumulator-=simulationStep;
-      }
+
+    let acc = 0;
+    const STEP = 1 / 120;
+    function frame(now) {
+      raf = 0;
+      if (stopped || paused || !visible || document.hidden) return;
+      const dt = last ? Math.min((now - last) / 1000, 1 / 20) : 1 / 60;
+      last = now; time += dt;
+      intro = Math.min(1.2, intro + dt / 2.6);
+      pointerSmooth.lerp(ndc, 1 - Math.exp(-dt * 3));
+      updateCamera();
+      acc += dt;
+      while (acc >= STEP) { step(STEP); acc -= STEP; }
       render();
-      frame=requestAnimationFrame(animate);
+      raf = requestAnimationFrame(frame);
     }
-    function schedule(){if(!stopped&&!frame&&!paused&&visible&&!document.hidden){previousTime=0;accumulator=0;frame=requestAnimationFrame(animate);}}
-    function setPaused(value){if(stopped)return;paused=value;cancelAnimationFrame(frame);frame=0;syncMotion();if(paused)render();else schedule();}
-    if(motion)motion.addEventListener('click',()=>setPaused(!paused));
-    reducedMotion.addEventListener('change',event=>setPaused(event.matches));
-    canvas.addEventListener('pointermove',event=>{
-      if(event.pointerType==='touch')return;
-      const rect=canvas.getBoundingClientRect();
-      pointer.targetX=(event.clientX-rect.left)/rect.width*2-1;
-      pointer.targetY=1-(event.clientY-rect.top)/rect.height*2;
-    },{passive:true});
-    canvas.addEventListener('pointerdown',event=>{if(event.pointerType==='mouse')isDown=true;},{passive:true});
-    const release=()=>{isDown=false;};
-    window.addEventListener('pointerup',release,{passive:true});
-    window.addEventListener('pointercancel',release,{passive:true});
-    window.addEventListener('blur',release);
-    canvas.addEventListener('pointerleave',()=>{release();pointer.targetX=0;pointer.targetY=0;},{passive:true});
-    const observer=new IntersectionObserver(entries=>{
-      visible=entries[0].isIntersecting;
-      hero.dataset.visible=String(visible);
-      if(!visible){cancelAnimationFrame(frame);frame=0;release();}else schedule();
-    },{threshold:0});observer.observe(hero);
-    document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(frame);frame=0;release();}else schedule();});
-    window.addEventListener('resize',resize,{passive:true});
-    canvas.addEventListener('webglcontextlost',event=>{event.preventDefault();observer.disconnect();fallback();});
-    window.addEventListener('pagehide',()=>{cancelAnimationFrame(frame);frame=0;release();});
-    window.addEventListener('pageshow',schedule);
-    resize();syncMotion();render();schedule();
-  } catch(error) {
-    console.warn('Particle scene unavailable:', error.message);
+    function schedule() { if (!stopped && !raf && !paused && visible && !document.hidden) { last = 0; raf = requestAnimationFrame(frame); } }
+
+    function syncMotion() {
+      if (!motion) return;
+      motion.hidden = false;
+      motion.setAttribute('aria-pressed', String(paused));
+      motion.setAttribute('aria-label', paused ? 'Resume motion' : 'Pause motion');
+      const label = motion.querySelector('.hero-motion-label');
+      (label || motion).textContent = paused ? 'RESUME MOTION' : 'PAUSE MOTION';
+      hero.dataset.motion = paused ? 'paused' : 'running';
+    }
+    function settle() {
+      // без анимации: прогоняем физику заранее, чтобы показать уже собравшуюся кучку
+      intro = 1; updateCamera();
+      for (let i = 0; i < 900; i++) step(STEP);
+      render();
+    }
+    function setPaused(v) {
+      if (stopped) return;
+      paused = v; cancelAnimationFrame(raf); raf = 0; syncMotion();
+      if (paused) { if (intro < 1) settle(); else render(); } else schedule();
+    }
+
+    /* ---------- ввод ---------- */
+    const setPointer = (e) => {
+      const r = canvas.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+      ndc.set(x * 2 - 1, 1 - y * 2);
+      mUv.set(x, 1 - y);
+    };
+    hero.addEventListener('pointermove', (e) => {
+      if (e.pointerType === 'touch' && !e.isPrimary) return;
+      setPointer(e);
+      if (!pointerIn) { pointerIn = true; mUvPrev.copy(mUv); mouseReady = false; }
+    }, { passive: true });
+    hero.addEventListener('pointerdown', (e) => { setPointer(e); pointerIn = true; mUvPrev.copy(mUv); mouseReady = false; }, { passive: true });
+    const leave = () => { pointerIn = false; };
+    hero.addEventListener('pointerleave', leave, { passive: true });
+    hero.addEventListener('pointercancel', leave, { passive: true });
+    hero.addEventListener('pointerup', (e) => { if (e.pointerType === 'touch') leave(); }, { passive: true });
+    hero.addEventListener('click', (e) => {
+      if (e.target.closest('a, button')) return;
+      explode();
+      if (paused) { for (let i = 0; i < 400; i++) step(STEP); render(); }
+    });
+
+    if (motion) motion.addEventListener('click', () => setPaused(!paused));
+    reducedMotion.addEventListener('change', e => setPaused(e.matches));
+    const io = new IntersectionObserver(([en]) => {
+      visible = en.isIntersecting; hero.dataset.visible = String(visible);
+      if (!visible) { cancelAnimationFrame(raf); raf = 0; leave(); } else schedule();
+    }, { threshold: 0 });
+    io.observe(hero);
+    document.addEventListener('visibilitychange', () => { if (document.hidden) { cancelAnimationFrame(raf); raf = 0; } else schedule(); });
+    addEventListener('resize', resize, { passive: true });
+    canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); io.disconnect(); fallback(); });
+    addEventListener('pagehide', () => { cancelAnimationFrame(raf); raf = 0; });
+    addEventListener('pageshow', schedule);
+
+    resize(); syncMotion();
+    if (paused) settle(); else { updateCamera(); render(); schedule(); }
+  } catch (err) {
+    console.warn('Hero scene unavailable:', err.message);
     fallback();
   }
 })();
