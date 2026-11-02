@@ -820,3 +820,9 @@ main, section, header, footer {
     --base-padding-y: 18px;
   }
 }
+
+/* Keep the particle material clean; the heavy page grain hides its curvature. */
+body:has(#hero[data-visible="true"]) .grain {
+  opacity: .07;
+  animation: none;
+}

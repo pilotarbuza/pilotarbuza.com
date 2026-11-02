@@ -3,6 +3,26 @@
  * GPU advection, instanced beads, depth of field and a separate bloom pass.
  * Everything is generated locally; no runtime requests to the reference site.
  */
+/* Simplex noise adapted from https://github.com/ashima/webgl-noise
+ * Copyright (C) 2011 by Ashima Arts (Simplex noise)
+ * Copyright (C) 2011-2016 by Stefan Gustavson (Classic noise and others)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 (async function () {
   'use strict';
   const hero = document.getElementById('hero');
@@ -11,7 +31,8 @@
   const motion = document.getElementById('hero-motion-toggle');
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
   let renderer, stopped = false, paused = reducedMotion.matches;
-  let frame = 0, visible = true, previousTime = 0, elapsed = 0;
+  let frame = 0, visible = true, previousTime = 0, elapsed = 0, accumulator = 0;
+  const simulationStep = 1 / 90;
   let width = 1, height = 1, pixelRatio = 1;
   let isDown = false, speed = 1;
   const pointer = { x: 0, y: 0, targetX: 0, targetY: 0 };
@@ -45,7 +66,7 @@
     const screenCamera = new THREE.Camera();
     const screenGeometry = track(new THREE.PlaneGeometry(2, 2));
     const screenVertex = `varying vec2 vUv; void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}`;
-    const targetOptions = { type: THREE.HalfFloatType, minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, depthBuffer: false, stencilBuffer: false };
+    const targetOptions = { type: THREE.FloatType, minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, depthBuffer: false, stencilBuffer: false };
     let readTarget = track(new THREE.WebGLRenderTarget(grid, grid, targetOptions));
     let writeTarget = track(readTarget.clone());
     renderer.setRenderTarget(readTarget);
@@ -59,14 +80,22 @@
     const samples = new Float32Array(count * 2);
     const variants = new Float32Array(count * 4);
     for (let i = 0; i < count; i++) {
-      const theta = random() * Math.PI * 2;
-      const z = random() * 2 - 1;
-      const r = Math.pow(random(), 0.6) * 0.77;
-      const ring = Math.sqrt(1 - z * z);
-      initial.set([Math.cos(theta) * ring * r * 0.85, Math.sin(theta) * ring * r * 1.18 + 0.62, z * r * 0.8, random()], i * 4);
+      const u = random() * 2 - 1, v = random() * 2 - 1;
+      const angle = v * 3.1 + .4 * Math.sin(v * 2.7);
+      const ribbonWidth = .28 + .16 * Math.cos(v * 2.2);
+      const thickness = (random() + random() + random() - 1.5) * .035;
+      let x = .72 * Math.sin(angle) + u * ribbonWidth * Math.cos(angle);
+      let y = 1.6 * v + .12 * u;
+      let z = .6 * Math.cos(angle) - u * ribbonWidth * Math.sin(angle) + thickness;
+      const tail = random() > .89;
+      if (tail) { x *= 1.25; y *= 1.2; z += (random() - .5) * 1.45; }
+      // Adjacent particles share an age so a folding sheet remains a sheet.
+      // A small diffuse population supplies the drifting fringe between folds.
+      const life = tail ? random() : (i % 3) / 3 + random() * .006;
+      initial.set([x, y + .62, z, life], i * 4);
       samples.set([(i % grid + 0.5) / grid, (Math.floor(i / grid) + 0.5) / grid], i * 2);
       // Sparse luminous pearls; ordinary beads remain slate grey.
-      variants.set([random(), random(), random(), i % 719 === 0 ? 1 : 0], i * 4);
+      variants.set([random(), random(), random(), i % 2017 === 0 ? 1 : 0], i * 4);
     }
     const initialTexture = track(new THREE.DataTexture(initial, grid, grid, THREE.RGBAFormat, THREE.FloatType));
     initialTexture.needsUpdate = true;
@@ -98,7 +127,7 @@ vec4 grad4(float j,vec4 ip){
     return p;
 }
 #define F4 0.309016994374947451
-float snoise(vec4 v){
+vec4 snoiseGradient(vec4 v,out float value){
     const vec4 C=vec4(0.138196601125011,0.276393202250021,0.414589803375032,-0.447213595499958);
     vec4 i=floor(v+dot(v,vec4(F4)));
     vec4 x0=v-i+dot(i,C.xxxx);
@@ -138,38 +167,63 @@ float snoise(vec4 v){
     vec2 values1=vec2(dot(p3,x3),dot(p4,x4));
     vec3 m0=max(0.5-vec3(dot(x0,x0),dot(x1,x1),dot(x2,x2)),0.0);
     vec2 m1=max(0.5-vec2(dot(x3,x3),dot(x4,x4)),0.0);
-    m0=m0*m0; m1=m1*m1;
-    return 49.0*(dot(m0*m0,values0)+dot(m1*m1,values1));
-}
-vec3 curl(vec3 p,float t,float e){
-    vec4 p4=vec4(p,t);
-    float dx=snoise(p4+vec4(e,0.0,0.0,0.0))-snoise(p4-vec4(e,0.0,0.0,0.0));
-    float dy=snoise(p4+vec4(0.0,e,0.0,0.0))-snoise(p4-vec4(0.0,e,0.0,0.0));
-    float dz=snoise(p4+vec4(0.0,0.0,e,0.0))-snoise(p4-vec4(0.0,0.0,e,0.0));
-    float dw=snoise(p4+vec4(0.0,0.0,0.0,e))-snoise(p4-vec4(0.0,0.0,0.0,e));
-    return vec3(dz-dy,dx-dw,dy-dx)/(2.0*e);
+    vec3 m03=m0*m0*m0, m04=m03*m0;
+    vec2 m13=m1*m1*m1, m14=m13*m1;
+    value=49.0*(dot(m04,values0)+dot(m14,values1));
+    return 49.0*(
+       m04.x*p0+m04.y*p1+m04.z*p2+m14.x*p3+m14.y*p4
+       -8.0*(m03.x*values0.x*x0+m03.y*values0.y*x1+m03.z*values0.z*x2
+             +m13.x*values1.x*x3+m13.y*values1.y*x4));
 }
 
+// p is relative to cloud centre. Use directly as velocity with dt seconds.
+// Three derivative-noise evaluations versus the original eight scalar evaluations.
+vec3 foldedFlow(vec3 p,float time){
+    const float frequency=.93;
+    const float strength=.26;
+    float n0,n1,n2;
+    vec4 q=vec4(p*frequency,time*.115);
+    vec4 g0=snoiseGradient(q,n0);
+    vec4 g1=snoiseGradient(q+vec4(31.42,17.73,-11.67,9.21),n1);
+    vec4 g2=snoiseGradient(q+vec4(-21.16,8.39,43.51,-17.31),n2);
+    vec3 potential=vec3(n0,n1,n2)*strength;
+    vec3 velocity=vec3(g2.y-g1.z,g0.z-g2.x,g1.x-g0.y)*frequency*strength;
+
+    // Weak changing rotation supplies large-scale twisting; noise remains dominant.
+    // A = -.5*dot(p,p)*omega gives curl(A)=cross(omega,p).
+    vec3 omega=vec3(.06*sin(time*.13),.18,.04*cos(time*.17));
+    potential-=.5*dot(p,p)*omega;
+    velocity+=cross(omega,p);
+
+    // Apply a broad smooth envelope to the potential, then take its curl.
+    // Multiplying velocity by an envelope alone would introduce compression.
+    vec3 invRadius2=1./vec3(1.6*1.6,2.1*2.1,1.3*1.3);
+    float radius2=dot(p*p,invRadius2);
+    float envelope=exp(-radius2*.32);
+    vec3 envelopeGradient=-.64*envelope*p*invRadius2;
+    return envelope*velocity+cross(envelopeGradient,potential);
+}
+
+        vec3 velocityAt(vec3 p, float t) {
+          vec3 velocity = foldedFlow(p, t);
+          vec3 relative = p - (pointer - vec3(0., .62, 0.));
+          float influence = exp(-dot(relative, relative) * 1.6);
+          velocity += cross(vec3(0., 0., 1.), relative) * influence * press * .8;
+          return velocity;
+        }
         void main(){
           vec4 state=texture2D(positions,vUv);
-          state.w+=dt*.105;
-          vec3 center=vec3(.12*sin(time*.21),.62,.0);
-          if(state.w>=1.){
+          float nextLife=state.w+dt/11.;
+          if(nextLife>=1.){
             state=texture2D(origins,vUv);
-            state.xyz+=vec3(.15*sin(time*.3),.12*cos(time*.23),0.);
-            state.w=fract(texture2D(positions,vUv).w+dt*.105);
+            // Slowly turn the emitting sheet, so successive folds do not stack.
+            float angle=.24*sin(time*.19);
+            state.xz=mat2(cos(angle),-sin(angle),sin(angle),cos(angle))*state.xz;
           }
-          vec3 p=state.xyz-center;
-          vec3 field=curl(p*1.55,time*.13,.12);
-          vec3 axis=normalize(vec3(.24,1.,.38));
-          vec3 velocity=field*.34 + cross(axis,p)*(.25+vUv.x*.3);
-          // A soft envelope keeps the plume dense, with quiet margins around it.
-          float radius=length(p*vec3(.92,.78,1.));
-          velocity-=p*smoothstep(1.05,2.1,radius)*.62;
-          velocity.y+=.06;
-          vec3 toPointer=state.xyz-pointer;
-          float distanceToPointer=length(toPointer);
-          velocity+=toPointer/(.15+distanceToPointer)*exp(-distanceToPointer*distanceToPointer*2.5)*press*1.1;
+          state.w=fract(nextLife);
+          vec3 p=state.xyz-vec3(0.,.62,0.);
+          vec3 first=velocityAt(p,time);
+          vec3 velocity=velocityAt(p+first*dt*.5,time+dt*.5);
           state.xyz+=velocity*dt;
           gl_FragColor=state;
         }`
@@ -183,9 +237,16 @@ vec3 curl(vec3 p,float t,float e){
       const swap = readTarget; readTarget = writeTarget; writeTarget = swap;
       simUniforms.positions.value = readTarget.texture;
     }
-    // Pre-roll at a fixed step; no large first-frame jump after tab suspension.
-    for (let step = 0; step < 150; step++) simulate(1 / 45, step / 45);
-    elapsed = 150 / 45;
+    // Complete one lifetime so all three sheets have distinct physical ages.
+    // Yield between batches to keep navigation responsive during initialization.
+    for (let step = 0; step < 540; step++) {
+      simulate(1 / 45, step / 45);
+      if (step % 36 === 35) {
+        renderer.setRenderTarget(null);
+        await new Promise(resolve => setTimeout(resolve, 0));
+      }
+    }
+    elapsed = 12;
     renderer.setRenderTarget(null);
 
     // Reuse the compact dome geometry already shipped with the site. Camera-facing
@@ -226,7 +287,8 @@ vec3 curl(vec3 p,float t,float e){
     geometry.setAttribute('variant', new THREE.InstancedBufferAttribute(variants, 4));
     geometry.instanceCount = count;
     const beadUniforms = {
-      positions: {value: readTarget.texture}, time: {value: elapsed},
+      positions: {value: readTarget.texture}, previousPositions: {value: writeTarget.texture},
+      interpolation: {value: 1}, fogStart: {value: 6.6},
       lightA: {value: new THREE.Vector3()}, lightB: {value: new THREE.Vector3()}
     };
     const beadMaterial = track(new THREE.ShaderMaterial({
@@ -235,25 +297,28 @@ vec3 curl(vec3 p,float t,float e){
       vertexShader: `
         attribute vec2 sampleUV;
         attribute vec4 variant;
-        uniform sampler2D positions;
-        uniform float time;
+        uniform sampler2D positions, previousPositions;
+        uniform float interpolation;
         varying vec3 vNormal, vWorld;
         varying vec4 vVariant;
         varying float vDepth;
         void main(){
           vec4 state=texture2D(positions,sampleUV);
-          float life=smoothstep(0.,.07,state.w)*(1.-smoothstep(.88,1.,state.w));
-          float size=mix(.022,.087,pow(variant.x,2.5));
-          size=mix(size,.13+variant.x*.04,variant.w);
+          vec4 previous=texture2D(previousPositions,sampleUV);
+          // Never interpolate across respawn: that would draw a streak back to the emitter.
+          if(state.w>=previous.w) state=mix(previous,state,interpolation);
+          float life=smoothstep(0.,.06,state.w)*(1.-smoothstep(.94,1.,state.w));
+          float size=mix(.018,.062,pow(variant.x,2.2));
+          size=mix(size,.095+variant.x*.025,variant.w);
           vec3 center=vec3(0.,.62,0.);
           vec3 cloud=state.xyz-center;
-          cloud.xy*=vec2(1.65,1.28);
-          float fringe=smoothstep(.96,1.,variant.z);
-          cloud*=1.+fringe*.65;
+
+          float fringe=smoothstep(.985,1.,variant.z);
+          cloud*=1.+fringe*.35;
           cloud.z+=fringe*1.3;
-          cloud.z+=variant.w*.48;
+          cloud.z+=variant.w*.42;
           vec3 beadPosition=vec3(position.xy,-position.z);
-          beadPosition.x*=1.+fringe*.8;
+
           vec3 world=center+cloud+(vec4(beadPosition*size*life,0.)*viewMatrix).xyz;
           vec4 view=modelViewMatrix*vec4(world,1.);
           vNormal=(vec4(normal.xy,-normal.z,0.)*viewMatrix).xyz;
@@ -264,6 +329,7 @@ vec3 curl(vec3 p,float t,float e){
         }`,
       fragmentShader: `
         uniform vec3 lightA, lightB;
+        uniform float fogStart;
         varying vec3 vNormal, vWorld;
         varying vec4 vVariant;
         varying float vDepth;
@@ -277,13 +343,13 @@ vec3 curl(vec3 p,float t,float e){
           float local=max(dot(N,L),0.)*a+max(dot(N,L2),0.)*b*.8;
           float spec=pow(max(dot(N,normalize(L+V)),0.),28.)*a;
           float rim=pow(1.-max(dot(N,V),0.),3.);
-          float occlusion=mix(.50,1.,smoothstep(.1,1.3,length(vWorld-vec3(0.,.62,0.))));
-          vec3 slate=mix(vec3(.095,.12,.135),vec3(.23,.28,.30),vVariant.y);
-          vec3 color=slate*(.32+diffuse*.95+local*1.6)*occlusion;
+
+          vec3 slate=mix(vec3(.10,.12,.135),vec3(.22,.255,.27),vVariant.y);
+          vec3 color=slate*(.28+diffuse*.75+local*1.8);
           color+=vec3(.32,.38,.40)*spec*.75;
           color+=vec3(.08,.13,.14)*rim*.30;
           if(vVariant.w>.5) color=vec3(1.85,2.1,2.15)*(.16+.84*sqrt(max(dot(N,V),0.)));
-          float fog=exp(-max(vDepth-6.6,0.)*.28);
+          float fog=exp(-max(vDepth-fogStart,0.)*.28);
           color=mix(vec3(.008,.012,.016),color,fog);
           gl_FragColor=vec4(color,1.);
         }`
@@ -291,47 +357,6 @@ vec3 curl(vec3 p,float t,float e){
     const beads = new THREE.Mesh(geometry, beadMaterial);
     beads.frustumCulled = false;
     scene.add(beads);
-
-    // A dark, continuous airfoil through the beads gives the scene its aviation identity.
-    const wingVertices = [], wingIndices = [];
-    const spans = 72, chords = 16;
-    for (let side=0; side<2; side++) {
-      for (let i=0; i<=spans; i++) {
-        const s=i/spans, x=(s-.5)*3.9;
-        const chord=.68*Math.pow(Math.sin(Math.PI*s),.36)+.025;
-        for (let j=0; j<=chords; j++) {
-          const v=j/chords;
-          const thickness=.17*Math.sin(Math.PI*v)*Math.pow(Math.sin(Math.PI*s),.5);
-          wingVertices.push(x, -.18+Math.sin(s*Math.PI*1.4)*.22+(v-.5)*chord*.5, .50+(v-.5)*chord+(side? -1:1)*thickness);
-          if(i<spans&&j<chords){
-            const k=side*(spans+1)*(chords+1)+i*(chords+1)+j;
-            if(side) wingIndices.push(k,k+chords+1,k+1,k+1,k+chords+1,k+chords+2);
-            else wingIndices.push(k,k+1,k+chords+1,k+1,k+chords+2,k+chords+1);
-          }
-        }
-      }
-    }
-    const wingGeometry = track(new THREE.BufferGeometry());
-    wingGeometry.setAttribute('position',new THREE.Float32BufferAttribute(wingVertices,3));
-    wingGeometry.setIndex(wingIndices);
-    wingGeometry.computeVertexNormals();
-    const wingMaterial=track(new THREE.ShaderMaterial({
-      side: THREE.DoubleSide,
-      vertexShader:`varying vec3 vN,vP; void main(){vec4 p=modelMatrix*vec4(position,1.);vP=p.xyz;vN=mat3(modelMatrix)*normal;gl_Position=projectionMatrix*viewMatrix*p;}`,
-      fragmentShader:`varying vec3 vN,vP; void main(){
-        vec3 N=normalize(vN),V=normalize(cameraPosition-vP);if(!gl_FrontFacing)N=-N;
-        vec3 R=reflect(-V,N);
-        float strip=pow(max(0.,dot(R,normalize(vec3(-.2,.9,1.)))),32.);
-        float edge=pow(1.-abs(dot(N,V)),3.);
-        vec3 col=vec3(.009,.014,.018)+vec3(.40,.47,.49)*strip+vec3(.045,.085,.09)*edge;
-        gl_FragColor=vec4(col,1.);
-      }`
-    }));
-    const wing = new THREE.Mesh(wingGeometry,wingMaterial);
-    wing.rotation.z=-.48;
-    wing.position.set(-.1,.45,-.12);
-    wing.scale.setScalar(.82);
-    scene.add(wing);
 
     // Half-float colour retains luminous cores until bloom and tone mapping.
     const sceneTarget=track(new THREE.WebGLRenderTarget(1,1,{type:THREE.HalfFloatType, minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter,depthBuffer:true}));
@@ -384,15 +409,13 @@ vec3 curl(vec3 p,float t,float e){
     function post(material,target){quad.material=material;renderer.setRenderTarget(target);renderer.render(postScene,screenCamera);}
     function render(){
       beadUniforms.positions.value=readTarget.texture;
-      beadUniforms.time.value=elapsed;
+      beadUniforms.previousPositions.value=writeTarget.texture;
+      beadUniforms.interpolation.value=paused||!previousTime?1:accumulator/simulationStep;
       beadUniforms.lightA.value.set(Math.sin(elapsed*.24)*.65,.8+Math.cos(elapsed*.31)*.55,.9);
       beadUniforms.lightB.value.set(Math.cos(elapsed*.19)*.7,.25, -.15);
       camera.position.x=pointer.x*.22;
       camera.position.y=pointer.y*.15;
       camera.lookAt(0,.14,0);
-      wing.rotation.y=Math.sin(elapsed*.2)*.22+pointer.x*.1;
-      wing.rotation.x=.12+Math.sin(elapsed*.15)*.15;
-      wing.rotation.z=-.48+Math.sin(elapsed*.12)*.12;
       renderer.setRenderTarget(sceneTarget);renderer.render(scene,camera);
       post(brightMaterial,bloomA);
       for(let i=0;i<3;i++){
@@ -414,6 +437,7 @@ vec3 curl(vec3 p,float t,float e){
       compositeUniforms.resolution.value.set(w,h);
       camera.aspect=width/height;
       camera.position.z=width<700?9.1:6.5;
+      beadUniforms.fogStart.value=camera.position.z+.1;
       camera.fov=width<700?46:39;camera.updateProjectionMatrix();
       compositeUniforms.focus.value=camera.position.z-.2;
       if(paused&&!stopped)render();
@@ -431,18 +455,24 @@ vec3 curl(vec3 p,float t,float e){
     function animate(now){
       frame=0;
       if(stopped||paused||!visible||document.hidden)return;
-      const dt=previousTime?Math.min((now-previousTime)/1000,.035):1/60;
+      const dt=previousTime?Math.min((now-previousTime)/1000,.1):1/60;
       previousTime=now;
       const ease=1-Math.exp(-dt*5);
+      const stirring=Math.min(1,Math.hypot(pointer.targetX-pointer.x,pointer.targetY-pointer.y)*2);
       pointer.x+=(pointer.targetX-pointer.x)*ease;pointer.y+=(pointer.targetY-pointer.y)*ease;
-      speed+=((isDown?.12:1)-speed)*ease;
-      elapsed+=dt*speed*.72;
-      simUniforms.pointer.value.set(pointer.x*2,pointer.y*1.8+.3,1.);
-      simUniforms.press.value=isDown?1:0;
-      simulate(dt*speed*.72,elapsed);render();
+      speed+=((isDown?.10:1)-speed)*ease;
+      simUniforms.pointer.value.set(pointer.x*2,pointer.y*1.8+.3,.35);
+      simUniforms.press.value=stirring;
+      accumulator+=dt*speed;
+      while(accumulator>=simulationStep){
+        simulate(simulationStep,elapsed);
+        elapsed+=simulationStep;
+        accumulator-=simulationStep;
+      }
+      render();
       frame=requestAnimationFrame(animate);
     }
-    function schedule(){if(!stopped&&!frame&&!paused&&visible&&!document.hidden){previousTime=0;frame=requestAnimationFrame(animate);}}
+    function schedule(){if(!stopped&&!frame&&!paused&&visible&&!document.hidden){previousTime=0;accumulator=0;frame=requestAnimationFrame(animate);}}
     function setPaused(value){if(stopped)return;paused=value;cancelAnimationFrame(frame);frame=0;syncMotion();if(paused)render();else schedule();}
     if(motion)motion.addEventListener('click',()=>setPaused(!paused));
     reducedMotion.addEventListener('change',event=>setPaused(event.matches));
@@ -460,6 +490,7 @@ vec3 curl(vec3 p,float t,float e){
     canvas.addEventListener('pointerleave',()=>{release();pointer.targetX=0;pointer.targetY=0;},{passive:true});
     const observer=new IntersectionObserver(entries=>{
       visible=entries[0].isIntersecting;
+      hero.dataset.visible=String(visible);
       if(!visible){cancelAnimationFrame(frame);frame=0;release();}else schedule();
     },{threshold:0});observer.observe(hero);
     document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(frame);frame=0;release();}else schedule();});
