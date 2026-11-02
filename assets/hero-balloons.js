@@ -1,109 +1,88 @@
 /**
- * pilotarbuza.com — 3D Hydrodynamic Fluid & Swarm Simulation
- * 
- * Authentic Lusion.co /about Hero visual architecture:
- *   1. 3D Animated Fluid Swimmer Entity:
- *      - 54-bone GPU dual-quaternion / linear-blend skinning
- *      - Continuous hydrodynamic swimming animation (person.buf + person_idle.buf)
- *      - Molten liquid obsidian & pearl specular shading with Anemos breeze (#4FC7C4) rim
- *   2. GPGPU Ping-Pong Simulation (16,384 particles):
- *      - 4D Simplex Curl Noise (divergence-free fluid advection)
- *      - Orbital vortex spin around upper-center focal point (0, 0.85, 0)
- *      - Delicate fine mist (0.012 - 0.045) + luminous glowing pearls (0.09 - 0.12)
- *      - High-contrast backlighting specular shimmer against deep obsidian ground
- *   3. Signature Interactive Mechanics:
- *      - Smooth spring-damped mouse parallax & vortex deflection
- *      - Slow-motion bullet-time freeze on pointerdown (freezeRatio)
+ * pilotarbuza — particle flight.
+ * GPU advection, instanced beads, depth of field and a separate bloom pass.
+ * Everything is generated locally; no runtime requests to the reference site.
  */
-
-(function () {
+(async function () {
   'use strict';
+  const hero = document.getElementById('hero');
+  const canvas = document.getElementById('hero-balloons-canvas');
+  if (!hero || !canvas) return;
+  const motion = document.getElementById('hero-motion-toggle');
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  let renderer, stopped = false, paused = reducedMotion.matches;
+  let frame = 0, visible = true, previousTime = 0, elapsed = 0;
+  let width = 1, height = 1, pixelRatio = 1;
+  let isDown = false, speed = 1;
+  const pointer = { x: 0, y: 0, targetX: 0, targetY: 0 };
+  const resources = [];
+  const track = resource => { resources.push(resource); return resource; };
 
-  function initHeroSimulation() {
-    const canvas = document.getElementById('hero-balloons-canvas');
-    if (!canvas) return;
+  function fallback() {
+    stopped = true;
+    cancelAnimationFrame(frame);
+    hero.classList.add('hero-static');
+    hero.dataset.renderState = 'fallback';
+    if (motion) motion.hidden = true;
+    resources.forEach(resource => resource.dispose());
+    if (renderer) renderer.dispose();
+  }
 
-    const heroSection = document.getElementById('hero');
-    let width = heroSection ? heroSection.clientWidth : window.innerWidth;
-    let height = heroSection ? heroSection.clientHeight : window.innerHeight;
-
-    // WebGL Renderer with alpha transparency so letters are visible behind
-    const renderer = new THREE.WebGLRenderer({
-      canvas: canvas,
-      alpha: true,
-      antialias: true,
-      powerPreference: 'high-performance'
-    });
-    renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-
+  try {
+    if (!window.THREE) throw new Error('WebGL library unavailable');
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: false, powerPreference: 'high-performance' });
+    const gl = renderer.getContext();
+    // Float simulation targets must be renderable, not merely sampleable.
+    const capable = renderer.capabilities.isWebGL2 && gl.getExtension('EXT_color_buffer_float');
+    if (!capable || renderer.capabilities.maxVertexTextures === 0) throw new Error('Float render targets unavailable');
+    renderer.setClearColor(0x020304, 1);
+    const small = matchMedia('(max-width: 700px), (pointer: coarse)').matches;
+    const grid = small ? 80 : 128;
+    const count = grid * grid;
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 100);
-    camera.position.set(0, 0.4, 7.2);
-    camera.lookAt(0, 0.8, 0);
-
-    // -------------------------------------------------------------
-    // GPGPU Particle Simulation Setup
-    // -------------------------------------------------------------
-    const SIM_W = 128;
-    const SIM_H = 128;
-    const totalParticles = SIM_W * SIM_H; // 16,384
-
+    const camera = new THREE.PerspectiveCamera(39, 1, 0.1, 40);
     const simScene = new THREE.Scene();
-    const simCamera = new THREE.Camera();
-    simCamera.position.z = 1;
+    const screenCamera = new THREE.Camera();
+    const screenGeometry = track(new THREE.PlaneGeometry(2, 2));
+    const screenVertex = `varying vec2 vUv; void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}`;
+    const targetOptions = { type: THREE.HalfFloatType, minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, depthBuffer: false, stencilBuffer: false };
+    let readTarget = track(new THREE.WebGLRenderTarget(grid, grid, targetOptions));
+    let writeTarget = track(readTarget.clone());
+    renderer.setRenderTarget(readTarget);
+    if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) throw new Error('Incomplete simulation target');
+    renderer.setRenderTarget(null);
 
-    const rtA = new THREE.WebGLRenderTarget(SIM_W, SIM_H, {
-      type: THREE.FloatType,
-      format: THREE.RGBAFormat,
-      minFilter: THREE.NearestFilter,
-      magFilter: THREE.NearestFilter,
-      depthBuffer: false,
-      stencilBuffer: false
-    });
-    const rtB = rtA.clone();
-    let rtPrev = rtA;
-    let rtCurr = rtB;
-
-    // GPGPU Initial Particle Positions: upper-center cluster
-    const defaultData = new Float32Array(totalParticles * 4);
-    for (let i = 0; i < totalParticles; i++) {
-      const idx = i * 4;
-      const u = Math.random();
-      const v = Math.random();
-      const theta = u * 2.0 * Math.PI;
-      const phi = Math.acos(2.0 * v - 1.0);
-      const r = Math.pow(Math.random(), 0.75) * 1.05;
-
-      // Centered at y = 0.85 (upper center, floating around the swimmer)
-      defaultData[idx + 0] = r * Math.sin(phi) * Math.sin(theta) * 1.5;
-      defaultData[idx + 1] = 0.85 + r * Math.sin(phi) * Math.cos(theta) * 0.75;
-      defaultData[idx + 2] = r * Math.cos(phi) * 0.9;
-      defaultData[idx + 3] = i / totalParticles; // Life cycle offset
+    // Stable seeded distribution makes the first frame useful even with motion disabled.
+    let seed = 48173;
+    function random() { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; }
+    const initial = new Float32Array(count * 4);
+    const samples = new Float32Array(count * 2);
+    const variants = new Float32Array(count * 4);
+    for (let i = 0; i < count; i++) {
+      const theta = random() * Math.PI * 2;
+      const z = random() * 2 - 1;
+      const r = Math.pow(random(), 0.6) * 0.77;
+      const ring = Math.sqrt(1 - z * z);
+      initial.set([Math.cos(theta) * ring * r * 0.85, Math.sin(theta) * ring * r * 1.18 + 0.62, z * r * 0.8, random()], i * 4);
+      samples.set([(i % grid + 0.5) / grid, (Math.floor(i / grid) + 0.5) / grid], i * 2);
+      // Sparse luminous pearls; ordinary beads remain slate grey.
+      variants.set([random(), random(), random(), i % 719 === 0 ? 1 : 0], i * 4);
     }
-
-    const defaultTexture = new THREE.DataTexture(
-      defaultData,
-      SIM_W,
-      SIM_H,
-      THREE.RGBAFormat,
-      THREE.FloatType
-    );
-    defaultTexture.needsUpdate = true;
-
-    // 4D Simplex Noise + Curl Simulation Shader (Exact Lusion Architecture)
-    const simFrag = `
-precision highp float;
-uniform sampler2D u_simCurrPosLifeTexture;
-uniform sampler2D u_defaultPosLifeTexture;
-uniform float u_introDeltaTime;
-uniform float u_noiseTime;
-uniform float u_noiseScale;
-uniform float u_noiseStableFactor;
-uniform vec3 u_lightPosition;
-varying vec2 v_uv;
-
-vec4 mod289(vec4 x){return x-floor(x*(1.0/289.0))*289.0;}
+    const initialTexture = track(new THREE.DataTexture(initial, grid, grid, THREE.RGBAFormat, THREE.FloatType));
+    initialTexture.needsUpdate = true;
+    const simUniforms = {
+      positions: {value: initialTexture}, origins: {value: initialTexture},
+      dt: {value: 1 / 60}, time: {value: 0}, pointer: {value: new THREE.Vector3()}, press: {value: 0}
+    };
+    const simMaterial = track(new THREE.ShaderMaterial({
+      uniforms: simUniforms, vertexShader: screenVertex,
+      fragmentShader: `
+        precision highp float;
+        uniform sampler2D positions, origins;
+        uniform float dt, time, press;
+        uniform vec3 pointer;
+        varying vec2 vUv;
+        vec4 mod289(vec4 x){return x-floor(x*(1.0/289.0))*289.0;}
 float mod289(float x){return x-floor(x*(1.0/289.0))*289.0;}
 vec4 permute(vec4 x){return mod289(((x*34.0)+1.0)*x);}
 float permute(float x){return mod289(((x*34.0)+1.0)*x);}
@@ -171,589 +150,326 @@ vec3 curl(vec3 p,float t,float e){
     return vec3(dz-dy,dx-dw,dy-dx)/(2.0*e);
 }
 
-void main(){
-    vec4 posLife=texture2D(u_simCurrPosLifeTexture,v_uv);
-    posLife.w+=u_introDeltaTime*0.085;
-    if(posLife.w>=1.0){
-        vec4 def=texture2D(u_defaultPosLifeTexture,v_uv);
-        gl_FragColor=vec4(def.xyz+u_lightPosition*0.25,fract(posLife.w));
-        return;
-    }
-    vec3 toLight=posLife.xyz-u_lightPosition;
-    vec3 axis=vec3(0.0,1.0,0.0);
-    vec3 spinDir=cross(axis,toLight);
-    float dist=length(toLight);
-    if(dist>0.01){
-        float spinStrength=u_introDeltaTime*(0.18+smoothstep(0.3,2.2,dist-v_uv.x*0.5)*(v_uv.y<0.5 ? 1. :-1.)*mix(2.8,5.0,v_uv.x))*mix(0.85,1.7,u_noiseStableFactor);
-        posLife.xyz+=spinDir*spinStrength;
-    }
-    posLife.xyz+=(1.6+0.7*u_noiseScale)*curl((posLife.xyz-u_lightPosition)*(0.6+0.4*u_noiseStableFactor),u_noiseTime,0.2)*u_introDeltaTime*mix(0.5,1.7,posLife.w*posLife.w)*mix(0.75,1.25,v_uv.x);
-    gl_FragColor=posLife;
-}
-`;
-
-    // Instanced Spheres Vertex Shader: Delicate fine droplets + glowing pearls
-    const particleVert = `
-attribute vec2 simUv;
-uniform sampler2D u_simCurrPosLifeTexture;
-uniform float u_isEmissive;
-varying vec3 v_viewNormal;
-varying vec3 v_viewPos;
-varying float v_isEmissive;
-varying float v_randType;
-
-vec4 hash43(vec2 p) {
-    vec4 p4 = fract(vec4(p.xyxy) * vec4(0.1031, 0.1030, 0.0973, 0.1099));
-    p4 += dot(p4, p4.wzxy + 33.33);
-    return fract((p4.xxyz + p4.yzzw) * p4.zywx);
-}
-
-void main() {
-    v_isEmissive = u_isEmissive;
-    vec4 currPosInfo = texture2D(u_simCurrPosLifeTexture, simUv);
-    vec4 rands = hash43(simUv);
-    v_randType = rands.y;
-    
-    // Scale: fine mist droplets (0.016 - 0.048) + glowing pearls (0.095)
-    float rSize = pow(rands.x, 3.2);
-    float normalSize = mix(0.016, 0.048, rSize);
-    float baseSize = mix(normalSize, 0.095, u_isEmissive);
-    
-    float sizeScale = smoothstep(0.0, 0.12, currPosInfo.w) * (1.0 - smoothstep(0.88, 1.0, currPosInfo.w));
-    float particleSize = baseSize * sizeScale;
-    
-    vec3 localPos = position * particleSize;
-    vec3 worldPos = currPosInfo.xyz + localPos;
-    
-    vec4 mvPos = modelViewMatrix * vec4(worldPos, 1.0);
-    gl_Position = projectionMatrix * mvPos;
-    
-    v_viewNormal = normalize(normalMatrix * normal);
-    v_viewPos = mvPos.xyz;
-}
-`;
-
-    // Instanced Spheres Fragment Shader: Liquid pearl & obsidian specular shimmer
-    const particleFrag = `
-varying vec3 v_viewNormal;
-varying vec3 v_viewPos;
-varying float v_isEmissive;
-varying float v_randType;
-
-void main() {
-    vec3 N = normalize(v_viewNormal);
-    vec3 V = normalize(-v_viewPos);
-    
-    if (v_isEmissive > 0.5) {
-        // High-intensity glowing pearl core
-        float rim = 1.0 - max(0.0, dot(N, V));
-        vec3 glow = mix(vec3(2.2), vec3(1.3, 1.35, 1.4), rim * 0.5);
-        gl_FragColor = vec4(glow, 1.0);
-        return;
-    }
-    
-    vec3 L1 = normalize(vec3(0.55, 0.85, 0.95));
-    vec3 L2 = normalize(vec3(-0.6, 0.4, -0.9)); // Strong backlight rim
-    
-    float diff = max(0.0, dot(N, L1));
-    vec3 H = normalize(L1 + V);
-    float spec = pow(max(0.0, dot(N, H)), 32.0);
-    float backRim = pow(max(0.0, dot(reflect(-V, N), L2)), 24.0);
-    float fresnel = pow(1.0 - max(0.0, dot(N, V)), 2.8);
-    
-    // ~20% obsidian/graphite particles, ~80% luxury pearl white
-    bool isObsidian = (v_randType < 0.22);
-    vec3 baseCol = isObsidian ? vec3(0.06, 0.08, 0.10) : vec3(0.92, 0.94, 0.96);
-    vec3 amb = isObsidian ? vec3(0.03, 0.04, 0.05) : vec3(0.18, 0.20, 0.22);
-    
-    vec3 color = amb + baseCol * diff * 0.75 + vec3(spec * 0.8) + vec3(backRim * 1.35);
-    // Subtle Anemos breeze rim (#4FC7C4)
-    color += vec3(0.31, 0.78, 0.77) * (fresnel * (isObsidian ? 0.65 : 0.25));
-    
-    gl_FragColor = vec4(color, 1.0);
-}
-`;
-
-    // 1D Perlin-like Noise Helper
-    class Simple1DNoise {
-      constructor() {
-        this.perm = new Uint8Array(512);
-        for (let i = 0; i < 256; i++) this.perm[i] = i;
-        for (let i = 255; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          const t = this.perm[i];
-          this.perm[i] = this.perm[j];
-          this.perm[j] = t;
-        }
-        for (let i = 0; i < 256; i++) this.perm[256 + i] = this.perm[i];
-      }
-      get(x) {
-        const xi = Math.floor(x) & 255;
-        const xf = x - Math.floor(x);
-        const u = xf * xf * (3.0 - 2.0 * xf);
-        const g0 = (this.perm[xi] % 2 === 0) ? 1 : -1;
-        const g1 = (this.perm[xi + 1] % 2 === 0) ? 1 : -1;
-        return (g0 * xf * (1 - u) + g1 * (xf - 1) * u) * 0.5 + 0.5;
-      }
-    }
-
-    // Simulation Quad
-    const simQuadGeom = new THREE.BufferGeometry();
-    const posArr = new Float32Array([-1, -1, 0, 1, -1, 0, 1, 1, 0, -1, -1, 0, 1, 1, 0, -1, 1, 0]);
-    const uvArr = new Float32Array([0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1]);
-    simQuadGeom.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
-    simQuadGeom.setAttribute('uv', new THREE.BufferAttribute(uvArr, 2));
-
-    const simUniforms = {
-      u_simCurrPosLifeTexture: { value: defaultTexture },
-      u_defaultPosLifeTexture: { value: defaultTexture },
-      u_introDeltaTime: { value: 0.016 },
-      u_noiseTime: { value: 0.0 },
-      u_noiseScale: { value: 1.0 },
-      u_noiseStableFactor: { value: 0.5 },
-      u_lightPosition: { value: new THREE.Vector3(0, 0.85, 0) }
-    };
-
-    const simMaterial = new THREE.ShaderMaterial({
-      uniforms: simUniforms,
-      vertexShader: `
-varying vec2 v_uv;
-void main(){
-    v_uv=uv;
-    gl_Position=vec4(position,1.0);
-}
-`,
-      fragmentShader: simFrag
-    });
-
-    const simQuad = new THREE.Mesh(simQuadGeom, simMaterial);
-    simScene.add(simQuad);
-
-    // Pre-warm the simulation so particles start in full fluid vortex
-    const noise = new Simple1DNoise();
-    let noiseTime = 0, noiseScaleTime = Math.random(), noiseStableTime = Math.random();
-
-    for (let i = 0; i < 90; i++) {
-      const dt = 0.016;
-      noiseTime += dt * 0.35;
-      noiseScaleTime += dt * 0.2;
-      noiseStableTime += dt * 0.25;
-
-      simUniforms.u_introDeltaTime.value = dt;
-      simUniforms.u_noiseTime.value = noiseTime;
-      simUniforms.u_noiseScale.value = noise.get(noiseScaleTime) * 1.5;
-      simUniforms.u_noiseStableFactor.value = noise.get(noiseStableTime);
-
-      renderer.setRenderTarget(rtCurr);
-      renderer.render(simScene, simCamera);
-      simUniforms.u_simCurrPosLifeTexture.value = rtCurr.texture;
-
-      const tmp = rtPrev;
-      rtPrev = rtCurr;
-      rtCurr = tmp;
-      renderer.setRenderTarget(null);
-    }
-
-    // Instanced geometry: smooth 12x8 sphere
-    const baseSphereGeom = new THREE.SphereGeometry(1, 12, 8);
-    const emissiveCount = SIM_H; // 128 emissive orbs
-    const nonEmissiveCount = (SIM_W - 1) * SIM_H; // 16,256 standard particles
-
-    const nonEmissiveUvs = new Float32Array(nonEmissiveCount * 2);
-    let pIdx = 0;
-    for (let x = 0; x < SIM_W - 1; x++) {
-      for (let y = 0; y < SIM_H; y++) {
-        nonEmissiveUvs[pIdx * 2 + 0] = (x + 0.5) / SIM_W;
-        nonEmissiveUvs[pIdx * 2 + 1] = (y + 0.5) / SIM_H;
-        pIdx++;
-      }
-    }
-
-    const emissiveUvs = new Float32Array(emissiveCount * 2);
-    pIdx = 0;
-    for (let y = 0; y < SIM_H; y++) {
-      emissiveUvs[pIdx * 2 + 0] = (SIM_W - 1 + 0.5) / SIM_W;
-      emissiveUvs[pIdx * 2 + 1] = (y + 0.5) / SIM_H;
-      pIdx++;
-    }
-
-    // Non-emissive mesh
-    const nonEmissiveGeom = new THREE.InstancedBufferGeometry();
-    for (let attr in baseSphereGeom.attributes) {
-      nonEmissiveGeom.setAttribute(attr, baseSphereGeom.attributes[attr]);
-    }
-    nonEmissiveGeom.setIndex(baseSphereGeom.index);
-    nonEmissiveGeom.setAttribute('simUv', new THREE.InstancedBufferAttribute(nonEmissiveUvs, 2));
-
-    const nonEmissiveMat = new THREE.ShaderMaterial({
-      uniforms: {
-        u_simCurrPosLifeTexture: { value: rtCurr.texture },
-        u_isEmissive: { value: 0.0 }
-      },
-      vertexShader: particleVert,
-      fragmentShader: particleFrag
-    });
-
-    const nonEmissiveMesh = new THREE.Mesh(nonEmissiveGeom, nonEmissiveMat);
-    nonEmissiveMesh.frustumCulled = false;
-    scene.add(nonEmissiveMesh);
-
-    // Emissive mesh (bright glowing sparkles/orbs)
-    const emissiveGeom = new THREE.InstancedBufferGeometry();
-    for (let attr in baseSphereGeom.attributes) {
-      emissiveGeom.setAttribute(attr, baseSphereGeom.attributes[attr]);
-    }
-    emissiveGeom.setIndex(baseSphereGeom.index);
-    emissiveGeom.setAttribute('simUv', new THREE.InstancedBufferAttribute(emissiveUvs, 2));
-
-    const emissiveMat = new THREE.ShaderMaterial({
-      uniforms: {
-        u_simCurrPosLifeTexture: { value: rtCurr.texture },
-        u_isEmissive: { value: 1.0 }
-      },
-      vertexShader: particleVert,
-      fragmentShader: particleFrag
-    });
-
-    const emissiveMesh = new THREE.Mesh(emissiveGeom, emissiveMat);
-    emissiveMesh.frustumCulled = false;
-    scene.add(emissiveMesh);
-
-    // -------------------------------------------------------------
-    // 3D Animated Swimmer (Lusion's person.buf + person_idle.buf)
-    // -------------------------------------------------------------
-    function parseBuf(buffer) {
-      const headerLen = new Uint32Array(buffer, 0, 1)[0];
-      const jsonStr = new TextDecoder().decode(new Uint8Array(buffer, 4, headerLen));
-      const meta = JSON.parse(jsonStr);
-      const vc = meta.vertexCount;
-      const ic = meta.indexCount;
-      let offset = 4 + headerLen;
-      const geom = new THREE.BufferGeometry();
-      const attrs = meta.attributes;
-
-      for (let i = 0; i < attrs.length; i++) {
-        const attr = attrs[i];
-        const id = attr.id;
-        const count = (id === "indices") ? ic : vc;
-        const compSize = attr.componentSize;
-        
-        let TypedArray;
-        switch (attr.storageType) {
-          case 'Uint16Array': TypedArray = Uint16Array; break;
-          case 'Int16Array': TypedArray = Int16Array; break;
-          case 'Float32Array': TypedArray = Float32Array; break;
-          case 'Uint8Array': TypedArray = Uint8Array; break;
-          case 'Int8Array': TypedArray = Int8Array; break;
-          default: TypedArray = Float32Array;
-        }
-        
-        const bytesPerElem = TypedArray.BYTES_PER_ELEMENT;
-        const totalBytes = count * compSize * bytesPerElem;
-        const raw = new TypedArray(buffer, offset, count * compSize);
-        
-        let finalArray;
-        if (attr.needsPack) {
-          const packed = attr.packedComponents;
-          const k = packed.length;
-          const isInt = attr.storageType.indexOf('Int') === 0 && attr.storageType.indexOf('Uint') !== 0;
-          const D = 1 << (bytesPerElem * 8);
-          const ne = isInt ? D * 0.5 : 0;
-          const re = 1.0 / D;
-          finalArray = new Float32Array(count * compSize);
-          let z = 0;
-          for (let c = 0; c < count; c++) {
-            for (let j = 0; j < k; j++) {
-              finalArray[z] = (raw[z] + ne) * re * packed[j].delta + packed[j].from;
-              z++;
-            }
+        void main(){
+          vec4 state=texture2D(positions,vUv);
+          state.w+=dt*.105;
+          vec3 center=vec3(.12*sin(time*.21),.62,.0);
+          if(state.w>=1.){
+            state=texture2D(origins,vUv);
+            state.xyz+=vec3(.15*sin(time*.3),.12*cos(time*.23),0.);
+            state.w=fract(texture2D(positions,vUv).w+dt*.105);
           }
-        } else {
-          finalArray = raw;
-        }
+          vec3 p=state.xyz-center;
+          vec3 field=curl(p*1.55,time*.13,.12);
+          vec3 axis=normalize(vec3(.24,1.,.38));
+          vec3 velocity=field*.34 + cross(axis,p)*(.25+vUv.x*.3);
+          // A soft envelope keeps the plume dense, with quiet margins around it.
+          float radius=length(p*vec3(.92,.78,1.));
+          velocity-=p*smoothstep(1.05,2.1,radius)*.62;
+          velocity.y+=.06;
+          vec3 toPointer=state.xyz-pointer;
+          float distanceToPointer=length(toPointer);
+          velocity+=toPointer/(.15+distanceToPointer)*exp(-distanceToPointer*distanceToPointer*2.5)*press*1.1;
+          state.xyz+=velocity*dt;
+          gl_FragColor=state;
+        }`
+    }));
+    simScene.add(new THREE.Mesh(screenGeometry, simMaterial));
+    function simulate(dt, time) {
+      simUniforms.dt.value = dt;
+      simUniforms.time.value = time;
+      renderer.setRenderTarget(writeTarget);
+      renderer.render(simScene, screenCamera);
+      const swap = readTarget; readTarget = writeTarget; writeTarget = swap;
+      simUniforms.positions.value = readTarget.texture;
+    }
+    // Pre-roll at a fixed step; no large first-frame jump after tab suspension.
+    for (let step = 0; step < 150; step++) simulate(1 / 45, step / 45);
+    elapsed = 150 / 45;
+    renderer.setRenderTarget(null);
 
-        if (id === "indices") {
-          geom.setIndex(new THREE.BufferAttribute(finalArray, 1));
-        } else {
-          geom.setAttribute(id, new THREE.BufferAttribute(finalArray, compSize));
+    // Reuse the compact dome geometry already shipped with the site. Camera-facing
+    // hemispheres retain the reference bead outline at a fraction of full-sphere cost.
+    function decodeBead(buffer) {
+      const length = new DataView(buffer).getUint32(0, true);
+      const metadata = JSON.parse(new TextDecoder().decode(new Uint8Array(buffer, 4, length)));
+      const result = new THREE.BufferGeometry();
+      let offset = 4 + length;
+      for (const attribute of metadata.attributes) {
+        const type = {Int16Array, Uint16Array, Uint8Array}[attribute.storageType];
+        if (!type) throw new Error('Unsupported bead attribute');
+        const count = (attribute.id === 'indices' ? metadata.indexCount : metadata.vertexCount) * attribute.componentSize;
+        const bytes = count * type.BYTES_PER_ELEMENT;
+        const raw = new type(buffer.slice(offset, offset + bytes));
+        offset += bytes;
+        let values = raw;
+        if (attribute.needsPack) {
+          values = new Float32Array(count);
+          const signedOffset = type === Int16Array ? 32768 : 0;
+          for (let i = 0; i < count; i++) {
+            const component = attribute.packedComponents[i % attribute.componentSize];
+            values[i] = (raw[i] + signedOffset) / 65536 * component.delta + component.from;
+          }
         }
-        offset += totalBytes;
+        if (attribute.id === 'indices') result.setIndex(new THREE.BufferAttribute(values, 1));
+        else result.setAttribute(attribute.id, new THREE.BufferAttribute(values, attribute.componentSize));
       }
-      return { geom, meta };
+      return result;
     }
+    const beadResponse = await fetch('assets/models/sphere_m.buf');
+    if (!beadResponse.ok) throw new Error('Bead geometry unavailable');
+    const bead = track(decodeBead(await beadResponse.arrayBuffer()));
+    const geometry = track(new THREE.InstancedBufferGeometry());
+    geometry.index = bead.index;
+    Object.keys(bead.attributes).forEach(name => geometry.setAttribute(name, bead.attributes[name]));
+    geometry.setAttribute('sampleUV', new THREE.InstancedBufferAttribute(samples, 2));
+    geometry.setAttribute('variant', new THREE.InstancedBufferAttribute(variants, 4));
+    geometry.instanceCount = count;
+    const beadUniforms = {
+      positions: {value: readTarget.texture}, time: {value: elapsed},
+      lightA: {value: new THREE.Vector3()}, lightB: {value: new THREE.Vector3()}
+    };
+    const beadMaterial = track(new THREE.ShaderMaterial({
+      uniforms: beadUniforms,
+      side: THREE.DoubleSide,
+      vertexShader: `
+        attribute vec2 sampleUV;
+        attribute vec4 variant;
+        uniform sampler2D positions;
+        uniform float time;
+        varying vec3 vNormal, vWorld;
+        varying vec4 vVariant;
+        varying float vDepth;
+        void main(){
+          vec4 state=texture2D(positions,sampleUV);
+          float life=smoothstep(0.,.07,state.w)*(1.-smoothstep(.88,1.,state.w));
+          float size=mix(.022,.087,pow(variant.x,2.5));
+          size=mix(size,.13+variant.x*.04,variant.w);
+          vec3 center=vec3(0.,.62,0.);
+          vec3 cloud=state.xyz-center;
+          cloud.xy*=vec2(1.65,1.28);
+          float fringe=smoothstep(.96,1.,variant.z);
+          cloud*=1.+fringe*.65;
+          cloud.z+=fringe*1.3;
+          cloud.z+=variant.w*.48;
+          vec3 beadPosition=vec3(position.xy,-position.z);
+          beadPosition.x*=1.+fringe*.8;
+          vec3 world=center+cloud+(vec4(beadPosition*size*life,0.)*viewMatrix).xyz;
+          vec4 view=modelViewMatrix*vec4(world,1.);
+          vNormal=(vec4(normal.xy,-normal.z,0.)*viewMatrix).xyz;
+          vWorld=world;
+          vVariant=variant;
+          vDepth=-view.z;
+          gl_Position=projectionMatrix*view;
+        }`,
+      fragmentShader: `
+        uniform vec3 lightA, lightB;
+        varying vec3 vNormal, vWorld;
+        varying vec4 vVariant;
+        varying float vDepth;
+        void main(){
+          vec3 N=normalize(vNormal), V=normalize(cameraPosition-vWorld);
+          vec3 deltaA=lightA-vWorld, deltaB=lightB-vWorld;
+          vec3 L=normalize(deltaA), L2=normalize(deltaB);
+          float a=1./(1.+dot(deltaA,deltaA)*1.7);
+          float b=1./(1.+dot(deltaB,deltaB)*2.1);
+          float diffuse=max(dot(N,normalize(vec3(-.35,.8,1.))),0.);
+          float local=max(dot(N,L),0.)*a+max(dot(N,L2),0.)*b*.8;
+          float spec=pow(max(dot(N,normalize(L+V)),0.),28.)*a;
+          float rim=pow(1.-max(dot(N,V),0.),3.);
+          float occlusion=mix(.50,1.,smoothstep(.1,1.3,length(vWorld-vec3(0.,.62,0.))));
+          vec3 slate=mix(vec3(.095,.12,.135),vec3(.23,.28,.30),vVariant.y);
+          vec3 color=slate*(.32+diffuse*.95+local*1.6)*occlusion;
+          color+=vec3(.32,.38,.40)*spec*.75;
+          color+=vec3(.08,.13,.14)*rim*.30;
+          if(vVariant.w>.5) color=vec3(1.85,2.1,2.15)*(.16+.84*sqrt(max(dot(N,V),0.)));
+          float fog=exp(-max(vDepth-6.6,0.)*.28);
+          color=mix(vec3(.008,.012,.016),color,fog);
+          gl_FragColor=vec4(color,1.);
+        }`
+    }));
+    const beads = new THREE.Mesh(geometry, beadMaterial);
+    beads.frustumCulled = false;
+    scene.add(beads);
 
-    const BONE_COUNT = 54;
-    const bonePoses = [];
-    const boneOrients = [];
-    for (let i = 0; i < BONE_COUNT; i++) {
-      bonePoses.push(new THREE.Vector3());
-      boneOrients.push(new THREE.Vector4(0, 0, 0, 1));
-    }
-
-    const swimmerVert = `
-#define BONE_COUNT 54
-attribute vec2 boneIndices;
-attribute vec2 boneWeights;
-uniform vec3 u_bonePoses[BONE_COUNT];
-uniform vec4 u_boneOrients[BONE_COUNT];
-varying vec3 v_worldPosition;
-varying vec3 v_worldNormal;
-varying vec2 v_uv;
-
-vec3 inverseTransformDirection(in vec3 dir, in mat4 matrix) {
-    return normalize((vec4(dir, 0.0) * matrix).xyz);
-}
-
-vec3 qrotate(vec4 q, vec3 v) {
-    return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
-}
-
-void main() {
-    vec3 pos = vec3(0.0);
-    vec3 nor = vec3(0.0);
-    
-    int idx0 = int(boneIndices.x);
-    vec3 bPos0 = u_bonePoses[idx0];
-    vec4 bOri0 = u_boneOrients[idx0];
-    pos += (qrotate(bOri0, position) + bPos0) * boneWeights.x;
-    nor += qrotate(bOri0, normal) * boneWeights.x;
-    
-    int idx1 = int(boneIndices.y);
-    vec3 bPos1 = u_bonePoses[idx1];
-    vec4 bOri1 = u_boneOrients[idx1];
-    pos += (qrotate(bOri1, position) + bPos1) * boneWeights.y;
-    nor += qrotate(bOri1, normal) * boneWeights.y;
-    
-    vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-    gl_Position = projectionMatrix * mvPosition;
-    v_worldPosition = (modelMatrix * vec4(pos, 1.0)).xyz;
-    v_worldNormal = inverseTransformDirection(nor, viewMatrix);
-    v_uv = uv;
-}
-`;
-
-    const swimmerFrag = `
-uniform sampler2D u_texture;
-uniform vec3 u_lightPosition;
-varying vec3 v_worldPosition;
-varying vec3 v_worldNormal;
-varying vec2 v_uv;
-
-void main() {
-    vec3 N = normalize(v_worldNormal);
-    vec3 V = normalize(cameraPosition - v_worldPosition);
-    vec3 L1 = normalize(vec3(0.6, 0.8, 1.0));
-    vec3 L2 = normalize(vec3(-0.6, 0.4, -0.9));
-    
-    vec4 tex = texture2D(u_texture, v_uv);
-    float diff1 = max(0.0, dot(N, L1));
-    vec3 H = normalize(L1 + V);
-    float spec = pow(max(0.0, dot(N, H)), 32.0);
-    
-    // Backlight reflection
-    float backRim = pow(max(0.0, dot(reflect(-V, N), L2)), 16.0);
-    float fresnel = pow(1.0 - max(0.0, dot(N, V)), 2.6);
-    
-    vec3 baseCol = mix(vec3(0.07, 0.10, 0.12), vec3(0.88, 0.92, 0.96), tex.a * 0.85);
-    vec3 col = baseCol * (0.3 + 0.7 * diff1) + vec3(spec * 0.75) + vec3(backRim * 1.3);
-    // Anemos breeze rim accent (#4FC7C4)
-    col += vec3(0.31, 0.78, 0.77) * (fresnel * 0.5);
-    
-    gl_FragColor = vec4(col, 1.0);
-}
-`;
-
-    let swimmerMesh = null;
-    let animPos = null;
-    let animOrient = null;
-    let swimmerFrameCount = 0;
-    const _qA = new THREE.Quaternion();
-    const _qB = new THREE.Quaternion();
-
-    Promise.all([
-      fetch('assets/models/person.buf').then(r => r.arrayBuffer()),
-      fetch('assets/models/person_idle.buf').then(r => r.arrayBuffer()),
-      new THREE.TextureLoader().loadAsync('assets/textures/person.webp')
-    ]).then(([modelBuf, animBuf, texture]) => {
-      const modelData = parseBuf(modelBuf);
-      const animData = parseBuf(animBuf);
-      
-      animPos = animData.geom.attributes.position.array;
-      animOrient = animData.geom.attributes.orient.array;
-      swimmerFrameCount = animPos.length / (BONE_COUNT * 3);
-
-      const mat = new THREE.ShaderMaterial({
-        vertexShader: swimmerVert,
-        fragmentShader: swimmerFrag,
-        uniforms: {
-          u_texture: { value: texture },
-          u_lightPosition: { value: new THREE.Vector3(0, 0.85, 0) },
-          u_bonePoses: { value: bonePoses },
-          u_boneOrients: { value: boneOrients }
-        },
-        side: THREE.DoubleSide
-      });
-
-      swimmerMesh = new THREE.Mesh(modelData.geom, mat);
-      // Floating horizontally in the center of the particle vortex
-      swimmerMesh.position.set(0.1, 0.85, -0.15);
-      swimmerMesh.rotation.set(0.08, 0.25, Math.PI * 0.5);
-      swimmerMesh.scale.set(1.5, 1.5, 1.5);
-      scene.add(swimmerMesh);
-    }).catch(err => {
-      console.warn('Swimmer model load skipped:', err);
-    });
-
-    // -------------------------------------------------------------
-    // Interactive state
-    // -------------------------------------------------------------
-    const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
-    let isDown = false;
-    let freezeRatio = 0.0;
-
-    function onPointerMove(e) {
-      const rect = canvas.getBoundingClientRect();
-      const clientX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
-      const clientY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
-      mouse.targetX = ((clientX - rect.left) / rect.width) * 2.0 - 1.0;
-      mouse.targetY = -(((clientY - rect.top) / rect.height) * 2.0 - 1.0);
-    }
-
-    function onPointerDown() {
-      isDown = true;
-    }
-
-    function onPointerUp() {
-      isDown = false;
-    }
-
-    canvas.addEventListener('pointermove', onPointerMove, { passive: true });
-    canvas.addEventListener('pointerdown', onPointerDown, { passive: true });
-    window.addEventListener('pointerup', onPointerUp, { passive: true });
-    canvas.addEventListener('touchmove', onPointerMove, { passive: true });
-    canvas.addEventListener('touchstart', onPointerDown, { passive: true });
-    window.addEventListener('touchend', onPointerUp, { passive: true });
-
-    function onResize() {
-      width = heroSection ? heroSection.clientWidth : window.innerWidth;
-      height = heroSection ? heroSection.clientHeight : window.innerHeight;
-      const mobile = width < 768;
-      camera.fov = mobile ? 48 : 38;
-      camera.aspect = width / height;
-      camera.position.z = mobile ? 8.5 : 7.2;
-      camera.position.y = 0.4;
-      camera.updateProjectionMatrix();
-      camera.lookAt(0, 0.8, 0);
-      renderer.setSize(width, height);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    }
-    window.addEventListener('resize', onResize);
-
-    // Visibility Culling
-    let isHeroVisible = true;
-    const observer = new IntersectionObserver((entries) => {
-      isHeroVisible = entries[0].isIntersecting;
-    }, { threshold: 0.05 });
-    if (heroSection) observer.observe(heroSection);
-
-    // -------------------------------------------------------------
-    // Main Render Loop
-    // -------------------------------------------------------------
-    let lastTime = performance.now();
-    let simTotalTime = 0;
-
-    function animate(currentTime) {
-      requestAnimationFrame(animate);
-      if (!isHeroVisible) return;
-
-      const rawDt = Math.min((currentTime - lastTime) * 0.001, 0.05);
-      lastTime = currentTime;
-
-      // Smooth mouse spring
-      mouse.x += (mouse.targetX - mouse.x) * 0.06;
-      mouse.y += (mouse.targetY - mouse.y) * 0.06;
-
-      // Slow-motion freeze on click/hold
-      const targetFreeze = isDown ? 0.88 : 0.0;
-      freezeRatio += (targetFreeze - freezeRatio) * 0.1;
-      const simDt = rawDt * (1.0 - freezeRatio * 0.85);
-      simTotalTime += simDt;
-
-      // Camera parallax
-      camera.position.x = mouse.x * 0.35;
-      camera.position.y = 0.4 + mouse.y * 0.25;
-      camera.lookAt(0, 0.8, 0);
-
-      // Vortex focal position tracks mouse smoothly around upper-center
-      simUniforms.u_lightPosition.value.x = mouse.x * 0.45;
-      simUniforms.u_lightPosition.value.y = 0.85 + mouse.y * 0.35;
-
-      // Advance noise
-      noiseTime += simDt * 0.35;
-      noiseScaleTime += simDt * 0.2;
-      noiseStableTime += simDt * 0.25;
-
-      simUniforms.u_introDeltaTime.value = simDt;
-      simUniforms.u_noiseTime.value = noiseTime;
-      simUniforms.u_noiseScale.value = noise.get(noiseScaleTime) * 1.5;
-      simUniforms.u_noiseStableFactor.value = noise.get(noiseStableTime);
-
-      // GPGPU Step
-      renderer.setRenderTarget(rtCurr);
-      renderer.render(simScene, simCamera);
-
-      const temp = rtPrev;
-      rtPrev = rtCurr;
-      rtCurr = temp;
-
-      renderer.setRenderTarget(null);
-
-      // Update particle uniforms
-      simUniforms.u_simCurrPosLifeTexture.value = rtPrev.texture;
-      nonEmissiveMat.uniforms.u_simCurrPosLifeTexture.value = rtCurr.texture;
-      emissiveMat.uniforms.u_simCurrPosLifeTexture.value = rtCurr.texture;
-
-      // Update 3D swimmer animation
-      if (swimmerMesh && animPos && swimmerFrameCount > 0) {
-        const t = (simTotalTime * 30) % swimmerFrameCount;
-        const r = Math.floor(t);
-        const n = (r + 1) % swimmerFrameCount;
-        const a = t - r;
-        const l = r * BONE_COUNT;
-        const c = n * BONE_COUNT;
-
-        for (let f = 0; f < BONE_COUNT; f++) {
-          const i0 = (l + f) * 3;
-          const i1 = (c + f) * 3;
-          bonePoses[f].set(
-            animPos[i0] * (1 - a) + animPos[i1] * a,
-            animPos[i0 + 1] * (1 - a) + animPos[i1 + 1] * a,
-            animPos[i0 + 2] * (1 - a) + animPos[i1 + 2] * a
-          );
-
-          const q0 = (l + f) * 4;
-          const q1 = (c + f) * 4;
-          _qA.set(animOrient[q0], animOrient[q0 + 1], animOrient[q0 + 2], animOrient[q0 + 3]);
-          _qB.set(animOrient[q1], animOrient[q1 + 1], animOrient[q1 + 2], animOrient[q1 + 3]);
-          _qA.slerp(_qB, a);
-          boneOrients[f].set(_qA.x, _qA.y, _qA.z, _qA.w);
+    // A dark, continuous airfoil through the beads gives the scene its aviation identity.
+    const wingVertices = [], wingIndices = [];
+    const spans = 72, chords = 16;
+    for (let side=0; side<2; side++) {
+      for (let i=0; i<=spans; i++) {
+        const s=i/spans, x=(s-.5)*3.9;
+        const chord=.68*Math.pow(Math.sin(Math.PI*s),.36)+.025;
+        for (let j=0; j<=chords; j++) {
+          const v=j/chords;
+          const thickness=.17*Math.sin(Math.PI*v)*Math.pow(Math.sin(Math.PI*s),.5);
+          wingVertices.push(x, -.18+Math.sin(s*Math.PI*1.4)*.22+(v-.5)*chord*.5, .50+(v-.5)*chord+(side? -1:1)*thickness);
+          if(i<spans&&j<chords){
+            const k=side*(spans+1)*(chords+1)+i*(chords+1)+j;
+            if(side) wingIndices.push(k,k+chords+1,k+1,k+1,k+chords+1,k+chords+2);
+            else wingIndices.push(k,k+1,k+chords+1,k+1,k+chords+2,k+chords+1);
+          }
         }
-
-        // Swimmer parallax tilt
-        swimmerMesh.rotation.y = 0.25 + mouse.x * 0.2;
-        swimmerMesh.rotation.x = 0.08 - mouse.y * 0.15;
       }
-
-      // Render 3D hero scene
-      renderer.render(scene, camera);
     }
+    const wingGeometry = track(new THREE.BufferGeometry());
+    wingGeometry.setAttribute('position',new THREE.Float32BufferAttribute(wingVertices,3));
+    wingGeometry.setIndex(wingIndices);
+    wingGeometry.computeVertexNormals();
+    const wingMaterial=track(new THREE.ShaderMaterial({
+      side: THREE.DoubleSide,
+      vertexShader:`varying vec3 vN,vP; void main(){vec4 p=modelMatrix*vec4(position,1.);vP=p.xyz;vN=mat3(modelMatrix)*normal;gl_Position=projectionMatrix*viewMatrix*p;}`,
+      fragmentShader:`varying vec3 vN,vP; void main(){
+        vec3 N=normalize(vN),V=normalize(cameraPosition-vP);if(!gl_FrontFacing)N=-N;
+        vec3 R=reflect(-V,N);
+        float strip=pow(max(0.,dot(R,normalize(vec3(-.2,.9,1.)))),32.);
+        float edge=pow(1.-abs(dot(N,V)),3.);
+        vec3 col=vec3(.009,.014,.018)+vec3(.40,.47,.49)*strip+vec3(.045,.085,.09)*edge;
+        gl_FragColor=vec4(col,1.);
+      }`
+    }));
+    const wing = new THREE.Mesh(wingGeometry,wingMaterial);
+    wing.rotation.z=-.48;
+    wing.position.set(-.1,.45,-.12);
+    wing.scale.setScalar(.82);
+    scene.add(wing);
 
-    requestAnimationFrame(animate);
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initHeroSimulation);
-  } else {
-    initHeroSimulation();
+    // Half-float colour retains luminous cores until bloom and tone mapping.
+    const sceneTarget=track(new THREE.WebGLRenderTarget(1,1,{type:THREE.HalfFloatType, minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter,depthBuffer:true}));
+    sceneTarget.depthTexture=track(new THREE.DepthTexture(1,1));
+    const bloomA=track(new THREE.WebGLRenderTarget(1,1,{type:THREE.HalfFloatType,depthBuffer:false}));
+    const bloomB=track(bloomA.clone());
+    const postScene=new THREE.Scene();
+    const quad=new THREE.Mesh(screenGeometry,new THREE.MeshBasicMaterial());
+    quad.material.dispose();
+    postScene.add(quad);
+    const brightMaterial=track(new THREE.ShaderMaterial({vertexShader:screenVertex,uniforms:{source:{value:sceneTarget.texture}},fragmentShader:`
+      varying vec2 vUv;uniform sampler2D source;
+      void main(){vec3 c=texture2D(source,vUv).rgb;float l=max(c.r,max(c.g,c.b));gl_FragColor=vec4(c*smoothstep(.65,1.4,l),1.);}` }));
+    const blurMaterial=track(new THREE.ShaderMaterial({vertexShader:screenVertex,uniforms:{source:{value:null},direction:{value:new THREE.Vector2()}},fragmentShader:`
+      varying vec2 vUv;uniform sampler2D source;uniform vec2 direction;
+      void main(){vec3 c=texture2D(source,vUv).rgb*.227027;
+      c+=texture2D(source,vUv+direction*1.384615).rgb*.316216;
+      c+=texture2D(source,vUv-direction*1.384615).rgb*.316216;
+      c+=texture2D(source,vUv+direction*3.230769).rgb*.070270;
+      c+=texture2D(source,vUv-direction*3.230769).rgb*.070270;
+      gl_FragColor=vec4(c,1.);}` }));
+    const compositeUniforms={source:{value:sceneTarget.texture},depth:{value:sceneTarget.depthTexture},bloom:{value:bloomA.texture},resolution:{value:new THREE.Vector2()},focus:{value:6.5},time:{value:0}};
+    const compositeMaterial=track(new THREE.ShaderMaterial({vertexShader:screenVertex,uniforms:compositeUniforms,fragmentShader:`
+      varying vec2 vUv;uniform sampler2D source,depth,bloom;uniform vec2 resolution;uniform float focus,time;
+      float viewDepth(vec2 uv){float d=texture2D(depth,uv).x;return 4./(40.-d*39.9);}
+      void main(){
+        vec3 color=texture2D(source,vUv).rgb;
+        float z=viewDepth(vUv);
+        float blur=clamp(abs(z-focus)*2.6-.35,0.,5.5);
+        // Spiral aperture samples: out-of-focus beads get soft edges, focal beads stay crisp.
+        float weight=1.;
+        for(int i=0;i<12;i++){
+          float f=float(i)+.5;
+          float angle=f*2.399963;
+          vec2 offset=vec2(cos(angle),sin(angle))*sqrt(f/12.)*blur/resolution;
+          vec2 uv=vUv+offset;
+          float neighbour=viewDepth(uv);
+          float w=neighbour<z-.35?.35:1.;
+          color+=texture2D(source,uv).rgb*w;weight+=w;
+        }
+        color/=weight;
+        color+=texture2D(bloom,vUv).rgb*.8;
+        // Mild filmic curve preserves grey beads and rolls off bright pearls.
+        color=vec3(1.)-exp(-color*1.45);
+        color=pow(color,vec3(.82));
+        float vignette=1.-smoothstep(.25,.82,length((vUv-.5)*vec2(1.,.8)))*.50;
+        color*=vignette;
+        gl_FragColor=vec4(color,1.);
+      }` }));
+    function post(material,target){quad.material=material;renderer.setRenderTarget(target);renderer.render(postScene,screenCamera);}
+    function render(){
+      beadUniforms.positions.value=readTarget.texture;
+      beadUniforms.time.value=elapsed;
+      beadUniforms.lightA.value.set(Math.sin(elapsed*.24)*.65,.8+Math.cos(elapsed*.31)*.55,.9);
+      beadUniforms.lightB.value.set(Math.cos(elapsed*.19)*.7,.25, -.15);
+      camera.position.x=pointer.x*.22;
+      camera.position.y=pointer.y*.15;
+      camera.lookAt(0,.14,0);
+      wing.rotation.y=Math.sin(elapsed*.2)*.22+pointer.x*.1;
+      wing.rotation.x=.12+Math.sin(elapsed*.15)*.15;
+      wing.rotation.z=-.48+Math.sin(elapsed*.12)*.12;
+      renderer.setRenderTarget(sceneTarget);renderer.render(scene,camera);
+      post(brightMaterial,bloomA);
+      for(let i=0;i<3;i++){
+        blurMaterial.uniforms.source.value=bloomA.texture;
+        blurMaterial.uniforms.direction.value.set((1+i*1.8)/bloomA.width,0);post(blurMaterial,bloomB);
+        blurMaterial.uniforms.source.value=bloomB.texture;
+        blurMaterial.uniforms.direction.value.set(0,(1+i*1.8)/bloomA.height);post(blurMaterial,bloomA);
+      }
+      post(compositeMaterial,null);
+      hero.dataset.renderState='ready';
+    }
+    function resize(){
+      if(stopped)return;
+      width=Math.max(1,hero.clientWidth);height=Math.max(1,hero.clientHeight);
+      pixelRatio=Math.min(devicePixelRatio||1,small?1.35:1.6);
+      renderer.setPixelRatio(pixelRatio);renderer.setSize(width,height,false);
+      const w=Math.round(width*pixelRatio),h=Math.round(height*pixelRatio);
+      sceneTarget.setSize(w,h);bloomA.setSize(Math.max(1,w>>2),Math.max(1,h>>2));bloomB.setSize(bloomA.width,bloomA.height);
+      compositeUniforms.resolution.value.set(w,h);
+      camera.aspect=width/height;
+      camera.position.z=width<700?9.1:6.5;
+      camera.fov=width<700?46:39;camera.updateProjectionMatrix();
+      compositeUniforms.focus.value=camera.position.z-.2;
+      if(paused&&!stopped)render();
+    }
+    function syncMotion(){
+      if(!motion)return;
+      motion.hidden=false;
+      motion.setAttribute('aria-pressed',String(paused));
+      motion.setAttribute('aria-label',paused?'Resume motion':'Pause motion');
+      const label=motion.querySelector('.hero-motion-label');
+      if(label)label.textContent=paused?'RESUME MOTION':'PAUSE MOTION';
+      else motion.textContent=paused?'RESUME MOTION':'PAUSE MOTION';
+      hero.dataset.motion=paused?'paused':'running';
+    }
+    function animate(now){
+      frame=0;
+      if(stopped||paused||!visible||document.hidden)return;
+      const dt=previousTime?Math.min((now-previousTime)/1000,.035):1/60;
+      previousTime=now;
+      const ease=1-Math.exp(-dt*5);
+      pointer.x+=(pointer.targetX-pointer.x)*ease;pointer.y+=(pointer.targetY-pointer.y)*ease;
+      speed+=((isDown?.12:1)-speed)*ease;
+      elapsed+=dt*speed*.72;
+      simUniforms.pointer.value.set(pointer.x*2,pointer.y*1.8+.3,1.);
+      simUniforms.press.value=isDown?1:0;
+      simulate(dt*speed*.72,elapsed);render();
+      frame=requestAnimationFrame(animate);
+    }
+    function schedule(){if(!stopped&&!frame&&!paused&&visible&&!document.hidden){previousTime=0;frame=requestAnimationFrame(animate);}}
+    function setPaused(value){if(stopped)return;paused=value;cancelAnimationFrame(frame);frame=0;syncMotion();if(paused)render();else schedule();}
+    if(motion)motion.addEventListener('click',()=>setPaused(!paused));
+    reducedMotion.addEventListener('change',event=>setPaused(event.matches));
+    canvas.addEventListener('pointermove',event=>{
+      if(event.pointerType==='touch')return;
+      const rect=canvas.getBoundingClientRect();
+      pointer.targetX=(event.clientX-rect.left)/rect.width*2-1;
+      pointer.targetY=1-(event.clientY-rect.top)/rect.height*2;
+    },{passive:true});
+    canvas.addEventListener('pointerdown',event=>{if(event.pointerType==='mouse')isDown=true;},{passive:true});
+    const release=()=>{isDown=false;};
+    window.addEventListener('pointerup',release,{passive:true});
+    window.addEventListener('pointercancel',release,{passive:true});
+    window.addEventListener('blur',release);
+    canvas.addEventListener('pointerleave',()=>{release();pointer.targetX=0;pointer.targetY=0;},{passive:true});
+    const observer=new IntersectionObserver(entries=>{
+      visible=entries[0].isIntersecting;
+      if(!visible){cancelAnimationFrame(frame);frame=0;release();}else schedule();
+    },{threshold:0});observer.observe(hero);
+    document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(frame);frame=0;release();}else schedule();});
+    window.addEventListener('resize',resize,{passive:true});
+    canvas.addEventListener('webglcontextlost',event=>{event.preventDefault();observer.disconnect();fallback();});
+    window.addEventListener('pagehide',()=>{cancelAnimationFrame(frame);frame=0;release();});
+    window.addEventListener('pageshow',schedule);
+    resize();syncMotion();render();schedule();
+  } catch(error) {
+    console.warn('Particle scene unavailable:', error.message);
+    fallback();
   }
 })();

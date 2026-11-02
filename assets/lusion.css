@@ -38,6 +38,9 @@ html, body {
   max-width: 100vw !important;
   width: 100% !important;
 }
+html {
+  touch-action: pan-x pan-y pinch-zoom;
+}
 main, section, header, footer {
   max-width: 100vw !important;
   overflow-x: hidden !important;
@@ -73,91 +76,151 @@ main, section, header, footer {
   position: relative;
   width: 100%;
   height: 100vh;
-  min-height: 600px;
-  background: var(--anemos-night);
+  height: 100svh;
+  min-height: 420px;
+  background: #07090b;
   overflow: hidden;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
+  isolation: isolate;
   padding: 0;
   margin: 0;
   box-sizing: border-box;
+  color: #f8f9fa;
 }
 
-/* Giant Background Typography: PILOTARBUZA (Spanning edge-to-edge at bottom like Lusion) */
+/* The wordmark stays above the scene, clear of the separate bottom controls. */
 .hero-bg-letters {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  font-family: "Aeonik", "Inter", "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-size: clamp(3.8rem, 13.2vw, 17.5rem);
-  font-weight: 900;
-  letter-spacing: -0.04em;
-  color: #FFF8F0;
-  opacity: 0.98;
+  bottom: calc(58px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  display: flex;
+  margin: 0;
+  font-family: "Manrope", Arial, Helvetica, sans-serif;
+  font-size: 15.2vw;
+  font-weight: 500;
+  letter-spacing: -0.065em;
+  color: #f8f9fa;
   white-space: nowrap;
   user-select: none;
   pointer-events: none;
-  z-index: 2;
-  line-height: 0.84;
+  z-index: 4;
+  line-height: 0.9;
   text-transform: uppercase;
   text-align: center;
+}
+.hero-bg-letters > span:last-child {
+  padding-right: .065em;
 }
 
 /* Horizontal Crosshairs (+ + + + +) */
 .hero-crosshairs {
   position: absolute;
-  top: 50%;
+  top: 53%;
   left: 0;
   width: 100%;
   transform: translateY(-50%);
   display: flex;
   justify-content: space-between;
   pointer-events: none;
-  z-index: 2;
+  z-index: 3;
   padding: 0 var(--base-padding-x);
   box-sizing: border-box;
 }
 .hero-crosshair {
-  color: var(--anemos-ground);
+  position: relative;
+  width: 17px;
+  height: 17px;
+  color: transparent;
   opacity: 0.55;
-  font-size: 20px;
-  font-weight: 300;
-  line-height: 1;
-  font-family: var(--anemos-font-mono);
+  font-size: 0;
+  flex-shrink: 0;
   user-select: none;
 }
+.hero-crosshair::before,
+.hero-crosshair::after {
+  content: "";
+  position: absolute;
+  background: #e7eded;
+}
+.hero-crosshair::before { width: 17px; height: 1px; top: 8px; left: 0; }
+.hero-crosshair::after { width: 1px; height: 17px; left: 8px; top: 0; }
 
-/* 3D WebGL Fluid Canvas */
+/* The canvas never captures native touch scrolling or pinch gestures. */
 #hero-balloons-canvas {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  z-index: 3;
-  cursor: grab;
-  touch-action: none;
+  z-index: 1;
+  display: block;
+  cursor: default;
+  touch-action: pan-y pinch-zoom;
 }
-#hero-balloons-canvas:active {
-  cursor: grabbing;
-}
-
-/* Bottom Right Scroll Hint */
-.hero-scroll-explore {
+.hero-fallback {
   position: absolute;
-  bottom: var(--base-padding-y);
-  right: var(--base-padding-x);
-  font-family: var(--anemos-font-display);
-  font-size: 0.74rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--anemos-ground);
-  z-index: 5;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  opacity: 0;
   pointer-events: none;
+}
+.hero-static .hero-fallback {
+  opacity: 1;
+}
+.hero-static #hero-balloons-canvas {
+  visibility: hidden;
+}
+.hero-footer {
+  position: absolute;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  left: var(--base-padding-x);
+  right: var(--base-padding-x);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  z-index: 5;
+}
+.hero-scroll-explore,
+.hero-motion-toggle {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 0;
+  border: 0;
+  background: none;
+  color: #d2d7da;
+  font-family: var(--anemos-font-text);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .07em;
+  line-height: 1.3;
+  text-decoration: none;
   user-select: none;
-  opacity: 0.85;
+  cursor: pointer;
+}
+.hero-scroll-explore {
+  margin-left: auto;
+  text-transform: uppercase;
+}
+.hero-scroll-explore > span:last-child {
+  font-size: 21px;
+  line-height: 1;
+}
+.hero-motion-toggle[hidden] {
+  display: none;
+}
+.hero-scroll-explore:hover,
+.hero-motion-toggle:hover {
+  color: #fff;
+}
+.hero-scroll-explore:focus-visible,
+.hero-motion-toggle:focus-visible {
+  outline: 1px solid #f8f9fa;
+  outline-offset: 5px;
 }
 
 /* ============================================================
@@ -676,19 +739,43 @@ main, section, header, footer {
     background: #000000 !important;
   }
 
-  /* Giant Background Typography on Mobile (Fits full word edge-to-edge without overflow) */
+  /* Two lines keep the wordmark monumental without cropping the brand. */
   .hero-bg-letters {
-    font-size: clamp(1.75rem, 8.6vw, 3.2rem);
-    letter-spacing: -0.03em;
-    bottom: 0;
-    width: 100%;
-    max-width: 100vw;
-    overflow: hidden;
+    display: block;
+    font-size: 23vw;
+    line-height: .88;
+    letter-spacing: -.065em;
+    bottom: calc(74px + env(safe-area-inset-bottom));
+    text-align: left;
+  }
+  .hero-bg-letters > span {
+    display: block;
+  }
+  .hero-bg-letters > span:first-child {
+    font-size: 1.245em;
+  }
+  .hero-crosshairs {
+    top: 45%;
+  }
+  .hero-crosshair:nth-child(even) {
+    visibility: hidden;
+  }
+  .hero-fallback {
+    width: 160%;
+    max-width: none;
+    left: -30%;
+    top: -10%;
   }
 
-  /* Scroll Explore on Mobile */
+  .hero-footer {
+    gap: 16px;
+    bottom: calc(14px + env(safe-area-inset-bottom));
+  }
+  .hero-motion-toggle,
   .hero-scroll-explore {
-    display: none;
+    font-size: 10px;
+    letter-spacing: .025em;
+    gap: 10px;
   }
 
   /* Menu Drawer on Mobile */
@@ -706,6 +793,24 @@ main, section, header, footer {
     height: 42px;
     padding: 0 22px;
     font-size: 0.68rem;
+  }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  #hero {
+    min-height: 320px;
+  }
+  .hero-bg-letters {
+    display: flex;
+    bottom: 52px;
+    font-size: 15.2vw;
+    line-height: .9;
+  }
+  .hero-bg-letters > span:first-child {
+    font-size: inherit;
+  }
+  .hero-footer {
+    bottom: 4px;
   }
 }
 
