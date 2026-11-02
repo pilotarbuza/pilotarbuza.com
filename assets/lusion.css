@@ -535,7 +535,8 @@ main, section, header, footer {
 }
 
 /* ============================================================
-   04 · ФИНАЛ «Let's work together!»: ровный Breeze, поле фигур, перекат букв
+   04 · ФИНАЛ «Let's work together!» (устроен как у lusion.co: плоское поле фигур,
+   волна от курсора, слова в окнах с обрезкой, у каждой буквы копия ниже с зазором)
    ============================================================ */
 #end-section {
   position: relative;
@@ -548,74 +549,57 @@ main, section, header, footer {
   overflow: clip;
   isolation: isolate;
   margin: 0;
+  font-size: clamp(.875rem, 1vw, 2rem);
 }
-#end-shapes-canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-  display: block;
-}
-.end-crosshairs {
-  position: absolute;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: space-between;
-  padding: 0 20%;
-  pointer-events: none;
-  z-index: 2;
-  font: 300 28px/1 var(--anemos-font-text);
-  color: var(--anemos-ground);
-}
-.end-crosshairs--top { top: 19%; }
-.end-crosshairs--bottom { top: 79%; opacity: .55; }
+#end-shapes-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; display: block; }
 .end-content {
   position: absolute;
   z-index: 3;
-  left: 0;
-  right: 0;
-  top: 19%;
+  left: 50%;
+  top: calc(50% - 3em);
+  transform: translate(-50%, -50%);
+  width: 100%;
   text-align: center;
   pointer-events: none;
-  padding: 0 20px;
 }
+.end-crosses { position: absolute; width: 60vw; left: 20vw; top: 0; height: calc(100% + 10vh); --cs: 14px; }
+.end-crosses i { position: absolute; width: var(--cs); height: var(--cs); }
+.end-crosses i::before, .end-crosses i::after { content: ""; position: absolute; left: 0; top: calc(.4375 * var(--cs)); width: var(--cs); height: calc(.125 * var(--cs)); background: var(--anemos-ground); }
+.end-crosses i::after { transform: rotate(90deg); }
+.end-crosses i:nth-child(1) { left: 0; top: 0; }
+.end-crosses i:nth-child(2) { right: 0; top: 0; }
+.end-crosses i:nth-child(3) { left: 0; bottom: 0; }
+.end-crosses i:nth-child(4) { left: calc(50% - var(--cs) / 2); bottom: 0; }
+.end-crosses i:nth-child(5) { right: 0; bottom: 0; }
 .end-subtitle {
-  margin: 0 0 clamp(36px, 7vh, 80px);
-  font: 500 clamp(.8rem, 1.05vw, 1.05rem)/1.2 var(--anemos-font-text);
-  letter-spacing: .01em;
+  margin: 0;
+  line-height: 1.4;
+  font: 500 1em/1.4 var(--anemos-font-text);
   text-transform: uppercase;
+  letter-spacing: .01em;
 }
 .end-title {
-  margin: 0;
+  --fs: 10vw;
+  margin: .4em auto 0;
+  width: fit-content;
   font-family: var(--anemos-font-text);
-  font-size: clamp(3.4rem, 9.6vw, 10.5rem);
-  font-weight: 500;
-  letter-spacing: -0.035em;
+  font-size: var(--fs);
+  font-weight: 400;
+  letter-spacing: -.035em;
   line-height: 1;
   pointer-events: auto;
 }
-.end-title__line { display: block; white-space: nowrap; }
-.end-title .ch {
-  display: inline-block;
-  height: 1.16em;
-  overflow: hidden;
-  vertical-align: top;
-  margin-bottom: -0.16em;
-}
-.end-title .ch__in {
-  display: flex;
-  flex-direction: column;
-  transform: translateY(100%);
-}
-.end-title .ch__in > span { display: block; height: 1.16em; line-height: 1.16; }
-.end-title.is-in .ch__in {
-  transform: translateY(0);
-  transition: transform 1.1s cubic-bezier(.7, 0, .15, 1) calc(var(--d) * 32ms);
-}
-.end-title.is-in.is-rolling .ch__in { animation: end-roll .8s cubic-bezier(.7, 0, .2, 1) calc(var(--d) * 22ms) both; }
-@keyframes end-roll { from { transform: translateY(0); } to { transform: translateY(-50%); } }
+@media (min-aspect-ratio: 21 / 9) { .end-title { --fs: 6.7vw; } }
+.end-title__line { display: block; white-space: nowrap; height: 1em; }
+/* слово: окно высотой в строку с обрезкой; внутри у каждой буквы копия ниже с зазором,
+   поэтому при перекате ничего не выглядывает и хвост «g» не срезается */
+.end-title .w { display: inline-block; overflow: hidden; height: 1.06em; vertical-align: top; }
+.end-title .cw { display: inline-block; position: relative; top: -.08em; vertical-align: top; transform: translateY(110%); will-change: transform; }
+.end-title .c { display: block; height: 1em; line-height: 1; }
+.end-title .c + .c { margin-top: .2em; }
+.end-title.is-in .cw { transform: translateY(0); transition: transform 1.1s cubic-bezier(.7, 0, .15, 1) calc(var(--d) * 30ms); }
+.end-title.is-in.is-rolling .cw { animation: end-roll .9s cubic-bezier(.7, 0, .2, 1) calc(var(--d) * 22ms) both; }
+@keyframes end-roll { from { transform: translateY(0); } to { transform: translateY(-1.2em); } }
 
 .end-bottom-pill {
   position: absolute;
@@ -629,7 +613,6 @@ main, section, header, footer {
   background: var(--anemos-ground);
   color: var(--anemos-deep);
   font: 500 .95rem/1 var(--anemos-font-text);
-  letter-spacing: .01em;
   text-transform: uppercase;
   display: flex;
   align-items: center;
@@ -644,14 +627,15 @@ main, section, header, footer {
 .end-bottom-pill:hover .arrow-icon { transform: translateY(3px); }
 .end-bottom-pill:focus-visible { outline: 2px solid var(--anemos-ground); outline-offset: 4px; }
 
-@media (max-width: 900px) {
-  .end-crosshairs { padding: 0 8%; font-size: 22px; }
-  .end-content { top: 22%; }
-  .end-title { font-size: clamp(3rem, 15vw, 6rem); }
+@media (max-width: 560px) {
+  .end-content { top: 40%; }
+  .end-crosses { width: calc(100% - 2 * var(--base-padding-x)); left: var(--base-padding-x); }
+  .end-subtitle { font-size: 1.05em; width: 60%; margin: auto; }
+  .end-title { --fs: 19vw; }
   .end-bottom-pill { height: 48px; padding: 0 22px; gap: 16px; font-size: .8rem; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .end-title .ch__in { transform: none !important; transition: none !important; animation: none !important; }
+  .end-title .cw { transform: none !important; transition: none !important; animation: none !important; }
 }
 
 /* ============================================================
