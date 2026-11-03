@@ -5,9 +5,9 @@
    Маттиаса Мюллера): частицы переносят скорость на сетку MAC, на сетке решается
    несжимаемость, скорость возвращается частицам. Параметры подобраны так же,
    как в финале lusion.co:
-   - при появлении секции ~1600 фигур льются струей из центра и собираются в бассейн;
+   - при появлении секции ~2400 фигур льются струей из центра и собираются в бассейн;
    - курсор — круглое препятствие, радиус растет со скоростью, частицы получают
-     удвоенную скорость курсора; кнопка «Continue to scroll» — прямоугольное препятствие;
+     удвоенную скорость курсора;
    - пока зажата кнопка мыши, частицы уходят через дно и льются из курсора;
    - фигуры (плюс, квадрат, круг, треугольник) крутятся по ходу движения
      и подрастают при быстром вращении.
@@ -35,7 +35,8 @@
   const easeIO = t => (t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
   /* ================= FLIP-жидкость ================= */
-  const FLUID = 0, AIR = 1, SOLID = 2, EMIT_RATE = 2000;
+  const FLUID = 0, AIR = 1, SOLID = 2, EMIT_RATE = 3000;
+  const SHAPE_SCALE = .75;   // фигура меньше частицы: между соседями остается просвет
 
   class Fluid {
     init(tankW, tankH, spacing, radius, count) {
@@ -101,7 +102,10 @@
       for (let c = 0; c < pnx * pny; c++) { acc += cellCount[c]; firstCell[c] = acc; }
       firstCell[pnx * pny] = acc;
       for (let i = 0; i < this.n; i++) if (alive[i]) { const c = cellOf(i); firstCell[c]--; ids[firstCell[c]] = i; }
-      const minD = 3 * this.r, minD2 = minD * minD;
+      // 2.2r, а не 3r: если раздвигать частицы шире, чем их пакует сетка, раздвижка
+      // спорит с давлением и фигуры в покое дрожат. Просвет между фигурами дает
+      // SHAPE_SCALE при рисовании, а не физика.
+      const minD = 2.2 * this.r, minD2 = minD * minD;
       for (let it = 0; it < iters; it++)
         for (let i = 0; i < this.n; i++) {
           if (!alive[i]) continue;
@@ -274,16 +278,10 @@
       const spacing = tankW / cells;
       gravity = Math.ceil(fit(W, 320, 2560, -15, -3));
       const perRow = Math.ceil(fit(W, 320, 2560, 20, 80)), rows = Math.ceil(perRow * H / W);
-      const count = Math.ceil(perRow * rows / 4) * 4;
+      // частицы упакованы плотнее (см. pushApart), поэтому их в полтора раза больше: уровень бассейна прежний
+      const count = Math.ceil(perRow * rows * 1.5 / 4) * 4;
       fluid.init(tankW, tankH, spacing, .2 * spacing, count);
       fluid.emitA = { x: tankW / 2, y: tankH * .5 }; fluid.emitB = { ...fluid.emitA };
-      // кнопка внизу — препятствие для жидкости
-      const pill = section.querySelector('.end-bottom-pill');
-      if (pill) {
-        const sb = stage.getBoundingClientRect(), pb = pill.getBoundingClientRect();
-        const p = toTank(pb.left - sb.left, pb.bottom - sb.top), q = toTank(pb.right - sb.left, pb.top - sb.top);
-        fluid.addCollider(p.x - fluid.h, p.y - fluid.h, q.x - p.x + 2 * fluid.h, q.y - p.y + 2 * fluid.h);
-      }
       ready = true;
     }
     const toTank = (px, py) => ({
@@ -307,7 +305,7 @@
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, W, H);
       ctx.fillStyle = '#FFF8F0';
-      const unit = fluid.r * W;                      // размер фигуры = радиус частицы в пикселях * 2
+      const unit = fluid.r * W * SHAPE_SCALE;        // размер фигуры = радиус частицы в пикселях * 2, с просветом
       const n = fluid.n, quarter = n / 4;
       for (let kind = 0; kind < 4; kind++) {
         ctx.beginPath();
