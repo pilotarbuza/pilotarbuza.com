@@ -628,6 +628,7 @@ section { position: relative; }
   .top .btn--primary, .top .lsw { display: none; }
   .burger { display: flex; }
   .only-m { display: inline; }
+  .only-d { display: none; }
   .intro__grid { grid-template-columns: 1fr; }
   .intro__photo { width: 200px; margin-top: 20px; }
   .intro__photo img { width: 200px; height: 260px; }

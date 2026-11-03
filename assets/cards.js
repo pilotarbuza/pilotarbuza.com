@@ -43,7 +43,7 @@
   const lens = tubes.map(t => t.getTotalLength());
   tubes.forEach((t, i) => { t.style.strokeDasharray = lens[i]; });
 
-  let cw = 300;
+  let cw = 300, gap = 18;
   function measure() {
     const vw = innerWidth, vh = innerHeight;
     const pad = Math.max(40, vw * .05), gap = Math.max(18, vw * .022);
@@ -51,7 +51,6 @@
     section.style.setProperty('--cw', cw + 'px');
     return gap;
   }
-  let gap = measure();
 
   function layout(p) {
     const vh = innerHeight, n = cards.length, mid = (n - 1) / 2;
@@ -101,6 +100,8 @@
   }
 
   function reset() {
+    // The scroll scene writes a desktop-sized --cw inline; the ribbon layout uses the CSS value.
+    section.style.removeProperty('--cw');
     cards.forEach((c, i) => { c.style.transform = ''; c.style.zIndex = ''; inners[i].style.transform = ''; });
     if (heading) { heading.style.transform = ''; heading.style.opacity = ''; }
     if (tubeGroup) tubeGroup.style.transform = '';
@@ -133,7 +134,7 @@
     if (scroll) { gap = measure(); cur = progress(); layout(cur); } else reset();
   }
 
-  new IntersectionObserver(([e]) => { onScreen = e.isIntersecting; if (onScreen) { cur = progress(); layout(cur); } wake(); }, { rootMargin: '200px' }).observe(section);
+  new IntersectionObserver(([e]) => { onScreen = e.isIntersecting; if (live()) { cur = progress(); layout(cur); } wake(); }, { rootMargin: '200px' }).observe(section);
   addEventListener('scroll', wake, { passive: true });
   addEventListener('resize', () => { if (live()) { gap = measure(); layout(cur); } }, { passive: true });
   desktop.addEventListener('change', mode);
