@@ -1,9 +1,7 @@
 /* pilotarbuza.com — динамика */
 (() => {
-  // запрет pinch-zoom и double-tap zoom в iOS Safari
+  // запрет pinch-zoom в iOS Safari
   ['gesturestart', 'gesturechange', 'gestureend'].forEach(t => document.addEventListener(t, e => e.preventDefault(), { passive: false }));
-  let lastTouch = 0;
-  document.addEventListener('touchend', e => { const n = Date.now(); if (n - lastTouch < 320 && !e.target.closest('input, textarea')) e.preventDefault(); lastTouch = n; }, { passive: false });
   document.addEventListener('touchmove', e => { if (e.touches && e.touches.length > 1) e.preventDefault(); }, { passive: false });
 
   const $ = (s, r = document) => r.querySelector(s);
@@ -236,16 +234,28 @@
     const items = Array.from(track.children), n = items.length;
     if (dotsBox) dotsBox.innerHTML = items.map(() => '<i></i>').join('');
     const step = () => (items[1] ? items[1].offsetLeft - items[0].offsetLeft : items[0].offsetWidth);
-    const cur = () => clamp(Math.round(track.scrollLeft / step()), 0, n - 1);
+    const maxScroll = () => Math.max(0, track.scrollWidth - track.clientWidth);
+    const cur = () => {
+      const max = maxScroll();
+      if (max > 1 && track.scrollLeft >= max - 1) return n - 1;
+      return clamp(Math.round(track.scrollLeft / (step() || 1)), 0, n - 1);
+    };
     const upd = () => {
       const i = cur();
       if (count) count.textContent = String(i + 1).padStart(2, '0') + ' / ' + String(n).padStart(2, '0');
       if (dotsBox) $$('i', dotsBox).forEach((d, k) => d.classList.toggle('on', k === i));
-      if (prev) prev.disabled = i === 0; if (next) next.disabled = i === n - 1;
+      if (prev) prev.disabled = track.scrollLeft <= 1;
+      if (next) next.disabled = track.scrollLeft >= maxScroll() - 1;
     };
-    const go = d => track.scrollTo({ left: clamp(cur() + d, 0, n - 1) * step(), behavior: 'smooth' });
+    const go = d => {
+      const positions = items.map((_, i) => Math.min(i * step(), maxScroll()));
+      const candidates = d > 0 ? positions : positions.reverse();
+      const target = candidates.find(x => d > 0 ? x > track.scrollLeft + 1 : x < track.scrollLeft - 1);
+      if (target !== undefined) track.scrollTo({ left: target, behavior: 'smooth' });
+    };
     if (prev) prev.addEventListener('click', () => go(-1)); if (next) next.addEventListener('click', () => go(1));
-    track.addEventListener('scroll', upd, { passive: true }); upd();
+    track.addEventListener('scroll', upd, { passive: true });
+    addEventListener('resize', upd); upd();
     if (!reduce) new IntersectionObserver(([e], o) => { if (e.isIntersecting && mobile.matches) { rail.classList.add('nudge'); o.disconnect(); } }, { threshold: .6 }).observe(track);
   });
 
