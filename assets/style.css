@@ -840,17 +840,6 @@ section { position: relative; }
 .globe__ctl button[data-g="reset"] { font-size: 18px; }
 .globe__hint { white-space: nowrap; }
 .cchips li { padding: 0; border: 0; background: none; }
-.globe-search { position: relative; display: grid; gap: 6px; }
-.globe-search label { font-size: 13px; color: var(--muted); }
-.globe-search input { width: 100%; box-sizing: border-box; padding: 11px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); color: var(--ink); font: 400 15px var(--f-body); }
-.globe-search input:focus-visible, .globe-search__results button:focus-visible { outline: 2px solid var(--anemos-breeze, #0B7A85); outline-offset: 2px; }
-.globe-search__results { position: absolute; z-index: 4; top: 100%; left: 0; right: 0; max-height: 260px; overflow-y: auto; margin: 4px 0 0; padding: 5px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); box-shadow: 0 12px 30px rgba(12,21,23,.16); }
-.globe-search__results[hidden] { display: none; }
-.globe-search__results li { list-style: none; }
-.globe-search__results button { display: flex; justify-content: space-between; gap: 12px; width: 100%; padding: 9px; border: 0; border-radius: 6px; background: transparent; color: var(--ink); font: 400 14px var(--f-body); text-align: left; cursor: pointer; }
-.globe-search__results button:hover, .globe-search__results button:focus-visible { background: rgba(11,122,133,.1); }
-.globe-search__results small, .globe-search__empty { color: var(--muted); }
-.globe-search__empty { padding: 9px; font-size: 14px; }
 .cchips button { display: inline-flex; align-items: baseline; gap: 6px; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); font: 400 14px var(--f-body); transition: background .25s, color .25s, border-color .25s, transform .25s var(--spring); }
 .cchips button:hover { border-color: var(--ink); transform: translateY(-1px); }
 .cchips button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
