@@ -57,7 +57,7 @@
     chips.innerHTML = Object.entries(byC).sort((a, b) => b[1].length - a[1].length)
       .map(([c, list]) => `<li><button type="button" data-c="${c}" aria-pressed="${c === activeC}">${cname(c)} <b>${list.length}</b></button></li>`).join('');
   };
-  drawChips(); document.addEventListener('langchange', () => { drawChips(); drawLegend(); if (searchResults && !searchResults.hidden) renderSearch(); dirty = true; kick(); });
+  drawChips(); document.addEventListener('langchange', () => { drawChips(); drawLegend(); dirty = true; kick(); });
 
   /* ---------- маска суши и границ ---------- */
   const MW = 4096, MH = 2048;
@@ -433,46 +433,10 @@
 
   /* ---------- кнопки и чипы ---------- */
   const btn = sel => wrap.querySelector(sel);
-  const searchForm = document.getElementById('globe-search');
-  const searchInput = document.getElementById('globe-search-input');
-  const searchResults = document.getElementById('globe-search-results');
   function resetView() {
     activeC = null; selected = hover = null; drawChips();
-    if (searchInput) searchInput.value = '';
-    if (searchResults) searchResults.hidden = true;
     flyTo(38, 44, 1, 900);
   }
-  const searchKey = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase();
-  function showPlace(p) {
-    activeC = null; hover = null; selected = { p }; drawChips();
-    searchInput.value = name(p); searchResults.hidden = true;
-    flyTo(p.lon, p.lat, Math.max(4, view.k), 900);
-    if (matchMedia('(max-width: 900px)').matches) wrap.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
-  }
-  function renderSearch() {
-    if (!searchInput || !searchResults) return;
-    const query = searchKey(searchInput.value.trim());
-    searchResults.replaceChildren();
-    if (!query) { searchResults.hidden = true; return; }
-    const matches = places.filter(p => [p.en, p.ru, p.tr, cname(p.c)].some(value => searchKey(value).includes(query))).slice(0, 8);
-    if (!matches.length) {
-      const li = document.createElement('li'); li.className = 'globe-search__empty';
-      li.textContent = window.t ? window.t('travel.noPlaces') : 'No places found'; searchResults.append(li);
-    }
-    matches.forEach(p => {
-      const li = document.createElement('li'), button = document.createElement('button');
-      const city = document.createElement('span'), country = document.createElement('small');
-      button.type = 'button'; city.textContent = name(p); country.textContent = cname(p.c);
-      button.append(city, country); button.addEventListener('click', () => showPlace(p));
-      li.append(button); searchResults.append(li);
-    });
-    searchResults.hidden = false;
-  }
-  searchInput?.addEventListener('input', renderSearch);
-  searchInput?.addEventListener('focus', () => { if (searchInput.value) renderSearch(); });
-  searchInput?.addEventListener('keydown', e => { if (e.key === 'Escape') searchResults.hidden = true; });
-  searchForm?.addEventListener('submit', e => { e.preventDefault(); searchResults?.querySelector('button')?.click(); });
-  document.addEventListener('click', e => { if (searchForm && !searchForm.contains(e.target)) searchResults.hidden = true; });
   btn('[data-g="in"]')?.addEventListener('click', () => zoomBy(2));
   btn('[data-g="out"]')?.addEventListener('click', () => zoomBy(.5));
   btn('[data-g="reset"]')?.addEventListener('click', resetView);
@@ -501,7 +465,7 @@
       if (!hit) return places.push(q);
       if (q.y && (!hit.y || q.y > hit.y)) hit.y = q.y;
     });
-    selected = hover = null; recount(); drawChips(); drawLegend(); if (searchResults && !searchResults.hidden) renderSearch(); dirty = true; kick();
+    selected = hover = null; recount(); drawChips(); drawLegend(); dirty = true; kick();
   };
   if (window.GLOBE_FEED !== false) fetch('/api/places').then(r => (r.ok ? r.json() : null)).then(d => d && window.globeAdd(d.places)).catch(() => {});
 
