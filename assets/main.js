@@ -42,19 +42,20 @@
   if (menu) {
     const menuNavLinks = $$('.lusion-nav-link', menu);
     if (menuNavLinks.length) {
-      const sections = $$('header#hero, section[id]');
-      const spyObs = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const id = entry.target.id;
-            menuNavLinks.forEach(link => {
-              const matches = link.getAttribute('data-nav') === id || link.getAttribute('href') === '#' + id;
-              link.classList.toggle('active', matches);
-            });
-          }
-        });
-      }, { threshold: 0.25 });
-      sections.forEach(s => spyObs.observe(s));
+      const sections = menuNavLinks.map(link => document.getElementById(link.dataset.nav)).filter(Boolean)
+        .sort((a, b) => a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1);
+      let spyFrame = 0;
+      const syncActive = () => {
+        spyFrame = 0;
+        const line = innerHeight * .35;
+        let current = sections[0];
+        sections.forEach(section => { if (section.getBoundingClientRect().top <= line) current = section; });
+        menuNavLinks.forEach(link => link.classList.toggle('active', current && link.dataset.nav === current.id));
+      };
+      const queueSpy = () => { if (!spyFrame) spyFrame = requestAnimationFrame(syncActive); };
+      addEventListener('scroll', queueSpy, { passive: true });
+      addEventListener('resize', queueSpy, { passive: true });
+      queueSpy();
     }
   }
 
@@ -99,7 +100,7 @@
   function countUp(el, to, dur = 1000) {
     if (reduce) { el.textContent = to; return; }
     const t0 = performance.now();
-    const step = now => { const p = clamp((now - t0) / dur, 0, 1); const e = 1 - Math.pow(1 - p, 3); el.textContent = Math.round(to * e); if (p < 1) requestAnimationFrame(step); };
+    const step = now => { const p = clamp((now - t0) / dur, 0, 1); const e = 1 - Math.pow(1 - p, 3), latest = Number(el.dataset.count); el.textContent = Math.round((Number.isFinite(latest) ? latest : to) * e); if (p < 1) requestAnimationFrame(step); };
     requestAnimationFrame(step);
   }
   function odometer(el, to) {

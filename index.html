@@ -17,7 +17,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Doto:wght@500;700;900&family=Geologica:wght@300;400;500;600;700&family=Gloria+Hallelujah&family=JetBrains+Mono:wght@400;500;700&family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/style.css?v=m2">
+  <link rel="stylesheet" href="assets/style.css?v=globe2">
   <link rel="stylesheet" href="assets/lusion.css?v=m2">
   <style>#transition-overlay{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999999;pointer-events:none;background:#000;display:block}</style>
 </head>
@@ -311,12 +311,18 @@
         <div class="travel__side" data-reveal>
           <div class="stat"><span class="doto stat__num" id="stat-cities">0</span><span data-i18n="travel.dest">destinations</span></div>
           <div class="stat"><span class="doto stat__num" id="stat-countries">0</span><span data-i18n="travel.countries">countries</span></div>
+          <form class="globe-search" id="globe-search" role="search">
+            <label for="globe-search-input" data-i18n="travel.search">Find a place</label>
+            <input id="globe-search-input" type="search" autocomplete="off" aria-controls="globe-search-results" data-i18n-ph="travel.searchPh" placeholder="City or country">
+            <ul class="globe-search__results" id="globe-search-results" aria-live="polite" hidden></ul>
+          </form>
           <ul class="cchips" id="cchips"></ul>
           <ul class="glegend" id="globe-legend"></ul>
           <a class="btn btn--ghost" href="https://pintraveler.net/map?user=A1e3iFNwtKaad9wb76cbAteSraG3" target="_blank" rel="noopener" data-i18n="travel.link">Full map on Pin Traveler</a>
         </div>
         <div class="globe-wrap" data-reveal>
-          <canvas id="globe" data-i18n-aria="travel.globe" aria-label="Globe with visited cities"></canvas>
+          <canvas id="globe" tabindex="0" aria-describedby="globe-keyboard-help" data-i18n-aria="travel.globe" aria-label="Globe with visited cities"></canvas>
+          <span id="globe-keyboard-help" class="sr-only" data-i18n="travel.keys">Use arrow keys to rotate, plus and minus to zoom, and Home to reset.</span>
           <div class="globe__tip" id="globe-tip" hidden></div>
           <div class="globe__ctl" role="group" data-i18n-aria="travel.zoom" aria-label="Zoom">
             <button type="button" data-g="in" data-i18n-aria="travel.in" aria-label="Zoom in">+</button>
@@ -710,11 +716,11 @@
     <figure class="lb__fig"><img id="lb-img" src="" alt=""><figcaption class="doto" id="lb-cap"></figcaption></figure>
     <button type="button" class="lb__nav lb__next" id="lb-next" data-i18n-aria="lb.next" aria-label="Next">›</button>
   </div>
-  <script src="assets/i18n.js?v=m1"></script>
+  <script src="assets/i18n.js?v=globe2"></script>
   <script src="assets/places.js"></script>
-  <script src="assets/main.js" defer></script>
+  <script src="assets/main.js?v=fix2" defer></script>
   <script src="assets/geo.js" defer></script>
-  <script src="assets/globe.js" defer></script>
+  <script src="assets/globe.js?v=globe2" defer></script>
   <script src="assets/three.min.js"></script>
   <script src="assets/hero-flow.js?v=cloud8"></script>
   <script src="assets/hero-light-field.js?v=cloud8"></script>
@@ -722,7 +728,7 @@
   <script src="assets/cards.js?v=m1"></script>
   <script src="assets/works.js"></script>
   <script src="assets/city-bg.js"></script>
-  <script src="assets/end-shapes.js?v=m3"></script>
+  <script src="assets/end-shapes.js?v=fix2"></script>
   <script src="assets/lusion-ui.js"></script>
   <script src="assets/scrollbar.js"></script>
 </body>

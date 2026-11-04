@@ -208,6 +208,9 @@ window.I18N = {
     'nf.hand': 'I’M NOT LOST, I’M HOLDING.', 'nf.p': 'Böyle bir sayfa yok. Siz yeni rotayı seçerken bekleme paterninde tur atıyoruz.', 'nf.home': 'Ana sayfa', 'nf.write': 'Yaz bana'
   }
 };
+Object.assign(window.I18N.en, { 'travel.keys': 'Use arrow keys to rotate, plus and minus to zoom, and Home to reset.', 'travel.search': 'Find a place', 'travel.searchPh': 'City or country', 'travel.noPlaces': 'No places found' });
+Object.assign(window.I18N.ru, { 'travel.keys': 'Стрелки вращают глобус, плюс и минус меняют масштаб, Home возвращает исходный вид.', 'travel.search': 'Найти место', 'travel.searchPh': 'Город или страна', 'travel.noPlaces': 'Мест не найдено' });
+Object.assign(window.I18N.tr, { 'travel.keys': 'Döndürmek için ok tuşlarını, yakınlaştırmak için artı ve eksiyi, sıfırlamak için Home tuşunu kullanın.', 'travel.search': 'Yer bul', 'travel.searchPh': 'Şehir veya ülke', 'travel.noPlaces': 'Yer bulunamadı' });
 window.setLang = function (lang) {
   const D = window.I18N; if (!D[lang]) lang = 'en';
   const t = k => (D[lang][k] != null ? D[lang][k] : (D.en[k] != null ? D.en[k] : null));
