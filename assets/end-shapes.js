@@ -263,7 +263,8 @@
     if (!section || !canvas) return;
     const stage = section.querySelector('.end-stage') || section;
     const ctx = canvas.getContext('2d');
-    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const motionPreference = matchMedia('(prefers-reduced-motion: reduce)');
+    let reduce = motionPreference.matches;
     const coarse = matchMedia('(hover: none)').matches;
     const fluid = new Fluid();
 
@@ -416,7 +417,7 @@
       }
       raf = requestAnimationFrame(frame);
     }
-    const wake = () => { if (!raf && visible && !document.hidden) raf = requestAnimationFrame(frame); };
+    const wake = () => { if (!reduce && !raf && visible && !document.hidden) raf = requestAnimationFrame(frame); };
 
     // секция выше экрана: жидкость сбрасывается и льется заново при следующем входе
     new IntersectionObserver(([e]) => {
@@ -425,9 +426,9 @@
       else if (!ready) { setup(); placeDeco(); if (reduce) settle(); }
       wake();
     }, { threshold: 0 }).observe(stage);
-    new IntersectionObserver(([e]) => { inView = e.intersectionRatio >= .9; wake(); }, { threshold: [0, .5, .9, 1] }).observe(stage);
+    new IntersectionObserver(([e]) => { inView = e.isIntersecting; wake(); }, { threshold: 0 }).observe(stage);
     document.addEventListener('visibilitychange', wake);
-    let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if (visible) { setup(); placeDeco(); } }, 200); }, { passive: true });
+    let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if (visible) { setup(); placeDeco(); if (reduce) settle(); } }, 200); }, { passive: true });
     if (document.fonts) document.fonts.ready.then(placeDeco);
 
     // при reduced motion: один раз прогоняем симуляцию до покоя и рисуем статично
@@ -436,6 +437,13 @@
       appear = 1; draw();
       active = 1; updateText(0, true);
     }
+    motionPreference.addEventListener('change', e => {
+      reduce = e.matches;
+      cancelAnimationFrame(raf); raf = 0; last = 0;
+      if (!visible) return;
+      if (reduce) { if (ready) settle(); }
+      else { setup(); wake(); }
+    });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

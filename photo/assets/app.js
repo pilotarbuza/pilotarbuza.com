@@ -45,6 +45,10 @@
 
   // 1. Initialize
   function init() {
+    if (typeof lightbox.requestFullscreen !== 'function') {
+      lbFullscreenBtn.hidden = true;
+      lbFullscreenBtn.style.display = 'none';
+    }
     updateFilterCounts();
     renderGrid(currentCategory);
     setupEventListeners();
@@ -174,6 +178,7 @@
 
   // 5. Close Project Roll View
   function closeProject() {
+    if (lightbox.classList.contains('active')) closeLightbox();
     activeProject = null;
     projectRollView.classList.remove('active');
     heroSection.style.display = 'block';
@@ -193,6 +198,7 @@
   }
 
   function closeLightbox() {
+    if (document.fullscreenElement === lightbox && typeof document.exitFullscreen === 'function') document.exitFullscreen().catch(() => {});
     lightbox.classList.remove('active');
     document.body.style.overflow = '';
   }
@@ -237,8 +243,8 @@
 
   function toggleFullscreen() {
     if (!document.fullscreenElement) {
-      lightbox.requestFullscreen().catch(() => {});
-    } else {
+      if (typeof lightbox.requestFullscreen === 'function') lightbox.requestFullscreen().catch(() => {});
+    } else if (typeof document.exitFullscreen === 'function') {
       document.exitFullscreen().catch(() => {});
     }
   }

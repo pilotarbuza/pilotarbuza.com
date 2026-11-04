@@ -9,7 +9,8 @@
   const wrap = canvas.parentElement;
   const ctx = canvas.getContext('2d');
   const tip = document.getElementById('globe-tip');
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const motionPreference = matchMedia('(prefers-reduced-motion: reduce)');
+  let reduce = motionPreference.matches;
   const places = window.PLACES;
   const base = places.map(p => ({ ...p }));          // места сайта — чтобы приложение могло пересобрать список
   const D = Math.PI / 180;
@@ -19,7 +20,12 @@
 
   /* ---------- статистика и чипы стран ---------- */
   let byC = {};
-  const setCount = (id, v) => { const el = document.getElementById(id); if (el) el.dataset.count = v; };
+  const setCount = (id, v) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.dataset.count = v;
+    if (el.closest('[data-reveal]')?.classList.contains('in')) el.textContent = v;
+  };
   function recount() {
     byC = {}; places.forEach(p => { (byC[p.c] = byC[p.c] || []).push(p); });
     setCount('stat-countries', Object.keys(byC).length);
@@ -51,7 +57,7 @@
     chips.innerHTML = Object.entries(byC).sort((a, b) => b[1].length - a[1].length)
       .map(([c, list]) => `<li><button type="button" data-c="${c}" aria-pressed="${c === activeC}">${cname(c)} <b>${list.length}</b></button></li>`).join('');
   };
-  drawChips(); document.addEventListener('langchange', () => { drawChips(); drawLegend(); dirty = true; });
+  drawChips(); document.addEventListener('langchange', () => { drawChips(); drawLegend(); if (searchResults && !searchResults.hidden) renderSearch(); dirty = true; kick(); });
 
   /* ---------- маска суши и границ ---------- */
   const MW = 4096, MH = 2048;
@@ -278,10 +284,13 @@
   }
 
   /* ---------- анимационный цикл ---------- */
-  let hiresTimer = 0, visible = false, raf = 0;
+  let hiresTimer = 0, idleTimer = 0, visible = false, raf = 0, lastFrame = 0;
   const ease = t => 1 - Math.pow(1 - t, 3);
   function frame(now) {
     raf = 0;
+    if (!visible || document.hidden) { lastFrame = 0; return; }
+    const frameScale = lastFrame ? clamp((now - lastFrame) / (1000 / 60), 0, 3) : 1;
+    lastFrame = now;
     let changed = false;
     if (target) {
       const t = clamp((now - target.t0) / target.dur, 0, 1), e = ease(t), f = target.from;
@@ -290,16 +299,40 @@
       view.k = Math.exp(Math.log(f.k) + (Math.log(target.k) - Math.log(f.k)) * e);
       changed = true; if (t >= 1) target = null;
     } else if (!drag && (Math.abs(vel.lon) > .002 || Math.abs(vel.lat) > .002)) {
-      view.lon = normLon(view.lon + vel.lon); view.lat = clamp(view.lat + vel.lat, -85, 85);
-      vel.lon *= .93; vel.lat *= .93; changed = true;
+      view.lon = normLon(view.lon + vel.lon * frameScale); view.lat = clamp(view.lat + vel.lat * frameScale, -85, 85);
+      const damping = Math.pow(.93, frameScale);
+      vel.lon *= damping; vel.lat *= damping; changed = true;
     } else if (!drag && !reduce && view.k < 1.05 && !selected && !activeC && now - lastInteract > 3500) {
-      view.lon = normLon(view.lon - .05); changed = 'auto';
+      view.lon = normLon(view.lon - .05 * frameScale); changed = 'auto';
     }
     if (changed || dirty) { moving = changed; draw(changed === 'auto' ? (W > 900 ? .75 : 1) : changed ? (W > 700 ? .5 : .7) : 1); dirty = false; clearTimeout(hiresTimer); if (changed) hiresTimer = setTimeout(() => { dirty = true; kick(); }, 140); }
-    if (visible && (changed || target || drag || Math.abs(vel.lon) > .002 || (!selected && !activeC && view.k < 1.05))) kick();
+    // Autorotation is gentle; avoid recomputing the full globe at 120–144 Hz.
+    if (changed === 'auto') idleTimer = setTimeout(kick, 16);
+    else if (changed || target || drag || Math.abs(vel.lon) > .002 || Math.abs(vel.lat) > .002) kick();
+    else {
+      lastFrame = 0;
+      if (!reduce && !selected && !activeC && view.k < 1.05) {
+        clearTimeout(idleTimer);
+        idleTimer = setTimeout(kick, Math.max(0, 3500 - (now - lastInteract)));
+      }
+    }
   }
-  const kick = () => { if (!raf) raf = requestAnimationFrame(frame); };
-  new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible) { dirty = true; kick(); } }, { rootMargin: '100px' }).observe(canvas);
+  const kick = () => { if (!raf && visible && !document.hidden) raf = requestAnimationFrame(frame); };
+  new IntersectionObserver(([e]) => {
+    visible = e.isIntersecting;
+    if (visible) { dirty = true; kick(); }
+    else { cancelAnimationFrame(raf); raf = 0; lastFrame = 0; clearTimeout(idleTimer); clearTimeout(hiresTimer); }
+  }, { rootMargin: '100px' }).observe(canvas);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { cancelAnimationFrame(raf); raf = 0; lastFrame = 0; clearTimeout(idleTimer); clearTimeout(hiresTimer); }
+    else { dirty = true; kick(); }
+  });
+  motionPreference.addEventListener('change', e => {
+    reduce = e.matches;
+    clearTimeout(idleTimer);
+    if (reduce) { vel.lon = vel.lat = 0; if (target) { target.dur = 1; target.t0 = performance.now() - 1; } }
+    dirty = true; kick();
+  });
 
   /* ---------- управление ---------- */
   const pts = new Map(); let drag = null, pinch = null, lastTap = 0;
@@ -314,7 +347,7 @@
     for (let i = 0; i < 2; i++) { const h = unproject(x, y); if (!h) break; view.lon = normLon(view.lon + g[1] - h[1]); view.lat = clamp(view.lat + g[0] - h[0], -85, 85); }
   }
   function zoomBy(f) { flyTo(view.lon, view.lat, view.k * f, 380); }
-  function pickPin(x, y) { let best = null; pins.forEach(pn => { const d = Math.hypot(pn.X - x, pn.Y - y); if (d < pn.r + 9 * dpr && (!best || d < best.d)) best = { pn, d }; }); return best && best.pn; }
+  function pickPin(x, y) { let best = null; pins.forEach(pn => { if (activeC && pn.p.c !== activeC) return; const d = Math.hypot(pn.X - x, pn.Y - y); if (d < pn.r + 9 * dpr && (!best || d < best.d)) best = { pn, d }; }); return best && best.pn; }
 
   canvas.addEventListener('pointerdown', e => {
     pts.set(e.pointerId, local(e)); canvas.setPointerCapture(e.pointerId);
@@ -329,7 +362,7 @@
       return;
     }
     pts.set(e.pointerId, local(e)); lastInteract = performance.now();
-    if (pinch && pts.size >= 2) { const [a, b] = [...pts.values()]; const d = Math.hypot(a[0] - b[0], a[1] - b[1]); zoomAt(pinch.x, pinch.y, pinch.k * d / pinch.d); dirty = true; kick(); return; }
+    if (pinch && pts.size >= 2) { const [a, b] = [...pts.values()]; const d = Math.hypot(a[0] - b[0], a[1] - b[1]); zoomAt(pinch.x, pinch.y, pinch.k * d / Math.max(1, pinch.d)); dirty = true; kick(); return; }
     if (!drag) return;
     const [x, y] = local(e), dx = x - drag.x, dy = y - drag.y;
     drag.moved += Math.abs(dx) + Math.abs(dy);
@@ -341,15 +374,16 @@
   const end = e => {
     if (!pts.has(e.pointerId)) return;
     pts.delete(e.pointerId);
-    if (pinch && pts.size < 2) { pinch = null; setTouch(); if (pts.size === 1) { const [p] = [...pts.values()]; drag = { x: p[0], y: p[1], t: performance.now(), moved: 99, hist: [] }; } return; }
+    if (pinch && pts.size < 2) { pinch = null; setTouch(); if (pts.size === 1) { const [p] = [...pts.values()]; drag = { x: p[0], y: p[1], t: performance.now(), moved: 99, hist: [] }; } else canvas.classList.remove('grabbing'); return; }
     if (drag) {
       if (drag.moved < 8 * dpr && e.type === 'pointerup') {
         const [x, y] = local(e), now = performance.now(), pn = pickPin(x, y);
         if (now - lastTap < 300) { const v = unproject(x, y); if (v) flyTo(v[1], v[0], view.k * 2, 500); lastTap = 0; }
         else { lastTap = now; selected = pn || null; hover = null; dirty = true; placeTip(); }
-      } else if (drag.hist.length > 1) {
+      } else if (e.type === 'pointerup' && drag.hist.length > 1) {
         const n = drag.hist.length, sl = drag.hist.reduce((s, h) => s + h[1], 0), sa = drag.hist.reduce((s, h) => s + h[2], 0);
-        vel.lon = clamp(sl / n, -4, 4); vel.lat = clamp(sa / n, -4, 4);
+        const elapsed = Math.max(16, drag.hist[n - 1][0] - drag.hist[0][0] + 16);
+        vel.lon = clamp(sl * (1000 / 60) / elapsed, -4, 4); vel.lat = clamp(sa * (1000 / 60) / elapsed, -4, 4);
       }
       drag = null; canvas.classList.remove('grabbing'); kick();
     }
@@ -362,6 +396,18 @@
     const [x, y] = local(e); zoomAt(x, y, view.k * Math.exp(-e.deltaY * (e.ctrlKey ? .012 : .0025))); setTouch(); dirty = true; kick();
   }, { passive: false });
   canvas.addEventListener('dblclick', e => e.preventDefault());
+  canvas.addEventListener('keydown', e => {
+    const step = 12 / view.k;
+    if (e.key === 'ArrowLeft') view.lon = normLon(view.lon - step);
+    else if (e.key === 'ArrowRight') view.lon = normLon(view.lon + step);
+    else if (e.key === 'ArrowUp') view.lat = clamp(view.lat + step, -85, 85);
+    else if (e.key === 'ArrowDown') view.lat = clamp(view.lat - step, -85, 85);
+    else if (e.key === '+' || e.key === '=') { e.preventDefault(); zoomBy(2); return; }
+    else if (e.key === '-' || e.key === '_') { e.preventDefault(); zoomBy(.5); return; }
+    else if (e.key === 'Home') { e.preventDefault(); resetView(); return; }
+    else return;
+    e.preventDefault(); target = null; vel.lon = vel.lat = 0; lastInteract = performance.now(); dirty = true; kick();
+  });
 
   function unproject(x, y) {
     const c = W / 2, Rk = R0 * view.k, x2 = (x - c) / Rk, y2 = -(y - c) / Rk, rr = x2 * x2 + y2 * y2; if (rr > 1) return null;
@@ -379,20 +425,63 @@
     if (!pn) { tip.hidden = true; return; }
     const cur = pins.find(q => q.p === pn.p);
     if (!cur) { tip.hidden = true; return; }
-    tip.innerHTML = `<b>${name(cur.p)}</b><span>${cname(cur.p.c)}${cur.p.y ? ' · ' + cur.p.y : ''}</span>`;
+    const city = document.createElement('b'), details = document.createElement('span');
+    city.textContent = name(cur.p); details.textContent = `${cname(cur.p.c)}${cur.p.y ? ' · ' + cur.p.y : ''}`;
+    tip.replaceChildren(city, details);
     tip.style.left = cur.X / W * 100 + '%'; tip.style.top = cur.Y / W * 100 + '%'; tip.hidden = false;
   }
 
   /* ---------- кнопки и чипы ---------- */
   const btn = sel => wrap.querySelector(sel);
+  const searchForm = document.getElementById('globe-search');
+  const searchInput = document.getElementById('globe-search-input');
+  const searchResults = document.getElementById('globe-search-results');
+  function resetView() {
+    activeC = null; selected = hover = null; drawChips();
+    if (searchInput) searchInput.value = '';
+    if (searchResults) searchResults.hidden = true;
+    flyTo(38, 44, 1, 900);
+  }
+  const searchKey = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase();
+  function showPlace(p) {
+    activeC = null; hover = null; selected = { p }; drawChips();
+    searchInput.value = name(p); searchResults.hidden = true;
+    flyTo(p.lon, p.lat, Math.max(4, view.k), 900);
+    if (matchMedia('(max-width: 900px)').matches) wrap.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+  }
+  function renderSearch() {
+    if (!searchInput || !searchResults) return;
+    const query = searchKey(searchInput.value.trim());
+    searchResults.replaceChildren();
+    if (!query) { searchResults.hidden = true; return; }
+    const matches = places.filter(p => [p.en, p.ru, p.tr, cname(p.c)].some(value => searchKey(value).includes(query))).slice(0, 8);
+    if (!matches.length) {
+      const li = document.createElement('li'); li.className = 'globe-search__empty';
+      li.textContent = window.t ? window.t('travel.noPlaces') : 'No places found'; searchResults.append(li);
+    }
+    matches.forEach(p => {
+      const li = document.createElement('li'), button = document.createElement('button');
+      const city = document.createElement('span'), country = document.createElement('small');
+      button.type = 'button'; city.textContent = name(p); country.textContent = cname(p.c);
+      button.append(city, country); button.addEventListener('click', () => showPlace(p));
+      li.append(button); searchResults.append(li);
+    });
+    searchResults.hidden = false;
+  }
+  searchInput?.addEventListener('input', renderSearch);
+  searchInput?.addEventListener('focus', () => { if (searchInput.value) renderSearch(); });
+  searchInput?.addEventListener('keydown', e => { if (e.key === 'Escape') searchResults.hidden = true; });
+  searchForm?.addEventListener('submit', e => { e.preventDefault(); searchResults?.querySelector('button')?.click(); });
+  document.addEventListener('click', e => { if (searchForm && !searchForm.contains(e.target)) searchResults.hidden = true; });
   btn('[data-g="in"]')?.addEventListener('click', () => zoomBy(2));
   btn('[data-g="out"]')?.addEventListener('click', () => zoomBy(.5));
-  btn('[data-g="reset"]')?.addEventListener('click', () => { activeC = null; selected = null; drawChips(); flyTo(38, 44, 1, 900); });
+  btn('[data-g="reset"]')?.addEventListener('click', resetView);
   chips?.addEventListener('click', e => {
     const b = e.target.closest('button[data-c]'); if (!b) return;
     const c = b.dataset.c;
     if (activeC === c) { activeC = null; drawChips(); flyTo(view.lon, view.lat, 1, 700); return; }
     activeC = c; selected = null; drawChips();
+    chips.querySelector(`button[data-c="${c}"]`)?.focus({ preventScroll: true });
     const list = byC[c]; let sx = 0, sy = 0, sz = 0;
     list.forEach(p => { const la = p.lat * D, lo = p.lon * D; sx += Math.cos(la) * Math.sin(lo); sy += Math.sin(la); sz += Math.cos(la) * Math.cos(lo); });
     const lat = Math.atan2(sy, Math.hypot(sx, sz)) / D, lon = Math.atan2(sx, sz) / D;
@@ -403,15 +492,16 @@
 
   /* ---------- города из отметок и фото ---------- */
   // рядом (до 15 км) с местом сайта — не дублируем, а только берём год; reset — пересобрать от мест сайта
-  const km = (a, b) => { const x = (b.lon - a.lon) * D * Math.cos((a.lat + b.lat) / 2 * D), y = (b.lat - a.lat) * D; return Math.hypot(x, y) * 6371; };
+  const km = (a, b) => { const x = normLon(b.lon - a.lon) * D * Math.cos((a.lat + b.lat) / 2 * D), y = (b.lat - a.lat) * D; return Math.hypot(x, y) * 6371; };
   window.globeAdd = (list, reset) => {
     if (reset) { places.length = 0; base.forEach(p => places.push({ ...p })); }
-    (list || []).forEach(q => {
+    (Array.isArray(list) ? list : []).forEach(q => {
+      if (!q || typeof q.en !== 'string' || !q.en.trim() || typeof q.c !== 'string' || !/^[A-Z]{2}$/.test(q.c) || !Number.isFinite(q.lat) || Math.abs(q.lat) > 90 || !Number.isFinite(q.lon) || Math.abs(q.lon) > 180) return;
       const hit = places.find(p => km(p, q) < 15);
       if (!hit) return places.push(q);
       if (q.y && (!hit.y || q.y > hit.y)) hit.y = q.y;
     });
-    selected = hover = null; recount(); drawChips(); drawLegend(); dirty = true; kick();
+    selected = hover = null; recount(); drawChips(); drawLegend(); if (searchResults && !searchResults.hidden) renderSearch(); dirty = true; kick();
   };
   if (window.GLOBE_FEED !== false) fetch('/api/places').then(r => (r.ok ? r.json() : null)).then(d => d && window.globeAdd(d.places)).catch(() => {});
 

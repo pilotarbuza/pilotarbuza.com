@@ -29,10 +29,20 @@
   const swatches = () => Object.keys(CW).map(k => `<button type="button" data-cw="${k}" style="--tee:${CW[k][1]};--ink-c:${CW[k][0]}"></button>`).join('');
   const tg = text => `${TG}?text=${encodeURIComponent(text)}`;
   const tgLink = (name, cw) => tg(t('sp.msg').replace('{p}', name).replace('{c}', t('cw.' + cw)));
+  const pendingSwaps = new WeakMap();
   const swap = (img, to) => {
     img.classList.add('swap');
     const next = new Image();
-    next.onload = next.onerror = () => { img.src = next.src; img.classList.remove('swap'); };
+    pendingSwaps.set(img, next);
+    next.onload = () => {
+      if (pendingSwaps.get(img) !== next) return;
+      img.src = next.src;
+      img.style.visibility = '';
+      img.classList.remove('swap');
+    };
+    next.onerror = () => {
+      if (pendingSwaps.get(img) === next) { img.style.visibility = 'hidden'; img.classList.remove('swap'); }
+    };
     next.src = to;
   };
   function paintSw(box, cw) {
